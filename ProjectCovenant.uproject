@@ -3,6 +3,16 @@
 	"EngineAssociation": "4.15",
 	"Category": "",
 	"Description": "",
+	"Modules": [
+		{
+			"Name": "ProjectCovenant",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	],
 	"Plugins": [
 		{
 			"Name": "FMODStudio",
