@@ -15,11 +15,17 @@ public:
 	ASubjectZero();
 
 private:
+	UPROPERTY()
 	bool JetpackActive = false;
+
+	UPROPERTY()
 	bool Grounded = false;
+
+	UPROPERTY()
 	float Time;
 
 public:
+
 	UPROPERTY()
 	float JetpackAirControl = 1.f;
 
@@ -27,13 +33,16 @@ public:
 	float NormalAirControl = 0.f;
 
 	UPROPERTY()
+	float JumpSpeed = 1000.f;
+
+	UPROPERTY()
 	float JetpackClimbSpeed = 25.f;
 
 	UPROPERTY()
-	float JetpackSpeed = 1000.f;
+	float JetpackSpeedScale = 1.f;
 
 	UPROPERTY()
-	float GroundSpeed = 1000.f;
+	float GroundSpeedScale = 1.f;
 
 	UPROPERTY()
 	float MaxJetpackSpeed = 10000.f;
@@ -46,6 +55,9 @@ public:
 
 	UPROPERTY()
 	float GroundAcceleration = 1000.f;
+
+	UPROPERTY()
+	float DecelerationMultiplier = 5.f;
 
 private:
 	UFUNCTION()
@@ -61,7 +73,7 @@ private:
 	void OnJump(float Value);
 
 	UFUNCTION()
-	void OnJetpack(float Value);
+	void OnJetpack();
 
 	UFUNCTION()
 	void Log(FString msg);
@@ -77,4 +89,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	float GetSpeed() const;
 };

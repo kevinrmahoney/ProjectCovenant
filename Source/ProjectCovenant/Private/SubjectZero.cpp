@@ -9,22 +9,21 @@ ASubjectZero::ASubjectZero()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed;
-	GetCharacterMovement()->AirControl = NormalAirControl;
-	GetCharacterMovement()->MaxAcceleration = GroundAcceleration;
-
 }
 
 // Called when the game starts or when spawned
 void ASubjectZero::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (GEngine)
-	{
-		Log("Character: Subject Zero");
-	}
+	Log("Character: Subject Zero");
+
+	//Test = CreateWidget < UUserWidget(this, wSpedometer);
+	GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed;
+	GetCharacterMovement()->AirControl = NormalAirControl;
+	GetCharacterMovement()->MaxAcceleration = GroundAcceleration;
+	GetCharacterMovement()->GravityScale = 2.5f;
+	JetpackActive = false;
+	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
 }
 
 // Called every frame
@@ -40,15 +39,12 @@ void ASubjectZero::Tick(float DeltaTime)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed;
 		GetCharacterMovement()->MaxAcceleration = GroundAcceleration;
-
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MaxJetpackSpeed;
+		GetCharacterMovement()->MaxAcceleration = JetpackAcceleration;
 	}
-	FVector Velocity = GetVelocity();
-	Velocity.Z = 0.f;
-	Log(FString::SanitizeFloat(Velocity.Size()));
 }
 
 void ASubjectZero::SetupPlayerInputComponent(UInputComponent* InputComponent)
@@ -59,11 +55,11 @@ void ASubjectZero::SetupPlayerInputComponent(UInputComponent* InputComponent)
 	InputComponent->BindAxis("MouseLookHorizontal", this, &ASubjectZero::AddControllerYawInput);
 	InputComponent->BindAxis("MouseLookVertical", this, &ASubjectZero::AddControllerPitchInput);
 	InputComponent->BindAxis("Jump", this, &ASubjectZero::OnJump);
-	InputComponent->BindAxis("Jetpack", this, &ASubjectZero::OnJetpack);
+	InputComponent->BindAction("Jetpack", IE_Pressed, this, &ASubjectZero::OnJetpack);
 }
 
 /* Move the character backwards or forwards depending on what input is pressed
-	Val - value to move the character. 1 for forwards, -1 for backwards, 0 for no backwards or forwards movement
+	Value - value to move the character. 1 for forwards, -1 for backwards, 0 for no backwards or forwards movement
 */
 void ASubjectZero::MoveForwardBackward(float Value)
 {
@@ -72,22 +68,30 @@ void ASubjectZero::MoveForwardBackward(float Value)
 	{
 		// Get rotation of the player
 		FRotator Rotation = Controller->GetControlRotation();
-
-		// If the character is moving on the ground or is falling, limit the pitch of the character to 0
-		if( GetCharacterMovement()->IsMovingOnGround() || GetCharacterMovement()->IsFalling())
-		{
-			Rotation.Pitch = 0.f;
-		}
+		Rotation.Pitch = 0;
 
 		// Create a vector that represents the movement of the character within the world
 		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X) * Value;
-		if (JetpackActive)
+		FVector Velocity = GetVelocity();
+		Velocity.Z = 0;
+		Velocity.Normalize();
+
+		bool Decelerating = (Direction + Velocity).Size() < 1.f;
+
+		// Move character depending on state of character and direction of character
+		if (JetpackActive && !Grounded)
 		{
-			AddMovementInput(Direction, JetpackSpeed);
+			if (Decelerating)
+			{
+				GetCharacterMovement()->MaxAcceleration = JetpackAcceleration * DecelerationMultiplier;
+			}
+
+			// Move character
+			AddMovementInput(Direction, JetpackSpeedScale);
 		}
-		else
+		else if(Grounded)
 		{
-			AddMovementInput(Direction, GroundSpeed);
+			AddMovementInput(Direction, GroundSpeedScale);
 		}
 	}
 }
@@ -95,27 +99,38 @@ void ASubjectZero::MoveForwardBackward(float Value)
 void ASubjectZero::MoveLeftRight(float Value)
 {
 
-	if ((Controller != NULL) && (Value != 0.0f))
+	if (Controller && Value != 0.0f)
 	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::Y) * Value;
+		// Get rotation of the player
+		FRotator Rotation = Controller->GetControlRotation();
+		Rotation.Pitch = 0;
 
-		// add movement in that direction depending on the mode of travel
-		if (JetpackActive)
+		// Get direction of movement in Y axis
+		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::Y) * Value;
+		FVector Velocity = GetVelocity();
+		Velocity.Z = 0;
+		Velocity.Normalize();
+
+		bool Decelerating = (Direction + Velocity).Size() < 1.f;
+
+		// Move character depending on state of character and direction of character
+		if (JetpackActive && !Grounded)
 		{
-			AddMovementInput(Direction, JetpackSpeed);
+			if (Decelerating)
+			{
+				GetCharacterMovement()->MaxAcceleration = JetpackAcceleration * DecelerationMultiplier;
+			}
+			AddMovementInput(Direction, JetpackSpeedScale);
 		}
-		else
+		else if(Grounded)
 		{
-			AddMovementInput(Direction, GroundSpeed);
+			AddMovementInput(Direction, GroundSpeedScale);
 		}
 	}
 }
 
 void ASubjectZero::JetpackBurst()
 {
-	FRotator Rotation = Controller->GetControlRotation();
 	// Create a vector that represents the movement of the character within the world
 	const FVector * Direction = new FVector(0.f, 0.f, 1.f);
 	LaunchCharacter(*Direction * JetpackClimbSpeed, false, false);
@@ -136,19 +151,19 @@ void ASubjectZero::OnJump(float Value)
 	}
 }
 
-void ASubjectZero::OnJetpack(float Value)
+void ASubjectZero::OnJetpack()
 {
-	if (!Grounded && Value != 0.f)
+	JetpackActive = !JetpackActive;
+	FString msg = JetpackActive ? "Jetpack On" : "Jetpack Off";
+	Log(msg);
+
+	if (JetpackActive)
 	{
-		JetpackActive = true;
 		GetCharacterMovement()->AirControl = JetpackAirControl;
-		GetCharacterMovement()->MaxAcceleration = JetpackAcceleration;
 	}
 	else
 	{
-		JetpackActive = false;
 		GetCharacterMovement()->AirControl = NormalAirControl;
-		GetCharacterMovement()->MaxAcceleration = GroundAcceleration;
 	}
 }
 
@@ -158,4 +173,9 @@ void ASubjectZero::Log(FString msg)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, msg);
 	}
+}
+
+float ASubjectZero::GetSpeed() const
+{
+	return FVector2D(GetVelocity().X, GetVelocity().Y).Size();
 }
