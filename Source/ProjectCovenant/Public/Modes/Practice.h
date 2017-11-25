@@ -16,4 +16,11 @@ class PROJECTCOVENANT_API APractice : public AGameMode
 	APractice(const FObjectInitializer& ObjectInitializer);
 		
 	virtual void StartPlay() override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Meta = (BluePrintProtected = "true"))
+	TSubclassOf<class UUserWidget> PlayerHUDClass;
+
+	UPROPERTY()
+	class UUserWidget* CurrentWidget;
 };
