@@ -21,8 +21,9 @@ void ASubjectZero::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed;
 	GetCharacterMovement()->AirControl = NormalAirControl;
 	GetCharacterMovement()->MaxAcceleration = GroundAcceleration;
-	GetCharacterMovement()->GravityScale = 2.f;
+	GetCharacterMovement()->GravityScale = 1.f;
 	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
+	GetCharacterMovement()->GetPhysicsVolume()->TerminalVelocity = 10000.f;
 }
 
 // Called every frame
@@ -31,50 +32,63 @@ void ASubjectZero::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
-
-	// TODO: Refactor code such that lateral movement is all done in one method using MoveDirection vector
-	MoveDirection.Normalize();
-	//Log("MoveDirection" + MoveDirection.ToString());
-
 	Grounded = !GetCharacterMovement()->IsFalling();
+	JetpackActive = JetpackActive && Fuel > 0.f && !Grounded;
+	Log(GetVelocity().ToString());
+	Velocity = GetVelocity();
 
-	if (JetpackActive)
-	{
-		JetpackActive = Fuel > 0.f;
-	}
-
-	// If the character has landed, automatically turn off the jetpack
+	// Movement depends on if grounded or in the air
 	if (Grounded)
 	{
-		JetpackActive = false;
-		GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed;
 		GetCharacterMovement()->MaxAcceleration = GroundAcceleration;
+
+		if (Sprinting)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed * 2.f;
+		} 
+		else
+		{
+			GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed;
+		}
+
+		// Jump
+		if (Jumping)
+		{
+			Jump();
+		}
 	}
 	else
-	{
-		GetCharacterMovement()->MaxWalkSpeed = MaxJetpackSpeed;
-		GetCharacterMovement()->MaxAcceleration = JetpackAcceleration;
+	{	
+		ApplyAirResistance();
+		if (JetpackActive)
+		{
+			GetCharacterMovement()->MaxAcceleration = JetpackAcceleration;
+			GetCharacterMovement()->MaxWalkSpeed = MaxJetpackSpeed;
+			JetpackActiveTime += Time;
+			JetpackBurst();
+		}
 	}
 
-	if (JetpackActive)
-	{
-		GetCharacterMovement()->AirControl = JetpackAirControl;
-	}
-	else
-	{
-		GetCharacterMovement()->AirControl = NormalAirControl;
-	}
-	MoveDirection = FVector(0.f, 0.f, 0.f);
+	Movement.Normalize();
+
+	FRotator Rotation = Controller->GetControlRotation();
+	Rotation.Pitch = 0;
+
+	Movement = Rotation.RotateVector(Movement);
+	AddMovementInput(Movement, 1.f);
 }
 
-void ASubjectZero::SetupPlayerInputComponent(UInputComponent* InputComponent)
+void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 {
 	// Movement binds
-	InputComponent->BindAxis("MoveForwardBackward", this, &ASubjectZero::MoveForwardBackward);
-	InputComponent->BindAxis("MoveLeftRight", this, &ASubjectZero::MoveLeftRight);
-	InputComponent->BindAxis("MouseLookHorizontal", this, &ASubjectZero::AddControllerYawInput);
-	InputComponent->BindAxis("MouseLookVertical", this, &ASubjectZero::AddControllerPitchInput);
-	InputComponent->BindAxis("Jump", this, &ASubjectZero::OnJump);
+	Input->BindAxis("MoveForwardBackward", this, &ASubjectZero::MoveForwardBackward);
+	Input->BindAxis("MoveLeftRight", this, &ASubjectZero::MoveLeftRight);
+	Input->BindAxis("MouseLookHorizontal", this, &ASubjectZero::AddControllerYawInput);
+	Input->BindAxis("MouseLookVertical", this, &ASubjectZero::AddControllerPitchInput);
+	Input->BindAction("Jump", IE_Pressed, this, &ASubjectZero::OnJumpPress);
+	Input->BindAction("Jump", IE_Released, this, &ASubjectZero::OnJumpRelease);
+	Input->BindAction("Sprint", IE_Pressed, this, &ASubjectZero::OnSprintPress);
+	Input->BindAction("Sprint", IE_Released, this, &ASubjectZero::OnSprintRelease);
 }
 
 /* Move the character backwards or forwards depending on what input is pressed
@@ -82,107 +96,58 @@ void ASubjectZero::SetupPlayerInputComponent(UInputComponent* InputComponent)
 */
 void ASubjectZero::MoveForwardBackward(float Value)
 {
-
-	// If the controller exists and the value to move forward or backward is not 0
-	if (Controller && Value != 0.f)
+	if (Controller)
 	{
-		// Get rotation of the player
-		FRotator Rotation = Controller->GetControlRotation();
-		Rotation.Pitch = 0;
-
-		// Create a unit vector that represents the direction of the character's current lateral movement
-		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X) * Value;
-		FVector Velocity = GetVelocity();
-		Velocity.Z = 0;
-		Velocity.Normalize();
-		MoveDirection = MoveDirection + Direction;
-		//Log("MoveForwardBackward: " + Direction.ToString());
-
-		// Determine if the character is attempting to decelerating by comparing the current direction of 
-		// movement with the direction the player is attempting to move the character.
-		bool Decelerating = (Direction + Velocity).Size() < 1.f;
-
-		// Move character depending on if the jetpack is active and if grounded
-		if (JetpackActive && !Grounded)
-		{
-			// If decelerating, multiply the magnitude of the acceleration by the multiplier
-			if (Decelerating)
-			{
-				GetCharacterMovement()->MaxAcceleration = JetpackAcceleration * DecelerationMultiplier;
-			}
-
-			// Move character
-			AddMovementInput(Direction, JetpackSpeedScale);
-			DepleteJetpack();
-		}
-		else if(Grounded)
-		{
-			AddMovementInput(Direction, GroundSpeedScale);
-		}
+		Movement.X = Value;
 	}
 }
 
 void ASubjectZero::MoveLeftRight(float Value)
 {
-	if (Controller && Value != 0.0f)
+	if (Controller)
 	{
-		// Get rotation of the player
-		FRotator Rotation = Controller->GetControlRotation();
-		Rotation.Pitch = 0;
+		Movement.Y = Value;
+	}
+}
 
-		// Get direction of movement in Y axis
-		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::Y) * Value;
-		FVector Velocity = GetVelocity();
-		Velocity.Z = 0;
-		Velocity.Normalize();
-
-		MoveDirection = MoveDirection + Direction;
-		//Log("MoveLeftRight: " + Direction.ToString());
-
-		bool Decelerating = (Direction + Velocity).Size() < 1.f;
-
-		// Move character depending on state of character and direction of character
-		if (JetpackActive && !Grounded)
+void ASubjectZero::OnJumpPress()
+{
+	if (Controller)
+	{
+		Jumping = true;
+		if (!Grounded)
 		{
-			if (Decelerating)
-			{
-				GetCharacterMovement()->MaxAcceleration = JetpackAcceleration * DecelerationMultiplier;
-			}
-			AddMovementInput(Direction, JetpackSpeedScale);
-			DepleteJetpack();
-		}
-		else if(Grounded)
-		{
-			AddMovementInput(Direction, GroundSpeedScale);
+			JetpackActive = Fuel > 0.f;
 		}
 	}
+}
+
+void ASubjectZero::OnJumpRelease()
+{
+	Jumping = false;
+	JetpackActive = false;
+	JetpackActiveTime = 0.f;
+}
+
+void ASubjectZero::OnSprintPress()
+{
+	Sprinting = true;
+}
+
+void ASubjectZero::OnSprintRelease()
+{
+	Sprinting = false;
 }
 
 void ASubjectZero::JetpackBurst()
 {
 	// Create a vector that represents the movement of the character within the world
-	const FVector * Direction = new FVector(0.f, 0.f, 1.f);
-	LaunchCharacter(*Direction * JetpackClimbSpeed, false, false);
+	FVector Force;
+	JetpackClimbSpeed = 110000;
+	const FVector Direction = FVector(0.f, 0.f, 1.f);
+	Force = FVector(0.f, 0.f, JetpackClimbSpeed * (0.9 + (JetpackActiveTime / (JetpackActiveTime + 50))));
+	GetCharacterMovement()->AddForce(Force);
 	DepleteJetpack();
-}
-
-void ASubjectZero::OnJump(float Value)
-{
-	if (Controller && Value != 0.f)
-	{
-		if (Grounded)
-		{
-			Jump();
-		}
-		else if (!Grounded)
-		{
-			JetpackActive = Fuel > 0.f;
-			if (JetpackActive)
-			{
-				JetpackBurst();
-			}
-		}
-	}
 }
 
 void ASubjectZero::DepleteJetpack() 
@@ -190,17 +155,9 @@ void ASubjectZero::DepleteJetpack()
 	Fuel = Fuel - FuelUsage * Time;
 }
 
-void ASubjectZero::Log(FString msg) 
-{
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, msg);
-	}
-}
-
 float ASubjectZero::GetSpeed() const
 {
-	return FVector2D(GetVelocity().X, GetVelocity().Y).Size();
+	return GetVelocity().Size();
 }
 
 float ASubjectZero::GetVerticalSpeed() const
@@ -208,12 +165,12 @@ float ASubjectZero::GetVerticalSpeed() const
 	return GetVelocity().Z;
 }
 
-float ASubjectZero::GetMaxHealth() const
+float ASubjectZero::GetMaxHealth()
 {
 	return MaxHealth;
 }
 
-float ASubjectZero::GetHealth() const
+float ASubjectZero::GetHealth()
 {
 	return Health;
 }
@@ -251,4 +208,21 @@ float ASubjectZero::GetFuel() const
 bool ASubjectZero::IsJetpackActive() const
 {
 	return JetpackActive;
+}
+
+void ASubjectZero::ApplyAirResistance() 
+{
+	FVector Force;
+	float Magnitude = Velocity.Size();
+	FVector Direction =  -1.f * Velocity.GetSafeNormal();
+	Force = Direction * (Magnitude * Magnitude) * AirResistanceConstant;
+	GetCharacterMovement()->AddForce(Force);
+}
+
+void ASubjectZero::Log(FString msg)
+{
+	if (GEngine && LogsOn)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, msg);
+	}
 }

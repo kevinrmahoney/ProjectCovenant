@@ -16,7 +16,22 @@ public:
 
 private:
 	UPROPERTY()
+	bool LogsOn = true;
+
+	UPROPERTY()
+	FVector Velocity;
+
+	UPROPERTY()
+	bool Jumping = false;
+
+	UPROPERTY()
+	bool Sprinting = false;
+
+	UPROPERTY()
 	bool JetpackActive = false;
+
+	UPROPERTY()
+	float JetpackActiveTime = 0.f;
 
 	UPROPERTY()
 	bool Grounded = false;
@@ -54,15 +69,15 @@ private:
 
 	// Air control while jetpack is disabled
 	UPROPERTY()
-	float NormalAirControl = 0.1f;
+	float NormalAirControl = 0.5f;
 
 	// Speed with which you jump off the ground
 	UPROPERTY()
-	float JumpSpeed = 1000.f;
+	float JumpSpeed = 500.f;
 
 	// How fast the jetpack climbs
 	UPROPERTY()
-	float JetpackClimbSpeed = 25.f;
+	float JetpackClimbSpeed = 1000.f;
 
 	// What percentage of jetpack speed is applied
 	UPROPERTY()
@@ -78,15 +93,19 @@ private:
 
 	// Maximum obtainable speed while on the ground (cm/s)
 	UPROPERTY()
-	float MaxGroundSpeed = 1000.f;
+	float MaxGroundSpeed = 500.f;
 
 	// Acceleration while using the jetpack (cm/s/s)
 	UPROPERTY()
-	float JetpackAcceleration = 1000.f;
+	float JetpackAcceleration = 2000.f;
 
 	// Acceleration while on the ground (cm/s/s)
 	UPROPERTY()
 	float GroundAcceleration = 1000.f;
+
+	// Acceleration while on the ground (cm/s/s)
+	UPROPERTY()
+	float AirResistanceConstant = 0.003f;
 
 	// Factor by which velocity changes are multiplied if decelerating
 	UPROPERTY()
@@ -94,10 +113,10 @@ private:
 
 	// Fuel usage per action per second
 	UPROPERTY()
-	float FuelUsage = 10.f;
+	float FuelUsage = 1.f;
 
 	UPROPERTY()
-	FVector MoveDirection;
+	FVector Movement;
 
 private:
 	UFUNCTION()
@@ -110,7 +129,16 @@ private:
 	void JetpackBurst();
 
 	UFUNCTION()
-	void OnJump(float Value);
+	void OnJumpPress();
+
+	UFUNCTION()
+	void OnJumpRelease();
+
+	UFUNCTION()
+	void OnSprintPress();
+
+	UFUNCTION()
+	void OnSprintRelease();
 
 	UFUNCTION()
 	void DepleteJetpack();
@@ -123,7 +151,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Player input
-	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* Input) override;
 
 public:
 	// Called every frame
@@ -136,10 +164,10 @@ public:
 	float GetVerticalSpeed() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
-	float GetMaxHealth() const;
+	float GetMaxHealth();
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
-	float GetHealth() const;
+	float GetHealth();
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetMaxArmor() const;
@@ -161,4 +189,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackActive() const;
+
+	UFUNCTION()
+	void ApplyAirResistance();
 };
