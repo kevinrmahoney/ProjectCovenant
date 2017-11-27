@@ -34,7 +34,6 @@ void ASubjectZero::Tick(float DeltaTime)
 
 	Grounded = !GetCharacterMovement()->IsFalling();
 	JetpackActive = JetpackActive && Fuel > 0.f && !Grounded;
-	Log(GetVelocity().ToString());
 	Velocity = GetVelocity();
 
 	// Movement depends on if grounded or in the air
@@ -56,167 +55,128 @@ void ASubjectZero::Tick(float DeltaTime)
 		{
 			Jump();
 		}
+		else
+		{
+			JetpackActive = false;
+		}
+		Move();
 	}
 	else
 	{	
 		ApplyAirResistance();
 		if (JetpackActive)
 		{
-			GetCharacterMovement()->MaxAcceleration = JetpackAcceleration;
-			GetCharacterMovement()->MaxWalkSpeed = MaxJetpackSpeed;
 			JetpackActiveTime += Time;
 			JetpackBurst();
-		}
+		} 
 	}
+}
 
-	Movement.Normalize();
-
+void ASubjectZero::Move()
+{
 	FRotator Rotation = Controller->GetControlRotation();
 	Rotation.Pitch = 0;
 
-	Movement = Rotation.RotateVector(Movement);
-	AddMovementInput(Movement, 1.f);
+	AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
 }
 
+void ASubjectZero::JetpackBurst()
+{
+	FRotator Rotation = Controller->GetControlRotation();
+	Rotation.Pitch = 0;
+	FVector RotatedMovement = Rotation.RotateVector(Movement);
+
+	float JetpackAccelerationMultiplier = 1 + (JetpackActiveTime / (JetpackActiveTime + 25));
+
+	// Create a vector that represents the movement of the character within the world
+	FVector Force = JetpackSpeed * JetpackAccelerationMultiplier * FVector(RotatedMovement.X, RotatedMovement.Y, Jumping ? 1.f : 0.f) * (Sprinting ? 2.f : 1.f);
+	GetCharacterMovement()->AddForce(Force);
+	DepleteJetpack();
+}
+
+void ASubjectZero::DepleteJetpack()
+{
+	float FuelUsed = FuelUsage * ((Movement.X != 0.f ? 1.f : 0.f) + (Movement.Y != 0.f ? 1.f : 0.f) + (Jumping ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
+	Fuel = Fuel - (FuelUsed * Time);
+}
+
+void ASubjectZero::ApplyAirResistance()
+{
+	FVector Force;
+	float Magnitude = Velocity.Size();
+	FVector Direction = -1.f * Velocity.GetSafeNormal();
+	Force = Direction * (Magnitude * Magnitude) * AirResistanceConstant;
+	GetCharacterMovement()->AddForce(Force);
+}
+
+// Getters
+float ASubjectZero::GetSpeed() const { return GetVelocity().Size()/100.f; }
+float ASubjectZero::GetVerticalSpeed() const { return GetVelocity().Z; }
+float ASubjectZero::GetMaxHealth() { return MaxHealth; }
+float ASubjectZero::GetHealth() { return Health; }
+float ASubjectZero::GetMaxArmor() const { return MaxArmor; }
+float ASubjectZero::GetArmor() const { return Armor; }
+float ASubjectZero::GetMaxShield() const { return MaxShield; }
+float ASubjectZero::GetShield() const { return Shield; }
+float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
+float ASubjectZero::GetFuel() const { return Fuel; }
+bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
+
+// Input methods
 void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 {
 	// Movement binds
-	Input->BindAxis("MoveForwardBackward", this, &ASubjectZero::MoveForwardBackward);
-	Input->BindAxis("MoveLeftRight", this, &ASubjectZero::MoveLeftRight);
-	Input->BindAxis("MouseLookHorizontal", this, &ASubjectZero::AddControllerYawInput);
-	Input->BindAxis("MouseLookVertical", this, &ASubjectZero::AddControllerPitchInput);
-	Input->BindAction("Jump", IE_Pressed, this, &ASubjectZero::OnJumpPress);
-	Input->BindAction("Jump", IE_Released, this, &ASubjectZero::OnJumpRelease);
-	Input->BindAction("Sprint", IE_Pressed, this, &ASubjectZero::OnSprintPress);
-	Input->BindAction("Sprint", IE_Released, this, &ASubjectZero::OnSprintRelease);
+	Input->BindAxis("Yaw", this, &ASubjectZero::AddControllerYawInput);
+	Input->BindAxis("Pitch", this, &ASubjectZero::AddControllerPitchInput);
+	Input->BindAction("Jump", IE_Pressed, this, &ASubjectZero::InputJumpPress);
+	Input->BindAction("Jump", IE_Released, this, &ASubjectZero::InputJumpRelease);
+	Input->BindAction("Sprint", IE_Pressed, this, &ASubjectZero::InputSprintPress);
+	Input->BindAction("Sprint", IE_Released, this, &ASubjectZero::InputSprintRelease);
+	Input->BindAction("Forward", IE_Pressed, this, &ASubjectZero::InputForwardPress);
+	Input->BindAction("Forward", IE_Released, this, &ASubjectZero::InputForwardRelease);
+	Input->BindAction("Backward", IE_Pressed, this, &ASubjectZero::InputBackwardPress);
+	Input->BindAction("Backward", IE_Released, this, &ASubjectZero::InputBackwardRelease);
+	Input->BindAction("Left", IE_Pressed, this, &ASubjectZero::InputLeftPress);
+	Input->BindAction("Left", IE_Released, this, &ASubjectZero::InputLeftRelease);
+	Input->BindAction("Right", IE_Pressed, this, &ASubjectZero::InputRightPress);
+	Input->BindAction("Right", IE_Released, this, &ASubjectZero::InputRightRelease);
 }
 
-/* Move the character backwards or forwards depending on what input is pressed
-	Value - value to move the character. 1 for forwards, -1 for backwards, 0 for no backwards or forwards movement
-*/
-void ASubjectZero::MoveForwardBackward(float Value)
-{
-	if (Controller)
-	{
-		Movement.X = Value;
-	}
-}
+void ASubjectZero::InputForwardPress() { Movement.X += 1.f; }
+void ASubjectZero::InputForwardRelease() { Movement.X += -1.f; }
+void ASubjectZero::InputBackwardPress() { Movement.X += -1.f; }
+void ASubjectZero::InputBackwardRelease() { Movement.X += 1.f; }
+void ASubjectZero::InputLeftPress() { Movement.Y += -1.f; }
+void ASubjectZero::InputLeftRelease() { Movement.Y += 1.f; }
+void ASubjectZero::InputRightPress() { Movement.Y += 1.f; }
+void ASubjectZero::InputRightRelease() { Movement.Y += -1.f; }
 
-void ASubjectZero::MoveLeftRight(float Value)
+void ASubjectZero::InputJumpPress()
 {
-	if (Controller)
-	{
-		Movement.Y = Value;
-	}
-}
-
-void ASubjectZero::OnJumpPress()
-{
-	if (Controller)
+	if(Controller)
 	{
 		Jumping = true;
-		if (!Grounded)
+		if(!Grounded)
 		{
 			JetpackActive = Fuel > 0.f;
 		}
 	}
 }
 
-void ASubjectZero::OnJumpRelease()
+void ASubjectZero::InputJumpRelease()
 {
 	Jumping = false;
-	JetpackActive = false;
 	JetpackActiveTime = 0.f;
 }
 
-void ASubjectZero::OnSprintPress()
+void ASubjectZero::InputSprintPress()
 {
 	Sprinting = true;
 }
 
-void ASubjectZero::OnSprintRelease()
+void ASubjectZero::InputSprintRelease()
 {
 	Sprinting = false;
-}
-
-void ASubjectZero::JetpackBurst()
-{
-	// Create a vector that represents the movement of the character within the world
-	FVector Force;
-	JetpackClimbSpeed = 110000;
-	const FVector Direction = FVector(0.f, 0.f, 1.f);
-	Force = FVector(0.f, 0.f, JetpackClimbSpeed * (0.9 + (JetpackActiveTime / (JetpackActiveTime + 50))));
-	GetCharacterMovement()->AddForce(Force);
-	DepleteJetpack();
-}
-
-void ASubjectZero::DepleteJetpack() 
-{
-	Fuel = Fuel - FuelUsage * Time;
-}
-
-float ASubjectZero::GetSpeed() const
-{
-	return GetVelocity().Size();
-}
-
-float ASubjectZero::GetVerticalSpeed() const
-{
-	return GetVelocity().Z;
-}
-
-float ASubjectZero::GetMaxHealth()
-{
-	return MaxHealth;
-}
-
-float ASubjectZero::GetHealth()
-{
-	return Health;
-}
-
-float ASubjectZero::GetMaxArmor() const
-{
-	return MaxArmor;
-}
-
-float ASubjectZero::GetArmor() const
-{
-	return Armor;
-}
-
-float ASubjectZero::GetMaxShield() const
-{
-	return MaxShield;
-}
-
-float ASubjectZero::GetShield() const
-{
-	return Shield;
-}
-
-float ASubjectZero::GetMaxFuel() const
-{
-	return MaxFuel;
-}
-
-float ASubjectZero::GetFuel() const
-{
-	return Fuel;
-}
-
-bool ASubjectZero::IsJetpackActive() const
-{
-	return JetpackActive;
-}
-
-void ASubjectZero::ApplyAirResistance() 
-{
-	FVector Force;
-	float Magnitude = Velocity.Size();
-	FVector Direction =  -1.f * Velocity.GetSafeNormal();
-	Force = Direction * (Magnitude * Magnitude) * AirResistanceConstant;
-	GetCharacterMovement()->AddForce(Force);
 }
 
 void ASubjectZero::Log(FString msg)

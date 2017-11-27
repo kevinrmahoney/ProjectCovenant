@@ -77,7 +77,7 @@ private:
 
 	// How fast the jetpack climbs
 	UPROPERTY()
-	float JetpackClimbSpeed = 1000.f;
+	float JetpackSpeed = 110000.f;
 
 	// What percentage of jetpack speed is applied
 	UPROPERTY()
@@ -93,7 +93,7 @@ private:
 
 	// Maximum obtainable speed while on the ground (cm/s)
 	UPROPERTY()
-	float MaxGroundSpeed = 500.f;
+	float MaxGroundSpeed = 400.f;
 
 	// Acceleration while using the jetpack (cm/s/s)
 	UPROPERTY()
@@ -120,25 +120,32 @@ private:
 
 private:
 	UFUNCTION()
-	void MoveForwardBackward(float Value);
+	void Move();
 
-	UFUNCTION()
-	void MoveLeftRight(float Value);
+	//Input functions
+	void InputForwardPress();
+	void InputForwardRelease();
+	void InputBackwardPress();
+	void InputBackwardRelease();
+	void InputLeftPress();
+	void InputLeftRelease();
+	void InputRightPress();
+	void InputRightRelease();
 
 	UFUNCTION()
 	void JetpackBurst();
 
 	UFUNCTION()
-	void OnJumpPress();
+	void InputJumpPress();
 
 	UFUNCTION()
-	void OnJumpRelease();
+	void InputJumpRelease();
 
 	UFUNCTION()
-	void OnSprintPress();
+	void InputSprintPress();
 
 	UFUNCTION()
-	void OnSprintRelease();
+	void InputSprintRelease();
 
 	UFUNCTION()
 	void DepleteJetpack();
