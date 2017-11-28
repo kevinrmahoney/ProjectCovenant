@@ -59,16 +59,20 @@ void ASubjectZero::Tick(float DeltaTime)
 		{
 			JetpackActive = false;
 		}
+
 		Move();
 	}
 	else
 	{	
 		ApplyAirResistance();
-		if (JetpackActive)
+		if(JetpackActive)
 		{
-			JetpackActiveTime += Time;
 			JetpackBurst();
-		} 
+		}
+		else
+		{
+			Move();
+		}
 	}
 }
 
@@ -84,19 +88,18 @@ void ASubjectZero::JetpackBurst()
 {
 	FRotator Rotation = Controller->GetControlRotation();
 	Rotation.Pitch = 0;
+
 	FVector RotatedMovement = Rotation.RotateVector(Movement);
 
-	float JetpackAccelerationMultiplier = 1 + (JetpackActiveTime / (JetpackActiveTime + 25));
-
 	// Create a vector that represents the movement of the character within the world
-	FVector Force = JetpackSpeed * JetpackAccelerationMultiplier * FVector(RotatedMovement.X, RotatedMovement.Y, Jumping ? 1.f : 0.f) * (Sprinting ? 2.f : 1.f);
+	FVector Force = JetpackAcceleration * FVector(RotatedMovement.X, RotatedMovement.Y, Jumping ? 1.f : 0.f);
 	GetCharacterMovement()->AddForce(Force);
 	DepleteJetpack();
 }
 
 void ASubjectZero::DepleteJetpack()
 {
-	float FuelUsed = FuelUsage * ((Movement.X != 0.f ? 1.f : 0.f) + (Movement.Y != 0.f ? 1.f : 0.f) + (Jumping ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
+	float FuelUsed = FuelUsage * ((Movement.X != 0.f ? 1.f : 0.f) + (Movement.Y != 0.f ? 1.f : 0.f) + (Movement.Z != 0.f ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
 	Fuel = Fuel - (FuelUsed * Time);
 }
 
@@ -155,6 +158,7 @@ void ASubjectZero::InputJumpPress()
 {
 	if(Controller)
 	{
+		Movement.Z = 1.f;
 		Jumping = true;
 		if(!Grounded)
 		{
@@ -165,8 +169,8 @@ void ASubjectZero::InputJumpPress()
 
 void ASubjectZero::InputJumpRelease()
 {
+	Movement.Z = 0.f;
 	Jumping = false;
-	JetpackActiveTime = 0.f;
 }
 
 void ASubjectZero::InputSprintPress()
