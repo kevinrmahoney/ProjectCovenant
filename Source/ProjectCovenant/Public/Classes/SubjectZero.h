@@ -31,6 +31,7 @@ private:
 	float Shield = 50.f;
 	float Fuel = 1000.f;
 
+	// constants
 	const float NormalAirControl = 0.3f;
 	const float JumpSpeed = 500.f;
 	const float JetpackSpeedScale = 1.f;
