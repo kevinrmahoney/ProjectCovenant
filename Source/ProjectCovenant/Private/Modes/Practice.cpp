@@ -12,7 +12,7 @@ APractice::APractice(const class FObjectInitializer& ObjectInitializer) : Super(
 
 	// Wizardry involving turning Blueprints into objects. 
 	// PlayerHUD is a blueprint that creates widgets (ex. BP_HUD). Make this
-	static ConstructorHelpers::FClassFinder <AHUD> PlayerHUD(TEXT("/Game/Blueprints/HUD/PlayerHUD"));
+	static ConstructorHelpers::FClassFinder <AHUD> PlayerHUD(TEXT("/Game/Blueprints/HUD/PlayerHUD_BP"));
 	HUDClass = (UClass*)PlayerHUD.Class;
 }
 

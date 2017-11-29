@@ -78,23 +78,29 @@ void ASubjectZero::Tick(float DeltaTime)
 
 void ASubjectZero::Move()
 {
-	FRotator Rotation = Controller->GetControlRotation();
-	Rotation.Pitch = 0;
+	if(Controller)
+	{
+		FRotator Rotation = Controller->GetControlRotation();
+		Rotation.Pitch = 0;
 
-	AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+		AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+	}
 }
 
 void ASubjectZero::JetpackBurst()
 {
-	FRotator Rotation = Controller->GetControlRotation();
-	Rotation.Pitch = 0;
+	if(Controller)
+	{
+		FRotator Rotation = Controller->GetControlRotation();
+		Rotation.Pitch = 0;
 
-	FVector RotatedMovement = Rotation.RotateVector(Movement);
+		FVector RotatedMovement = Rotation.RotateVector(Movement);
 
-	// Create a vector that represents the movement of the character within the world
-	FVector Force = JetpackAcceleration * FVector(RotatedMovement.X, RotatedMovement.Y, Jumping ? 1.f : 0.f);
-	GetCharacterMovement()->AddForce(Force);
-	DepleteJetpack();
+		// Create a vector that represents the movement of the character within the world
+		FVector Force = JetpackAcceleration * FVector(RotatedMovement.X, RotatedMovement.Y, Jumping ? 1.f : 0.f);
+		GetCharacterMovement()->AddForce(Force);
+		DepleteJetpack();
+	}
 }
 
 void ASubjectZero::DepleteJetpack()
