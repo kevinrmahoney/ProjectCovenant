@@ -2,6 +2,7 @@
 
 #include "ProjectCovenant.h"
 #include "Classes/SubjectZero.h"
+//#include "UnrealNetwork.h"
 
 
 // Sets default values
@@ -24,6 +25,7 @@ void ASubjectZero::BeginPlay()
 	GetCharacterMovement()->GravityScale = 1.f;
 	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
 	GetCharacterMovement()->GetPhysicsVolume()->TerminalVelocity = 10000.f;
+	
 }
 
 // Called every frame

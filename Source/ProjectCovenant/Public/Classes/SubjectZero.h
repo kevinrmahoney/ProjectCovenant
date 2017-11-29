@@ -22,6 +22,8 @@ private:
 	bool Jumping = false;
 	bool Sprinting = false;
 	bool JetpackActive = false;
+
+
 	bool Grounded = false;
 
 	float Time;
@@ -48,7 +50,9 @@ private:
 private:
 	void Move();
 	void DepleteJetpack();
+
 	void JetpackBurst();
+
 	void ApplyAirResistance();
 
 	//Input functions
