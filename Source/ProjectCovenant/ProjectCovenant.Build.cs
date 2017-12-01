@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class ProjectCovenant : ModuleRules
 {
-	public ProjectCovenant(TargetInfo Target)
+	public ProjectCovenant(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "Slate", "SlateCore" });
 

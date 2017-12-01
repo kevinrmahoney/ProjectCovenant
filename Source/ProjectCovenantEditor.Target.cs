@@ -5,21 +5,13 @@ using System.Collections.Generic;
 
 public class ProjectCovenantEditorTarget : TargetRules
 {
-	public ProjectCovenantEditorTarget(TargetInfo Target)
+	public ProjectCovenantEditorTarget(TargetInfo Target) : base (Target)
 	{
 		Type = TargetType.Editor;
+		ExtraModuleNames.Add("ProjectCovenant");
 	}
 
 	//
 	// TargetRules interface.
 	//
-
-	public override void SetupBinaries(
-		TargetInfo Target,
-		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-		ref List<string> OutExtraModuleNames
-		)
-	{
-		OutExtraModuleNames.AddRange( new string[] { "ProjectCovenant" } );
-	}
 }
