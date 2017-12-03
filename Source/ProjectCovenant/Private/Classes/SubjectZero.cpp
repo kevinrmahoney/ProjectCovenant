@@ -107,7 +107,7 @@ void ASubjectZero::JetpackBurst()
 		FVector RotatedMovement = Rotation.RotateVector(Movement);
 
 		// Create a vector that represents the movement of the character within the world
-		FVector Force = JetpackAcceleration * FVector(RotatedMovement.X, RotatedMovement.Y, Jumping ? 1.f : 0.f);
+		FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, Jumping ? JetpackAcceleration : 0.f);
 		GetCharacterMovement()->AddForce(Force);
 		DepleteJetpack();
 	}

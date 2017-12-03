@@ -38,9 +38,9 @@ private:
 	const float JumpSpeed = 500.f;
 	const float JetpackSpeedScale = 1.f;
 	const float MaxGroundSpeed = 400.f;
-	const float JetpackAcceleration = 130000.f;
+	const float JetpackAcceleration = 120000.f;
 	const float GroundAcceleration = 1000.f;
-	const float AirResistanceConstant = 0.015f;
+	const float AirResistanceConstant = 0.008f;
 	const float FuelUsage = 1.f;
 	const float MaxHealth = 100.f;
 	const float MaxArmor = 100.f;
