@@ -39,56 +39,64 @@ void ASubjectZero::Tick(float DeltaTime)
 	Velocity = GetVelocity();
 
 	// Movement depends on if grounded or in the air
-	if (Grounded)
+	if(Grounded)
 	{
-		GetCharacterMovement()->MaxAcceleration = GroundAcceleration;
-
-		if (Sprinting)
-		{
-			GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed * 2.f;
-		} 
-		else
-		{
-			GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed;
-		}
-
 		// Jump
-		if (Jumping)
-		{
-			Jump();
-		}
-		else
+		if(!Jumping)
 		{
 			JetpackActive = false;
 		}
-
-		Move();
 	}
-	else
-	{	
-		ApplyAirResistance();
-		if(JetpackActive)
+
+	if(!HasAuthority())
+	{
+		Server_Move(Movement, Jumping, Sprinting, JetpackActive);
+	}
+
+	if(Controller)
+	{
+		if(Grounded)
 		{
-			JetpackBurst();
+			GetCharacterMovement()->MaxWalkSpeed = Sprinting ? MaxGroundSpeed * 2.f : MaxGroundSpeed;
+
+			if(Jumping)
+			{
+				Jump();
+			}
+			else
+			{
+				FRotator Rotation = Controller->GetControlRotation();
+				Rotation.Pitch = 0;
+
+				Movement.Z = 0.f;
+				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+			}
 		}
 		else
 		{
-			Move();
+			if(JetpackActive)
+			{
+				JetpackBurst();
+			}
+			ApplyAirResistance();
 		}
 	}
 }
 
-void ASubjectZero::Move()
-{
-	if(Controller)
-	{
-		FRotator Rotation = Controller->GetControlRotation();
-		Rotation.Pitch = 0;
 
-		AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-	}
+
+void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack)
+{
+	Movement = Client_Movement;
+	Jumping = Client_Jump;
+	Sprinting = Client_Sprinting;
+	JetpackActive = Client_Jetpack;
 }
 
+bool ASubjectZero::Server_Move_Validate(FVector Movement, bool Jump, bool Sprinting, bool Jetpack)
+{
+	return true;
+}
 void ASubjectZero::JetpackBurst()
 {
 	if(Controller)

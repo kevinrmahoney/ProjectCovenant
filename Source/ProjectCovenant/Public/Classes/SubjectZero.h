@@ -40,7 +40,7 @@ private:
 	const float MaxGroundSpeed = 400.f;
 	const float JetpackAcceleration = 130000.f;
 	const float GroundAcceleration = 1000.f;
-	const float AirResistanceConstant = 0.003f;
+	const float AirResistanceConstant = 0.015f;
 	const float FuelUsage = 1.f;
 	const float MaxHealth = 100.f;
 	const float MaxArmor = 100.f;
@@ -48,7 +48,9 @@ private:
 	const float MaxFuel = 1000.f;
 
 private:
-	void Move();
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive );
+
 	void DepleteJetpack();
 
 	void JetpackBurst();
