@@ -12,6 +12,7 @@ UProjectCovenantInstance::UProjectCovenantInstance(const FObjectInitializer & Ob
 void UProjectCovenantInstance::Init()
 {
 	Log("Project Covenant Instance initialized.");
+	GetFirstLocalPlayerController();
 }
 
 void UProjectCovenantInstance::Log(FString msg)

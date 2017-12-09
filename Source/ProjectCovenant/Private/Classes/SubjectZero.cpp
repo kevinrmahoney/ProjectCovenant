@@ -313,19 +313,43 @@ void ASubjectZero::InputShootPress()
 	Server_Shoot();
 }
 
-void ASubjectZero::Join(FString IPAddress)
+bool ASubjectZero::Join(FString IPAddress)
 {
+	if(IPAddress.Equals(""))
+	{
+		IPAddress = "25.16.209.98";
+	}
+
 	Log("Joining server " + IPAddress);
+	UWorld * World = GetWorld();
+	if(World)
+	{
+		APlayerController * PlayerController = World->GetFirstPlayerController();
+		if(PlayerController)
+		{
+			PlayerController->ClientTravel(IPAddress, ETravelType::TRAVEL_Absolute);
+			return true;
+		}
+	}
+	return false;
 }
 
-void ASubjectZero::Host()
+bool ASubjectZero::Host()
 {
 	Log("Hosting server");
+	UWorld * World = GetWorld();
+	if(World)
+	{
+		World->ServerTravel("/Game/Maps/TargetRange?listen", true, true);
+		return true;
+	}
+	return false;
 }
 
-void ASubjectZero::Map(FString Map)
+bool ASubjectZero::Map(FString Map)
 {
 	Log("Changing map to " + Map);
+	return true;
 }
 
 
