@@ -141,7 +141,7 @@ void ASubjectZero::ApplyAirResistance()
 
 void ASubjectZero::Server_Shoot_Implementation()
 {
-	float Length = 5000.f;
+	float Length = 100000.f;
 	float Height = 63.f;
 	float Damage = 10.f;
 	FHitResult* HitResult = new FHitResult();
@@ -312,6 +312,22 @@ void ASubjectZero::InputShootPress()
 {
 	Server_Shoot();
 }
+
+void ASubjectZero::Join(FString IPAddress)
+{
+	Log("Joining server " + IPAddress);
+}
+
+void ASubjectZero::Host()
+{
+	Log("Hosting server");
+}
+
+void ASubjectZero::Map(FString Map)
+{
+	Log("Changing map to " + Map);
+}
+
 
 void ASubjectZero::Log(FString msg)
 {

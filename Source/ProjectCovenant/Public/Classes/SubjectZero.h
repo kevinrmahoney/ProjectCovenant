@@ -126,4 +126,13 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackActive() const;
+
+	UFUNCTION(Exec)
+	void Join(FString IPAddress);
+
+	UFUNCTION(Exec)
+	void Host();
+
+	UFUNCTION(Exec)
+	void Map(FString Map);
 };
