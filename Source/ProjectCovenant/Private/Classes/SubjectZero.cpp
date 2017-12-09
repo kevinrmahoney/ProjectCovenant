@@ -2,7 +2,8 @@
 
 #include "ProjectCovenant.h"
 #include "Classes/SubjectZero.h"
-//#include "UnrealNetwork.h"
+#include "Engine.h"
+#include "UnrealNetwork.h"
 
 
 // Sets default values
@@ -83,6 +84,16 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 }
 
+void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ASubjectZero, Health);
+	DOREPLIFETIME(ASubjectZero, Armor);
+	DOREPLIFETIME(ASubjectZero, Shield);
+	DOREPLIFETIME(ASubjectZero, Fuel);
+
+}
+
 
 
 void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack)
@@ -128,6 +139,103 @@ void ASubjectZero::ApplyAirResistance()
 	GetCharacterMovement()->AddForce(Force);
 }
 
+void ASubjectZero::Server_Shoot_Implementation()
+{
+	float Length = 100000.f;
+	float Height = 63.f;
+	float Damage = 10.f;
+	FHitResult* HitResult = new FHitResult();
+	FVector StartTrace = GetActorLocation() + FVector(0.f, 0.f, Height);
+	FVector ForwardVector = Controller->GetControlRotation().Vector();
+	FVector EndTrace = StartTrace + (ForwardVector * Length);
+	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
+	TraceParams->AddIgnoredActor(this);
+
+	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 1.f);
+	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Pawn, *TraceParams))
+	{
+		if(HitResult)
+		{
+			if((HitResult->GetActor()))
+			{
+				ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
+				if(Victim)
+				{
+					Log("Player " + GetName() + " hit " + Victim->GetName() + " for " + FString::SanitizeFloat(Damage) + " damage!");
+					Victim->TakeDamage(10.f);
+				}
+				else
+				{
+					Log("No hit!");
+				}
+			}
+		}
+	}
+
+	delete HitResult;
+	delete TraceParams;
+}
+
+bool ASubjectZero::Server_Shoot_Validate()
+{
+	return true;
+}
+
+void ASubjectZero::TakeDamage(float Damage)
+{
+	if(Shield != 0.f)
+	{
+		if(Shield > Damage)
+		{
+			Shield = Shield - Damage;
+			Log(FString::SanitizeFloat(Shield));
+			return;
+		}
+		else
+		{
+			Shield = 0.f;
+			Damage = Damage - Shield;
+			TakeDamage(Damage);
+			return;
+		}
+	}
+
+	if(Armor != 0.f)
+	{
+		if(Armor > Damage)
+		{
+			Armor = Armor - Damage;
+			return;
+		}
+		else
+		{
+			Armor = 0.f;
+			Damage = Damage - Armor;
+			TakeDamage(Damage);
+			return;
+		}
+	}
+
+	if(Health != 0.f)
+	{
+		if(Health > Damage)
+		{
+			Health = Health - Damage;
+			return;
+		}
+		else
+		{
+			Health = 0.f;
+			Log("Player died!");
+			Shield = MaxShield;
+			Armor = MaxArmor;
+			Health = MaxHealth;
+			TakeDamage(Damage);
+			return;
+		}
+	}
+}
+
 // Getters
 float ASubjectZero::GetSpeed() const { return GetVelocity().Size()/100.f; }
 float ASubjectZero::GetVerticalSpeed() const { return GetVelocity().Z; }
@@ -159,6 +267,7 @@ void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 	Input->BindAction("Left", IE_Released, this, &ASubjectZero::InputLeftRelease);
 	Input->BindAction("Right", IE_Pressed, this, &ASubjectZero::InputRightPress);
 	Input->BindAction("Right", IE_Released, this, &ASubjectZero::InputRightRelease);
+	Input->BindAction("Shoot", IE_Pressed, this, &ASubjectZero::InputShootPress);
 }
 
 void ASubjectZero::InputForwardPress() { Movement.X += 1.f; }
@@ -198,6 +307,51 @@ void ASubjectZero::InputSprintRelease()
 {
 	Sprinting = false;
 }
+
+void ASubjectZero::InputShootPress()
+{
+	Server_Shoot();
+}
+
+bool ASubjectZero::Join(FString IPAddress)
+{
+	if(IPAddress.Equals(""))
+	{
+		IPAddress = "25.16.209.98";
+	}
+
+	Log("Joining server " + IPAddress);
+	UWorld * World = GetWorld();
+	if(World)
+	{
+		APlayerController * PlayerController = World->GetFirstPlayerController();
+		if(PlayerController)
+		{
+			PlayerController->ClientTravel(IPAddress, ETravelType::TRAVEL_Absolute);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ASubjectZero::Host()
+{
+	Log("Hosting server");
+	UWorld * World = GetWorld();
+	if(World)
+	{
+		World->ServerTravel("/Game/Maps/TargetRange?listen", true, true);
+		return true;
+	}
+	return false;
+}
+
+bool ASubjectZero::Map(FString Map)
+{
+	Log("Changing map to " + Map);
+	return true;
+}
+
 
 void ASubjectZero::Log(FString msg)
 {

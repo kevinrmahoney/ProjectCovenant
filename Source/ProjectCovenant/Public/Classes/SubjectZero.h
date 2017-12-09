@@ -28,9 +28,16 @@ private:
 
 	float Time;
 
-	float Health = 80.f;
-	float Armor = 90.f;
-	float Shield = 50.f;
+	UPROPERTY(Replicated)
+	float Health = 100.f;
+
+	UPROPERTY(Replicated)
+	float Armor = 100.f;
+
+	UPROPERTY(Replicated)
+	float Shield = 100.f;
+
+	UPROPERTY(Replicated)
 	float Fuel = 1000.f;
 
 	// constants
@@ -51,6 +58,9 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive );
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_Shoot();
+
 	void DepleteJetpack();
 
 	void JetpackBurst();
@@ -70,6 +80,7 @@ private:
 	void InputJumpRelease();
 	void InputSprintPress();
 	void InputSprintRelease();
+	void InputShootPress();
 
 	UFUNCTION()
 	void Log(FString msg);
@@ -80,6 +91,8 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+	void TakeDamage(float Damage);
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSpeed() const;
@@ -113,4 +126,13 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackActive() const;
+
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Join(FString IPAddress);
+
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Host();
+
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Map(FString Map);
 };
