@@ -114,6 +114,16 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, PlayerName);
 }
 
+void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ASubjectZero, Health);
+	DOREPLIFETIME(ASubjectZero, Armor);
+	DOREPLIFETIME(ASubjectZero, Shield);
+	DOREPLIFETIME(ASubjectZero, Fuel);
+
+}
+
 
 
 void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack)
@@ -176,7 +186,6 @@ void ASubjectZero::Shoot()
 
 	Server_Shoot();
 }
-
 void ASubjectZero::Server_Shoot_Implementation()
 {
 	float Length = 100000.f;
@@ -188,7 +197,7 @@ void ASubjectZero::Server_Shoot_Implementation()
 	FVector EndTrace = StartTrace + (ForwardVector * Length);
 	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
 	TraceParams->AddIgnoredActor(this);
-
+  
 	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Pawn, *TraceParams))
 	{
 		if(HitResult)

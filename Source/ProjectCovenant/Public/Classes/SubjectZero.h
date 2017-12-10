@@ -74,7 +74,7 @@ private:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Set_Name(const FName NewName);
-
+  
 	void DepleteJetpack();
 
 	void JetpackBurst();
@@ -107,7 +107,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	bool TakeDamage(float Damage);
-
+  
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSpeed() const;
 
