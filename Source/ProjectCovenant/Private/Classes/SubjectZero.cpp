@@ -82,6 +82,9 @@ void ASubjectZero::Tick(float DeltaTime)
 			ApplyAirResistance();
 		}
 	}
+
+	Log(PlayerName.ToString());
+	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 200.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -91,7 +94,8 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Armor);
 	DOREPLIFETIME(ASubjectZero, Shield);
 	DOREPLIFETIME(ASubjectZero, Fuel);
-
+	DOREPLIFETIME(ASubjectZero, Kills);
+	DOREPLIFETIME(ASubjectZero, Damage);
 }
 
 
@@ -139,11 +143,12 @@ void ASubjectZero::ApplyAirResistance()
 	GetCharacterMovement()->AddForce(Force);
 }
 
-void ASubjectZero::Server_Shoot_Implementation()
+void ASubjectZero::Shoot()
 {
+
 	float Length = 100000.f;
 	float Height = 63.f;
-	float Damage = 10.f;
+
 	FHitResult* HitResult = new FHitResult();
 	FVector StartTrace = GetActorLocation() + FVector(0.f, 0.f, Height);
 	FVector ForwardVector = Controller->GetControlRotation().Vector();
@@ -152,6 +157,22 @@ void ASubjectZero::Server_Shoot_Implementation()
 	TraceParams->AddIgnoredActor(this);
 
 	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 1.f);
+
+	Server_Shoot();
+}
+
+void ASubjectZero::Server_Shoot_Implementation()
+{
+	float Length = 100000.f;
+	float Height = 63.f;
+	float Dmg = 10.f;
+	FHitResult* HitResult = new FHitResult();
+	FVector StartTrace = GetActorLocation() + FVector(0.f, 0.f, Height);
+	FVector ForwardVector = Controller->GetControlRotation().Vector();
+	FVector EndTrace = StartTrace + (ForwardVector * Length);
+	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
+	TraceParams->AddIgnoredActor(this);
+
 	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Pawn, *TraceParams))
 	{
 		if(HitResult)
@@ -161,8 +182,13 @@ void ASubjectZero::Server_Shoot_Implementation()
 				ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
 				if(Victim)
 				{
-					Log("Player " + GetName() + " hit " + Victim->GetName() + " for " + FString::SanitizeFloat(Damage) + " damage!");
-					Victim->TakeDamage(10.f);
+					Log("Player " + GetName() + " hit " + Victim->GetName() + " for " + FString::SanitizeFloat(Dmg) + " damage!");
+					bool Killed = Victim->TakeDamage(Dmg);
+					if(Killed)
+					{
+						Kills += 1;
+					}
+					Damage += FMath::RoundToInt(Dmg);
 				}
 				else
 				{
@@ -181,58 +207,72 @@ bool ASubjectZero::Server_Shoot_Validate()
 	return true;
 }
 
-void ASubjectZero::TakeDamage(float Damage)
+bool ASubjectZero::SetName(FName NewName)
+{
+	PlayerName = NewName;
+	return true;
+}
+
+void ASubjectZero::Server_Set_Name_Implementation(FName NewName)
+{
+	PlayerName = NewName;
+}
+
+bool ASubjectZero::Server_Set_Name_Validate(FName Name)
+{
+	return true;
+}
+
+bool ASubjectZero::TakeDamage(float Damage)
 {
 	if(Shield != 0.f)
 	{
 		if(Shield > Damage)
 		{
 			Shield = Shield - Damage;
-			Log(FString::SanitizeFloat(Shield));
-			return;
+			return false;
 		}
 		else
 		{
 			Shield = 0.f;
 			Damage = Damage - Shield;
 			TakeDamage(Damage);
-			return;
+			return false;
 		}
-	}
-
-	if(Armor != 0.f)
+	} 
+	else if(Armor != 0.f)
 	{
 		if(Armor > Damage)
 		{
 			Armor = Armor - Damage;
-			return;
+			return false;
 		}
 		else
 		{
 			Armor = 0.f;
 			Damage = Damage - Armor;
 			TakeDamage(Damage);
-			return;
+			return false;
 		}
-	}
-
-	if(Health != 0.f)
+	} 
+	else if(Health != 0.f)
 	{
 		if(Health > Damage)
 		{
 			Health = Health - Damage;
-			return;
+			return false;
 		}
 		else
 		{
-			Health = 0.f;
-			Log("Player died!");
 			Shield = MaxShield;
 			Armor = MaxArmor;
 			Health = MaxHealth;
-			TakeDamage(Damage);
-			return;
+			return true;
 		}
+	}
+	else
+	{
+		return false;
 	}
 }
 
@@ -248,6 +288,9 @@ float ASubjectZero::GetShield() const { return Shield; }
 float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
 bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
+int ASubjectZero::GetKills() const { return Kills; }
+int ASubjectZero::GetDamage() const { return Damage; }
+FName ASubjectZero::GetPlayerName() const { return PlayerName; }
 
 // Input methods
 void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
@@ -310,7 +353,7 @@ void ASubjectZero::InputSprintRelease()
 
 void ASubjectZero::InputShootPress()
 {
-	Server_Shoot();
+	Shoot();
 }
 
 bool ASubjectZero::Join(FString IPAddress)
