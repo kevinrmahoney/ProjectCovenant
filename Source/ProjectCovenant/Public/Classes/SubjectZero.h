@@ -96,9 +96,6 @@ private:
 	void InputSprintRelease();
 	void InputShootPress();
 
-	UFUNCTION(BlueprintPure, BlueprintCallable)
-	bool SetName(FName NewName);
-
 	UFUNCTION()
 	void Log(FString msg);
 

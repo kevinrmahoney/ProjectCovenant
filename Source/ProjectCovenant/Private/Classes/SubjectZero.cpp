@@ -4,6 +4,7 @@
 #include "Classes/SubjectZero.h"
 #include "Engine.h"
 #include "UnrealNetwork.h"
+#include "ProjectCovenantInstance.h"
 
 
 // Sets default values
@@ -26,6 +27,21 @@ void ASubjectZero::BeginPlay()
 	GetCharacterMovement()->GravityScale = 1.f;
 	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
 	GetCharacterMovement()->GetPhysicsVolume()->TerminalVelocity = 10000.f;
+
+	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
+	{
+		UGameInstance * GameInstance = GetGameInstance();
+		if(GameInstance)
+		{
+			UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GameInstance);
+
+			if(Instance)
+			{
+				PlayerName = Instance->GetProfileName();
+				Server_Set_Name(PlayerName);
+			}
+		}
+	}
 	
 }
 
@@ -83,8 +99,7 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 	}
 
-	Log(PlayerName.ToString());
-	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 200.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
+	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 80.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -96,6 +111,7 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Fuel);
 	DOREPLIFETIME(ASubjectZero, Kills);
 	DOREPLIFETIME(ASubjectZero, Damage);
+	DOREPLIFETIME(ASubjectZero, PlayerName);
 }
 
 
@@ -182,17 +198,13 @@ void ASubjectZero::Server_Shoot_Implementation()
 				ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
 				if(Victim)
 				{
-					Log("Player " + GetName() + " hit " + Victim->GetName() + " for " + FString::SanitizeFloat(Dmg) + " damage!");
 					bool Killed = Victim->TakeDamage(Dmg);
 					if(Killed)
 					{
 						Kills += 1;
+						Log(GetName() + " killed " + Victim->GetName());
 					}
 					Damage += FMath::RoundToInt(Dmg);
-				}
-				else
-				{
-					Log("No hit!");
 				}
 			}
 		}
@@ -204,12 +216,6 @@ void ASubjectZero::Server_Shoot_Implementation()
 
 bool ASubjectZero::Server_Shoot_Validate()
 {
-	return true;
-}
-
-bool ASubjectZero::SetName(FName NewName)
-{
-	PlayerName = NewName;
 	return true;
 }
 
