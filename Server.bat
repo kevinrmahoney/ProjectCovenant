@@ -1,0 +1,1 @@
+"D:\Programs\UE_4.18\Engine\Binaries\Win64\UE4Editor.exe" "D:\Projects\ProjectCovenant\ProjectCovenant.uproject" -game -log

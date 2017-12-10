@@ -16,7 +16,15 @@ class PROJECTCOVENANT_API UProjectCovenantInstance : public UGameInstance
 	
 public:
 
+	FName ProfileName = "Subject Zero";
+
 	UProjectCovenantInstance(const FObjectInitializer & ObjectIn);
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool SetProfileName(FName NewProfileName);
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	FName GetProfileName();
 
 private:
 	virtual void Init();

@@ -40,6 +40,15 @@ private:
 	UPROPERTY(Replicated)
 	float Fuel = 1000.f;
 
+	UPROPERTY(Replicated)
+	int Kills = 0;
+
+	UPROPERTY(Replicated)
+	int Damage = 0;
+
+	UPROPERTY(Replicated)
+	FName PlayerName = "Subject Zero";
+
 	// constants
 	const float NormalAirControl = 0.3f;
 	const float JumpSpeed = 500.f;
@@ -58,9 +67,14 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive );
 
+	void Shoot();
+
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Shoot();
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_Set_Name(const FName NewName);
+  
 	void DepleteJetpack();
 
 	void JetpackBurst();
@@ -92,8 +106,8 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	void TakeDamage(float Damage);
-
+	bool TakeDamage(float Damage);
+  
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSpeed() const;
 
@@ -123,6 +137,15 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetFuel() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	int GetKills() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	int GetDamage() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	FName GetPlayerName() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackActive() const;

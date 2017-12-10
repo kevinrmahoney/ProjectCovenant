@@ -12,7 +12,6 @@ UProjectCovenantInstance::UProjectCovenantInstance(const FObjectInitializer & Ob
 void UProjectCovenantInstance::Init()
 {
 	Log("Project Covenant Instance initialized.");
-	GetFirstLocalPlayerController();
 }
 
 void UProjectCovenantInstance::Log(FString msg)
@@ -21,4 +20,15 @@ void UProjectCovenantInstance::Log(FString msg)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, msg);
 	}
+}
+
+bool UProjectCovenantInstance::SetProfileName(FName NewProfileName)
+{
+	ProfileName = NewProfileName;
+	return true;
+}
+
+FName UProjectCovenantInstance::GetProfileName()
+{
+	return ProfileName;
 }
