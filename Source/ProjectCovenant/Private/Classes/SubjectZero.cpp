@@ -109,10 +109,10 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Armor);
 	DOREPLIFETIME(ASubjectZero, Shield);
 	DOREPLIFETIME(ASubjectZero, Fuel);
-
+	DOREPLIFETIME(ASubjectZero, Kills);
+	DOREPLIFETIME(ASubjectZero, Damage);
+	DOREPLIFETIME(ASubjectZero, PlayerName);
 }
-
-
 
 void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack)
 {
