@@ -99,19 +99,7 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 	}
 
-	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 80.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
-}
-
-void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASubjectZero, Health);
-	DOREPLIFETIME(ASubjectZero, Armor);
-	DOREPLIFETIME(ASubjectZero, Shield);
-	DOREPLIFETIME(ASubjectZero, Fuel);
-	DOREPLIFETIME(ASubjectZero, Kills);
-	DOREPLIFETIME(ASubjectZero, Damage);
-	DOREPLIFETIME(ASubjectZero, PlayerName);
+	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
