@@ -98,8 +98,10 @@ void ASubjectZero::Tick(float DeltaTime)
 			ApplyAirResistance();
 		}
 	}
-
-	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
+	if(Role == ROLE_SimulatedProxy)
+	{
+		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
+	}
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -159,7 +161,6 @@ void ASubjectZero::ApplyAirResistance()
 
 void ASubjectZero::Shoot()
 {
-
 	float Length = 100000.f;
 	float Height = 63.f;
 
