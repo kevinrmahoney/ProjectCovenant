@@ -2,9 +2,10 @@
 
 #pragma once
 
-#include "ProjectCovenantInstance.h"
 #include "GameFramework/Character.h"
 #include "SubjectZero.generated.h"
+
+class UProjectCovenantInstance;
 
 UCLASS()
 class PROJECTCOVENANT_API ASubjectZero : public ACharacter
@@ -16,6 +17,7 @@ public:
 
 private:
 
+	UPROPERTY()
 	UProjectCovenantInstance * GameInstance;
 
 	FVector Velocity;

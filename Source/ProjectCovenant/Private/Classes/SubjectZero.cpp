@@ -2,10 +2,9 @@
 
 #include "ProjectCovenant.h"
 #include "Classes/SubjectZero.h"
-#include "Engine.h"
 #include "UnrealNetwork.h"
-#include "ProjectCovenantInstance.h"
 #include "Logger.h"
+#include "ProjectCovenantInstance.h"
 
 
 // Sets default values
@@ -31,8 +30,6 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	GameInstance = Cast<UProjectCovenantInstance>(GetGameInstance());
 }
 
 // Called when the game starts or when spawned
@@ -49,16 +46,17 @@ void ASubjectZero::BeginPlay()
 	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
 	GetCharacterMovement()->GetPhysicsVolume()->TerminalVelocity = 10000.f;
 
+
 	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
 	{
-		UGameInstance * GameInstance = GetGameInstance();
-		if(GameInstance)
-		{
-			UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GameInstance);
+		UGameInstance * Instance = GetGameInstance();
 
-			if(Instance)
+		if(Instance)
+		{
+			GameInstance = Cast<UProjectCovenantInstance>(Instance);
+			if(GameInstance)
 			{
-				PlayerName = Instance->GetProfileName();
+				PlayerName = GameInstance->GetProfileName();
 				Server_Set_Name(PlayerName);
 			}
 		}
@@ -71,8 +69,6 @@ void ASubjectZero::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
-
-	Logger::Log(FString::SanitizeFloat(DeltaTime));
 
 	Grounded = !GetCharacterMovement()->IsFalling();
 	JetpackActive = JetpackActive && Fuel > 0.f && !Grounded;
@@ -348,12 +344,14 @@ void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 }
 
 void ASubjectZero::InputYaw(float Value) { 
+	UProjectCovenantInstance * GameInstance = Cast<UProjectCovenantInstance>(GetGameInstance());
 	if(GameInstance != nullptr && GetWorld() != nullptr)
 	{
 		ASubjectZero::AddControllerYawInput(GetWorld()->GetDeltaSeconds() * GameInstance->GetSensitivity() * Value);
 	}
 }
 void ASubjectZero::InputPitch(float Value) { 
+	UProjectCovenantInstance * GameInstance = Cast<UProjectCovenantInstance>(GetGameInstance());
 	if(GameInstance != nullptr && GetWorld() != nullptr)
 	{
 		ASubjectZero::AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * GameInstance->GetSensitivity() * Value);

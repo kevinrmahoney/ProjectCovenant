@@ -26,6 +26,7 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FName GetProfileName();
 
+	UFUNCTION(Exec)
 	void Sensitivity(float Sensivitiy);
 
 	float GetSensitivity();
@@ -33,5 +34,5 @@ public:
 private:
 	virtual void Init();
 
-	float fSensitivity = 1.f;
+	float fSensitivity = 10.f;
 };
