@@ -10,8 +10,6 @@
 // Sets default values
 ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 {
-	//Super(&ObjectInitializer);
-
 	// Create a CameraComponent 
 	Camera = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FirstPersonCamera"));
 	Camera->AttachTo(GetCapsuleComponent());
@@ -344,14 +342,12 @@ void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 }
 
 void ASubjectZero::InputYaw(float Value) { 
-	UProjectCovenantInstance * GameInstance = Cast<UProjectCovenantInstance>(GetGameInstance());
 	if(GameInstance != nullptr && GetWorld() != nullptr)
 	{
 		ASubjectZero::AddControllerYawInput(GetWorld()->GetDeltaSeconds() * GameInstance->GetSensitivity() * Value);
 	}
 }
 void ASubjectZero::InputPitch(float Value) { 
-	UProjectCovenantInstance * GameInstance = Cast<UProjectCovenantInstance>(GetGameInstance());
 	if(GameInstance != nullptr && GetWorld() != nullptr)
 	{
 		ASubjectZero::AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * GameInstance->GetSensitivity() * Value);

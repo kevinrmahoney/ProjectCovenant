@@ -28,10 +28,10 @@ FName UProjectCovenantInstance::GetProfileName()
 
 void UProjectCovenantInstance::Sensitivity(float Sens)
 {
-	fSensitivity = Sens;
+	cl_sensitivity = Sens;
 }
 
 float UProjectCovenantInstance::GetSensitivity()
 {
-	return fSensitivity;
+	return cl_sensitivity;
 }

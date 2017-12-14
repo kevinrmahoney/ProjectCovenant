@@ -27,12 +27,13 @@ public:
 	FName GetProfileName();
 
 	UFUNCTION(Exec)
-	void Sensitivity(float Sensivitiy);
+	void Sensitivity(float Sens);
 
 	float GetSensitivity();
 
 private:
 	virtual void Init();
 
-	float fSensitivity = 10.f;
+	UPROPERTY(Config=Test)
+	float cl_sensitivity = 50.f;
 };
