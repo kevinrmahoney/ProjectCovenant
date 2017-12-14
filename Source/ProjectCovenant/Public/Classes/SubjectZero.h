@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "ProjectCovenantInstance.h"
 #include "GameFramework/Character.h"
 #include "SubjectZero.generated.h"
 
@@ -11,22 +12,22 @@ class PROJECTCOVENANT_API ASubjectZero : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
-	ASubjectZero();
+	ASubjectZero(const FObjectInitializer& ObjectInitializer);
 
 private:
 
-	bool LogsOn = true;
+	UProjectCovenantInstance * GameInstance;
+
 	FVector Velocity;
 	FVector Movement;
 	bool Jumping = false;
 	bool Sprinting = false;
 	bool JetpackActive = false;
-
+	bool Shooting = false;
 
 	bool Grounded = false;
 
-	float Time;
+	float Time;       
 
 	UPROPERTY(Replicated)
 	float Health = 100.f;
@@ -63,6 +64,14 @@ private:
 	const float MaxShield = 100.f;
 	const float MaxFuel = 1000.f;
 
+public:
+	UPROPERTY(VisibleDefaultsOnly)
+	USkeletalMeshComponent * FirstPersonMesh;
+
+	/** First person camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UCameraComponent* Camera;
+
 private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive );
@@ -82,6 +91,8 @@ private:
 	void ApplyAirResistance();
 
 	//Input functions
+	void InputYaw(float Value);
+	void InputPitch(float Value);
 	void InputForwardPress();
 	void InputForwardRelease();
 	void InputBackwardPress();
@@ -95,9 +106,7 @@ private:
 	void InputSprintPress();
 	void InputSprintRelease();
 	void InputShootPress();
-
-	UFUNCTION()
-	void Log(FString msg);
+	void InputShootRelease();
 
 protected:
 	virtual void BeginPlay() override;
@@ -149,6 +158,9 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackActive() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool IsSprinting() const;
 
 	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
 	bool Join(FString IPAddress);

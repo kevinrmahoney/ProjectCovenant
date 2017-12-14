@@ -2,7 +2,8 @@
 
 #include "ProjectCovenant.h"
 #include "HitscanWeapon.h"
-
+#include "SubjectZero.h"
+#include "Logger.h"
 
 // Sets default values
 AHitscanWeapon::AHitscanWeapon()
@@ -24,5 +25,58 @@ void AHitscanWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	bool Fire = false;
+
+	TimeSinceLastShot = TimeSinceLastShot + DeltaTime;
+
+	if(Trigger)
+	{
+		while(TimeSinceLastShot >= TimeBetweenShot)
+		{
+			TimeSinceLastShot = TimeSinceLastShot - TimeBetweenShot;
+			Fire = true;
+		}
+		
+		if(Fire)
+		{
+			Shoot();
+		}
+	}
 }
 
+void AHitscanWeapon::SetTrigger(bool T)
+{
+	Trigger = T;
+}
+
+void AHitscanWeapon::Shoot()
+{
+	FHitResult* HitResult = new FHitResult();
+	FVector StartTrace = GetActorLocation() + FVector(0.f, 0.f, 0.f);
+	FVector ForwardVector = GetActorForwardVector();
+	FVector EndTrace = StartTrace + (ForwardVector * Range);
+	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
+	TraceParams->AddIgnoredActor(this);
+
+	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Pawn, *TraceParams))
+	{
+		if(HitResult)
+		{
+			if((HitResult->GetActor()))
+			{
+				ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
+				if(Victim)
+				{
+					bool Killed = Victim->TakeDamage(Damage);
+					if(Killed)
+					{
+						Logger::Log(Victim->GetName());
+					}
+				}
+			}
+		}
+	}
+
+	delete HitResult;
+	delete TraceParams;
+}
