@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Config=TestIni)
 class PROJECTCOVENANT_API UProjectCovenantInstance : public UGameInstance
 {
 	GENERATED_BODY()
@@ -34,6 +34,6 @@ public:
 private:
 	virtual void Init();
 
-	UPROPERTY(Config=Test)
+	UPROPERTY(Config)
 	float cl_sensitivity = 50.f;
 };
