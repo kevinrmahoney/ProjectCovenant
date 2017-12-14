@@ -2,14 +2,30 @@
 
 #include "ProjectCovenant.h"
 #include "Classes/SubjectZero.h"
-#include "Engine.h"
 #include "UnrealNetwork.h"
+#include "Logger.h"
 #include "ProjectCovenantInstance.h"
 
 
 // Sets default values
-ASubjectZero::ASubjectZero()
+ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 {
+	// Create a CameraComponent 
+	Camera = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FirstPersonCamera"));
+	Camera->AttachTo(GetCapsuleComponent());
+
+	// Position the camera a bit above the eyes
+	Camera->RelativeLocation = FVector(10.f, 0, 85.f);
+	// Allow the pawn to control rotation.
+	Camera->bUsePawnControlRotation = true;
+
+	// Mesh
+	FirstPersonMesh = ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("FirstPersonMesh"));
+	FirstPersonMesh->SetOnlyOwnerSee(true);         // only the owning player will see this mesh
+	FirstPersonMesh->AttachTo(Camera);
+	FirstPersonMesh->bCastDynamicShadow = false;
+	FirstPersonMesh->CastShadow = false;
+
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -18,7 +34,7 @@ ASubjectZero::ASubjectZero()
 void ASubjectZero::BeginPlay()
 {
 	Super::BeginPlay();
-	Log("Character: Subject Zero");
+	Logger::Log("Character: Subject Zero");
 
 	// Set initial character movement characteristics
 	GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed;
@@ -28,16 +44,17 @@ void ASubjectZero::BeginPlay()
 	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
 	GetCharacterMovement()->GetPhysicsVolume()->TerminalVelocity = 10000.f;
 
+
 	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
 	{
-		UGameInstance * GameInstance = GetGameInstance();
-		if(GameInstance)
-		{
-			UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GameInstance);
+		UGameInstance * Instance = GetGameInstance();
 
-			if(Instance)
+		if(Instance)
+		{
+			GameInstance = Cast<UProjectCovenantInstance>(Instance);
+			if(GameInstance)
 			{
-				PlayerName = Instance->GetProfileName();
+				PlayerName = GameInstance->GetProfileName();
 				Server_Set_Name(PlayerName);
 			}
 		}
@@ -87,6 +104,7 @@ void ASubjectZero::Tick(float DeltaTime)
 
 				Movement.Z = 0.f;
 				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+				
 			}
 		}
 		else
@@ -98,8 +116,15 @@ void ASubjectZero::Tick(float DeltaTime)
 			ApplyAirResistance();
 		}
 	}
+	if(Role == ROLE_SimulatedProxy)
+	{
+		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
+	}
 
-	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
+	if(Shooting && !JetpackActive)
+	{
+		Shoot();
+	}
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -159,7 +184,6 @@ void ASubjectZero::ApplyAirResistance()
 
 void ASubjectZero::Shoot()
 {
-
 	float Length = 100000.f;
 	float Height = 63.f;
 
@@ -170,7 +194,7 @@ void ASubjectZero::Shoot()
 	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
 	TraceParams->AddIgnoredActor(this);
 
-	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 1.f);
+	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, Time * 2.f);
 
 	Server_Shoot();
 }
@@ -178,7 +202,7 @@ void ASubjectZero::Server_Shoot_Implementation()
 {
 	float Length = 100000.f;
 	float Height = 63.f;
-	float Dmg = 10.f;
+	float Dmg = 1.f;
 	FHitResult* HitResult = new FHitResult();
 	FVector StartTrace = GetActorLocation() + FVector(0.f, 0.f, Height);
 	FVector ForwardVector = Controller->GetControlRotation().Vector();
@@ -199,7 +223,7 @@ void ASubjectZero::Server_Shoot_Implementation()
 					if(Killed)
 					{
 						Kills += 1;
-						Log(GetName() + " killed " + Victim->GetName());
+						Logger::Log(GetName() + " killed " + Victim->GetName());
 					}
 					Damage += FMath::RoundToInt(Dmg);
 				}
@@ -237,10 +261,9 @@ bool ASubjectZero::TakeDamage(float Damage)
 		}
 		else
 		{
-			Shield = 0.f;
 			Damage = Damage - Shield;
+			Shield = 0.f;
 			TakeDamage(Damage);
-			return false;
 		}
 	} 
 	else if(Armor != 0.f)
@@ -252,10 +275,9 @@ bool ASubjectZero::TakeDamage(float Damage)
 		}
 		else
 		{
-			Armor = 0.f;
 			Damage = Damage - Armor;
+			Armor = 0.f;
 			TakeDamage(Damage);
-			return false;
 		}
 	} 
 	else if(Health != 0.f)
@@ -277,6 +299,7 @@ bool ASubjectZero::TakeDamage(float Damage)
 	{
 		return false;
 	}
+	return false;
 }
 
 // Getters
@@ -291,6 +314,7 @@ float ASubjectZero::GetShield() const { return Shield; }
 float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
 bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
+bool ASubjectZero::IsSprinting() const { return Sprinting; }
 int ASubjectZero::GetKills() const { return Kills; }
 int ASubjectZero::GetDamage() const { return Damage; }
 FName ASubjectZero::GetPlayerName() const { return PlayerName; }
@@ -299,8 +323,8 @@ FName ASubjectZero::GetPlayerName() const { return PlayerName; }
 void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 {
 	// Movement binds
-	Input->BindAxis("Yaw", this, &ASubjectZero::AddControllerYawInput);
-	Input->BindAxis("Pitch", this, &ASubjectZero::AddControllerPitchInput);
+	Input->BindAxis("Yaw", this, &ASubjectZero::InputYaw);
+	Input->BindAxis("Pitch", this, &ASubjectZero::InputPitch);
 	Input->BindAction("Jump", IE_Pressed, this, &ASubjectZero::InputJumpPress);
 	Input->BindAction("Jump", IE_Released, this, &ASubjectZero::InputJumpRelease);
 	Input->BindAction("Sprint", IE_Pressed, this, &ASubjectZero::InputSprintPress);
@@ -314,8 +338,21 @@ void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 	Input->BindAction("Right", IE_Pressed, this, &ASubjectZero::InputRightPress);
 	Input->BindAction("Right", IE_Released, this, &ASubjectZero::InputRightRelease);
 	Input->BindAction("Shoot", IE_Pressed, this, &ASubjectZero::InputShootPress);
+	Input->BindAction("Shoot", IE_Released, this, &ASubjectZero::InputShootRelease);
 }
 
+void ASubjectZero::InputYaw(float Value) { 
+	if(GameInstance != nullptr && GetWorld() != nullptr)
+	{
+		ASubjectZero::AddControllerYawInput(GetWorld()->GetDeltaSeconds() * GameInstance->GetSensitivity() * Value);
+	}
+}
+void ASubjectZero::InputPitch(float Value) { 
+	if(GameInstance != nullptr && GetWorld() != nullptr)
+	{
+		ASubjectZero::AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * GameInstance->GetSensitivity() * Value);
+	}
+}
 void ASubjectZero::InputForwardPress() { Movement.X += 1.f; }
 void ASubjectZero::InputForwardRelease() { Movement.X += -1.f; }
 void ASubjectZero::InputBackwardPress() { Movement.X += -1.f; }
@@ -356,7 +393,12 @@ void ASubjectZero::InputSprintRelease()
 
 void ASubjectZero::InputShootPress()
 {
-	Shoot();
+	Shooting = true;
+}
+
+void ASubjectZero::InputShootRelease()
+{
+	Shooting = false;
 }
 
 bool ASubjectZero::Join(FString IPAddress)
@@ -366,7 +408,7 @@ bool ASubjectZero::Join(FString IPAddress)
 		IPAddress = "25.16.209.98";
 	}
 
-	Log("Joining server " + IPAddress);
+	Logger::Log("Joining server " + IPAddress);
 	UWorld * World = GetWorld();
 	if(World)
 	{
@@ -382,7 +424,7 @@ bool ASubjectZero::Join(FString IPAddress)
 
 bool ASubjectZero::Host()
 {
-	Log("Hosting server");
+	Logger::Log("Hosting server");
 	UWorld * World = GetWorld();
 	if(World)
 	{
@@ -394,15 +436,6 @@ bool ASubjectZero::Host()
 
 bool ASubjectZero::Map(FString Map)
 {
-	Log("Changing map to " + Map);
+	Logger::Log("Changing map to " + Map);
 	return true;
-}
-
-
-void ASubjectZero::Log(FString msg)
-{
-	if (GEngine && LogsOn)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, msg);
-	}
 }

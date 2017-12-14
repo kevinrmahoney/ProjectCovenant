@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Config=TestIni)
 class PROJECTCOVENANT_API UProjectCovenantInstance : public UGameInstance
 {
 	GENERATED_BODY()
@@ -26,8 +26,14 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FName GetProfileName();
 
+	UFUNCTION(Exec)
+	void Sensitivity(float Sens);
+
+	float GetSensitivity();
+
 private:
 	virtual void Init();
-	
-	void Log(FString msg);
+
+	UPROPERTY(Config)
+	float cl_sensitivity = 50.f;
 };
