@@ -83,14 +83,14 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 	}
 
-	Move(Movement, Jumping, Sprinting, JetpackActive, Shooting);
+	Move(Movement, Jumping, Sprinting, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 
 	if(Role == ROLE_SimulatedProxy)
 	{
 		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 	}
 
-	Shoot();
+	PullTrigger();
 
 }
 
@@ -106,7 +106,7 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, PlayerName);
 }
 
-void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
+void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	if(Controller)
 	{
@@ -138,19 +138,20 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 		}
 	}
 
-	Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Jetpack, Client_Shooting);
+	Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Jetpack, Client_Shooting, Client_Pitch);
 }
 
-void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
+void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	Movement = Client_Movement;
 	Jumping = Client_Jump;
 	Sprinting = Client_Sprinting;
 	JetpackActive = Client_Jetpack;
-	Shooting = Client_Shooting;
+	IsTriggerPulled = Client_Shooting;
+	Camera->RelativeRotation.Pitch = Client_Pitch;
 }
 
-bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
+bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	return true;
 }
@@ -185,20 +186,20 @@ void ASubjectZero::ApplyAirResistance()
 	GetCharacterMovement()->AddForce(Force);
 }
 
-void ASubjectZero::Shoot()
+void ASubjectZero::PullTrigger()
 {
-	Weapon->SetTrigger(Shooting);
-	Server_Shoot();
+	Weapon->SetTrigger(IsTriggerPulled);
+	Server_PullTrigger();
 }
 
 /*
 */
-void ASubjectZero::Server_Shoot_Implementation()
+void ASubjectZero::Server_PullTrigger_Implementation()
 {
-	Weapon->SetTrigger(Shooting);
+	Weapon->SetTrigger(IsTriggerPulled);
 }
 
-bool ASubjectZero::Server_Shoot_Validate()
+bool ASubjectZero::Server_PullTrigger_Validate()
 {
 	return true;
 }
@@ -370,12 +371,12 @@ void ASubjectZero::InputSprintRelease()
 
 void ASubjectZero::InputShootPress()
 {
-	Shooting = true;
+	IsTriggerPulled = true;
 }
 
 void ASubjectZero::InputShootRelease()
 {
-	Shooting = false;
+	IsTriggerPulled = false;
 }
 
 bool ASubjectZero::Join(FString IPAddress)

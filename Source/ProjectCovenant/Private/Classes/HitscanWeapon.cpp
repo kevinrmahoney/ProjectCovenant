@@ -69,7 +69,7 @@ void AHitscanWeapon::Shoot(float DeltaTime)
 	FVector ForwardVector = Muzzle->GetForwardVector();
 	FVector EndTrace = StartTrace + (ForwardVector * Range);
 	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
-	TraceParams->AddIgnoredActor(this);
+	TraceParams->AddIgnoredActor(Shooter);
 
 	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Pawn, *TraceParams))
 	{
@@ -77,7 +77,7 @@ void AHitscanWeapon::Shoot(float DeltaTime)
 		{
 			if(HitResult->GetActor())
 			{
-				DrawDebugLine(GetWorld(), StartTrace, StartTrace + (HitResult->Distance * ForwardVector), FColor::Red, false, Cooldown);
+				EndTrace =  StartTrace + (HitResult->Distance * ForwardVector);
 
 				ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
 				if(Victim && HasAuthority())
@@ -92,21 +92,12 @@ void AHitscanWeapon::Shoot(float DeltaTime)
 					}
 				}
 			}
-			else
-			{
-				DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, Cooldown);
-			}
 
 		}
-		else
-		{
-			DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, Cooldown);
-		}
 	}
-	else
-	{
-		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, Cooldown);
-	}
+
+	// Draw laser
+	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, Cooldown);
 
 	delete HitResult;
 	delete TraceParams;

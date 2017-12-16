@@ -33,7 +33,7 @@ private:
 	bool Jumping = false;
 	bool Sprinting = false;
 	bool JetpackActive = false;
-	bool Shooting = false;
+	bool IsTriggerPulled = false;
 
 	bool Grounded = false;
 
@@ -83,15 +83,15 @@ public:
 	UCameraComponent* Camera;
 
 private:
-	void Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting);
+	void Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting, float Pitch);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting);
+	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting, float Pitch);
 
-	void Shoot();
+	void PullTrigger();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Shoot();
+	void Server_PullTrigger();
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Set_Name(const FName NewName);
