@@ -7,6 +7,8 @@
 
 class UProjectCovenantInstance;
 
+class AHitscanWeapon;
+
 UCLASS()
 class PROJECTCOVENANT_API ASubjectZero : public ACharacter
 {
@@ -19,6 +21,12 @@ private:
 
 	UPROPERTY()
 	UProjectCovenantInstance * GameInstance;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AHitscanWeapon> WeaponBlueprint;
+
+	UPROPERTY()
+	AHitscanWeapon * Weapon;
 
 	FVector Velocity;
 	FVector Movement;
@@ -47,7 +55,7 @@ private:
 	int Kills = 0;
 
 	UPROPERTY(Replicated)
-	int Damage = 0;
+	int DamageDealt = 0;
 
 	UPROPERTY(Replicated)
 	FName PlayerName = "Subject Zero";
@@ -75,8 +83,10 @@ public:
 	UCameraComponent* Camera;
 
 private:
+	void Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting);
+
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive );
+	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting);
 
 	void Shoot();
 
@@ -117,7 +127,11 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	bool TakeDamage(float Damage);
+	bool ReceiveDamage(float Damage);
+
+	void AddDamageDealt(float DamageDealt);
+
+	void AddKill();
   
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSpeed() const;

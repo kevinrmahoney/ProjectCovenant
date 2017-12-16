@@ -6,23 +6,50 @@
 #include "GameFramework/Actor.h"
 #include "HitscanWeapon.generated.h"
 
+class ASubjectZero;
+
 UCLASS()
 class PROJECTCOVENANT_API AHitscanWeapon : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
 	// Sets default values for this actor's properties
+public:
 	AHitscanWeapon();
 
-private:
-	float Damage = 10.f;
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float Damage = 5.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Range = 10000.f;
-	float TimeBetweenShot = 0.1f;
-	float TimeSinceLastShot = 0.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float Cooldown = 0.1f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Falloff = 1.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Ammo = 100.f;
+
+private:
 	bool Trigger = false;
+	float TimeSinceLastShot = 0.f;
+
+public:
+	UPROPERTY()
+	ASubjectZero * Shooter = nullptr;
+
+protected:
+	UPROPERTY()
+	USceneComponent * Root;
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent * GunMesh;
+
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent * Muzzle;
 
 protected:
 	// Called when the game starts or when spawned
@@ -32,10 +59,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void SetTrigger(bool T);
+
+	void SetShooter(ASubjectZero * NewShooter);
 
 private:
-	void Shoot();
-
-	void SetTrigger(bool T);
+	void Shoot(float DeltaTime);
 	
 };
