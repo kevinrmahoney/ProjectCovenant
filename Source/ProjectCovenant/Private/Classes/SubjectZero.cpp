@@ -3,7 +3,7 @@
 #include "ProjectCovenant.h"
 #include "Classes/SubjectZero.h"
 #include "UnrealNetwork.h"
-#include "Logger.h"
+#include "HitscanWeapon.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -12,17 +12,17 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 {
 	// Create a CameraComponent 
 	Camera = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FirstPersonCamera"));
-	Camera->AttachTo(GetCapsuleComponent());
+	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	// Position the camera a bit above the eyes
-	Camera->RelativeLocation = FVector(10.f, 0, 85.f);
+	Camera->RelativeLocation = FVector(0.f, 0, 75.f);
 	// Allow the pawn to control rotation.
 	Camera->bUsePawnControlRotation = true;
 
 	// Mesh
 	FirstPersonMesh = ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("FirstPersonMesh"));
 	FirstPersonMesh->SetOnlyOwnerSee(true);         // only the owning player will see this mesh
-	FirstPersonMesh->AttachTo(Camera);
+	FirstPersonMesh->AttachToComponent(Camera, FAttachmentTransformRules::KeepRelativeTransform);
 	FirstPersonMesh->bCastDynamicShadow = false;
 	FirstPersonMesh->CastShadow = false;
 
@@ -44,7 +44,6 @@ void ASubjectZero::BeginPlay()
 	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
 	GetCharacterMovement()->GetPhysicsVolume()->TerminalVelocity = 10000.f;
 
-
 	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
 	{
 		UGameInstance * Instance = GetGameInstance();
@@ -59,7 +58,9 @@ void ASubjectZero::BeginPlay()
 			}
 		}
 	}
-	
+	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(WeaponBlueprint);
+	Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	Weapon->SetShooter(this);
 }
 
 // Called every frame
@@ -82,11 +83,31 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 	}
 
-	if(!HasAuthority())
+	Move(Movement, Jumping, Sprinting, JetpackActive, Shooting);
+
+	if(Role == ROLE_SimulatedProxy)
 	{
-		Server_Move(Movement, Jumping, Sprinting, JetpackActive);
+		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 	}
 
+	Shoot();
+
+}
+
+void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ASubjectZero, Health);
+	DOREPLIFETIME(ASubjectZero, Armor);
+	DOREPLIFETIME(ASubjectZero, Shield);
+	DOREPLIFETIME(ASubjectZero, Fuel);
+	DOREPLIFETIME(ASubjectZero, Kills);
+	DOREPLIFETIME(ASubjectZero, DamageDealt);
+	DOREPLIFETIME(ASubjectZero, PlayerName);
+}
+
+void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
+{
 	if(Controller)
 	{
 		if(Grounded)
@@ -104,7 +125,7 @@ void ASubjectZero::Tick(float DeltaTime)
 
 				Movement.Z = 0.f;
 				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-				
+
 			}
 		}
 		else
@@ -116,38 +137,20 @@ void ASubjectZero::Tick(float DeltaTime)
 			ApplyAirResistance();
 		}
 	}
-	if(Role == ROLE_SimulatedProxy)
-	{
-		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
-	}
 
-	if(Shooting && !JetpackActive)
-	{
-		Shoot();
-	}
+	Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Jetpack, Client_Shooting);
 }
 
-void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASubjectZero, Health);
-	DOREPLIFETIME(ASubjectZero, Armor);
-	DOREPLIFETIME(ASubjectZero, Shield);
-	DOREPLIFETIME(ASubjectZero, Fuel);
-	DOREPLIFETIME(ASubjectZero, Kills);
-	DOREPLIFETIME(ASubjectZero, Damage);
-	DOREPLIFETIME(ASubjectZero, PlayerName);
-}
-
-void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack)
+void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
 {
 	Movement = Client_Movement;
 	Jumping = Client_Jump;
 	Sprinting = Client_Sprinting;
 	JetpackActive = Client_Jetpack;
+	Shooting = Client_Shooting;
 }
 
-bool ASubjectZero::Server_Move_Validate(FVector Movement, bool Jump, bool Sprinting, bool Jetpack)
+bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
 {
 	return true;
 }
@@ -184,55 +187,15 @@ void ASubjectZero::ApplyAirResistance()
 
 void ASubjectZero::Shoot()
 {
-	float Length = 100000.f;
-	float Height = 63.f;
-
-	FHitResult* HitResult = new FHitResult();
-	FVector StartTrace = GetActorLocation() + FVector(0.f, 0.f, Height);
-	FVector ForwardVector = Controller->GetControlRotation().Vector();
-	FVector EndTrace = StartTrace + (ForwardVector * Length);
-	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
-	TraceParams->AddIgnoredActor(this);
-
-	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, Time * 2.f);
-
+	Weapon->SetTrigger(Shooting);
 	Server_Shoot();
 }
+
+/*
+*/
 void ASubjectZero::Server_Shoot_Implementation()
 {
-	float Length = 100000.f;
-	float Height = 63.f;
-	float Dmg = 1.f;
-	FHitResult* HitResult = new FHitResult();
-	FVector StartTrace = GetActorLocation() + FVector(0.f, 0.f, Height);
-	FVector ForwardVector = Controller->GetControlRotation().Vector();
-	FVector EndTrace = StartTrace + (ForwardVector * Length);
-	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
-	TraceParams->AddIgnoredActor(this);
-  
-	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Pawn, *TraceParams))
-	{
-		if(HitResult)
-		{
-			if((HitResult->GetActor()))
-			{
-				ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
-				if(Victim)
-				{
-					bool Killed = Victim->TakeDamage(Dmg);
-					if(Killed)
-					{
-						Kills += 1;
-						Logger::Log(GetName() + " killed " + Victim->GetName());
-					}
-					Damage += FMath::RoundToInt(Dmg);
-				}
-			}
-		}
-	}
-
-	delete HitResult;
-	delete TraceParams;
+	Weapon->SetTrigger(Shooting);
 }
 
 bool ASubjectZero::Server_Shoot_Validate()
@@ -250,41 +213,41 @@ bool ASubjectZero::Server_Set_Name_Validate(FName Name)
 	return true;
 }
 
-bool ASubjectZero::TakeDamage(float Damage)
+bool ASubjectZero::ReceiveDamage(float Dmg)
 {
 	if(Shield != 0.f)
 	{
-		if(Shield > Damage)
+		if(Shield > Dmg)
 		{
-			Shield = Shield - Damage;
+			Shield = Shield - Dmg;
 			return false;
 		}
 		else
 		{
-			Damage = Damage - Shield;
+			Dmg = Dmg - Shield;
 			Shield = 0.f;
-			TakeDamage(Damage);
+			ReceiveDamage(Dmg);
 		}
 	} 
 	else if(Armor != 0.f)
 	{
-		if(Armor > Damage)
+		if(Armor > Dmg)
 		{
-			Armor = Armor - Damage;
+			Armor = Armor - Dmg;
 			return false;
 		}
 		else
 		{
-			Damage = Damage - Armor;
+			Dmg = Dmg - Armor;
 			Armor = 0.f;
-			TakeDamage(Damage);
+			ReceiveDamage(Dmg);
 		}
 	} 
 	else if(Health != 0.f)
 	{
-		if(Health > Damage)
+		if(Health > Dmg)
 		{
-			Health = Health - Damage;
+			Health = Health - Dmg;
 			return false;
 		}
 		else
@@ -302,6 +265,16 @@ bool ASubjectZero::TakeDamage(float Damage)
 	return false;
 }
 
+void ASubjectZero::AddDamageDealt(float AddedDamage)
+{
+	DamageDealt += AddedDamage;
+}
+
+void ASubjectZero::AddKill()
+{
+	Kills += 1;
+}
+
 // Getters
 float ASubjectZero::GetSpeed() const { return GetVelocity().Size()/100.f; }
 float ASubjectZero::GetVerticalSpeed() const { return GetVelocity().Z; }
@@ -316,7 +289,7 @@ float ASubjectZero::GetFuel() const { return Fuel; }
 bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
 int ASubjectZero::GetKills() const { return Kills; }
-int ASubjectZero::GetDamage() const { return Damage; }
+int ASubjectZero::GetDamage() const { return DamageDealt; }
 FName ASubjectZero::GetPlayerName() const { return PlayerName; }
 
 // Input methods
@@ -371,6 +344,10 @@ void ASubjectZero::InputJumpPress()
 		if(!Grounded)
 		{
 			JetpackActive = Fuel > 0.f;
+			if(Weapon)
+			{
+				//Weapon = nullptr;
+			}
 		}
 	}
 }
