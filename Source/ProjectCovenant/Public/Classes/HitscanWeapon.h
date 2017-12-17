@@ -22,7 +22,7 @@ protected:
 	float Damage = 5.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float Range = 10000.f;
+	float Range = 20000.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Cooldown = 0.1f;

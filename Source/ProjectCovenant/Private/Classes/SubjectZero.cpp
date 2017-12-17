@@ -58,8 +58,18 @@ void ASubjectZero::BeginPlay()
 			}
 		}
 	}
+
+	// If a simulated proxy, attach the weapon to the character mesh, otherwise attach it to the first person mesh
 	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(WeaponBlueprint);
-	Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	if(Role == ROLE_SimulatedProxy)
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+	else
+	{
+		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+
 	Weapon->SetShooter(this);
 }
 
