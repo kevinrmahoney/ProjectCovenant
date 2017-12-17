@@ -59,7 +59,7 @@ void ASubjectZero::BeginPlay()
 		}
 	}
 	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(WeaponBlueprint);
-	Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 	Weapon->SetShooter(this);
 }
 
@@ -85,12 +85,12 @@ void ASubjectZero::Tick(float DeltaTime)
 
 	Move(Movement, Jumping, Sprinting, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 
-	if(Role == ROLE_SimulatedProxy)
+	if(Role == ROLE_SimulatedProxy || HasAuthority())
 	{
 		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 	}
 
-	PullTrigger();
+	Weapon->SetTrigger(IsTriggerPulled);
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -154,6 +154,7 @@ bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jum
 {
 	return true;
 }
+
 void ASubjectZero::JetpackBurst()
 {
 	if(Controller)
@@ -183,24 +184,6 @@ void ASubjectZero::ApplyAirResistance()
 	FVector Direction = -1.f * Velocity.GetSafeNormal();
 	Force = Direction * (Magnitude * Magnitude) * AirResistanceConstant;
 	GetCharacterMovement()->AddForce(Force);
-}
-
-void ASubjectZero::PullTrigger()
-{
-	Weapon->SetTrigger(IsTriggerPulled);
-	Server_PullTrigger();
-}
-
-/*
-*/
-void ASubjectZero::Server_PullTrigger_Implementation()
-{
-	Weapon->SetTrigger(IsTriggerPulled);
-}
-
-bool ASubjectZero::Server_PullTrigger_Validate()
-{
-	return true;
 }
 
 void ASubjectZero::Server_Set_Name_Implementation(FName NewName)

@@ -88,11 +88,6 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting, float Pitch);
 
-	void PullTrigger();
-
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_PullTrigger();
-
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Set_Name(const FName NewName);
   
