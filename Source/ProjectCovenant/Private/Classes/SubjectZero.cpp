@@ -15,7 +15,7 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	// Position the camera a bit above the eyes
-	Camera->RelativeLocation = FVector(0.f, 0, 75.f);
+	//Camera->RelativeLocation = FVector(0.f, 0, 75.f);
 	// Allow the pawn to control rotation.
 	Camera->bUsePawnControlRotation = true;
 
@@ -91,7 +91,6 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 
 	PullTrigger();
-
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
