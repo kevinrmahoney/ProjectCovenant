@@ -251,10 +251,6 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			return true;
 		}
 	}
-	else
-	{
-		return false;
-	}
 	return false;
 }
 
@@ -337,10 +333,6 @@ void ASubjectZero::InputJumpPress()
 		if(!Grounded)
 		{
 			JetpackActive = Fuel > 0.f;
-			if(Weapon)
-			{
-				//Weapon = nullptr;
-			}
 		}
 	}
 }

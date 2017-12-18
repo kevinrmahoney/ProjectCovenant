@@ -34,6 +34,7 @@ protected:
 	float Ammo = 100.f;
 
 private:
+
 	bool Trigger = false;
 	float TimeSinceLastShot = 0.f;
 
@@ -46,7 +47,7 @@ protected:
 	USceneComponent * Root;
 
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent * GunMesh;
+	UStaticMeshComponent * Mesh;
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent * Muzzle;
@@ -64,6 +65,9 @@ public:
 	void SetShooter(ASubjectZero * NewShooter);
 
 private:
-	void Shoot(float DeltaTime);
+	void Shoot();
 	
+	void DealDamage(ASubjectZero * Victim);
+
+	void DrawLaser(FVector * Begin, FVector * End, float Duration);
 };
