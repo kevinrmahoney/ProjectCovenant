@@ -63,20 +63,21 @@ private:
 	UPROPERTY(Replicated)
 	bool Crouching = false;
 
-
 	// constants
-	const float NormalAirControl = 0.3f;
-	const float JumpSpeed = 500.f;
-	const float JetpackSpeedScale = 1.f;
-	const float MaxGroundSpeed = 400.f;
-	const float JetpackAcceleration = 120000.f;
-	const float GroundAcceleration = 1000.f;
-	const float AirResistanceConstant = 0.008f;
-	const float FuelUsage = 1.f;
-	const float MaxHealth = 100.f;
-	const float MaxArmor = 100.f;
-	const float MaxShield = 100.f;
-	const float MaxFuel = 1000.f;
+	float NormalAirControl = 0.3f;
+	float JumpSpeed = 500.f;
+	float JetpackSpeedScale = 1.f;
+	float MaxGroundSpeed = 400.f;
+	float JetpackAcceleration = 120000.f;
+	float GroundAcceleration = 1000.f;
+	float AirResistanceConstant = 0.008f;
+	float FuelUsage = 1.f;
+	float MaxHealth = 100.f;
+	float MaxArmor = 100.f;
+	float MaxShield = 100.f;
+	float MaxFuel = 1000.f;
+	float StandingHeight = 75.f;
+	float CrouchingHeight = 15.f;
 
 public:
 	UPROPERTY(VisibleDefaultsOnly)
@@ -87,10 +88,10 @@ public:
 	UCameraComponent* Camera;
 
 private:
-	void Move(FVector Movement, bool Jumping, bool Sprinting, bool Crouching, bool JetpackActive, bool Shooting, float Pitch);
+	void Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool Crouching, bool JetpackActive, bool Shooting, float Pitch);
+	void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Set_Name(const FName NewName);

@@ -15,7 +15,7 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	// Position the camera a bit above the eyes
-	//Camera->RelativeLocation = FVector(0.f, 0, 75.f);
+	Camera->RelativeLocation = FVector(0.f, 0, StandingHeight);
 	// Allow the pawn to control rotation.
 	Camera->bUsePawnControlRotation = true;
 
@@ -93,14 +93,14 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 	}
 
-	Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
-
 	if(Role == ROLE_SimulatedProxy || HasAuthority())
 	{
 		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 	}
 
 	Weapon->SetTrigger(IsTriggerPulled);
+
+	Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -364,13 +364,15 @@ void ASubjectZero::InputSprintRelease()
 void ASubjectZero::InputCrouchPress()
 {
 	Crouching = true;
-	Logger::Log("Crouching");
+	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	Camera->AddRelativeLocation(FVector(0.f, 0, CrouchingHeight - StandingHeight));
 }
 
 void ASubjectZero::InputCrouchRelease()
 {
 	Crouching = false;
-	Logger::Log("Not Crouching");
+	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	Camera->AddRelativeLocation(FVector(0.f, 0, StandingHeight - CrouchingHeight));
 }
 
 void ASubjectZero::InputShootPress()
