@@ -60,6 +60,10 @@ private:
 	UPROPERTY(Replicated)
 	FName PlayerName = "Subject Zero";
 
+	UPROPERTY(Replicated)
+	bool Crouching = false;
+
+
 	// constants
 	const float NormalAirControl = 0.3f;
 	const float JumpSpeed = 500.f;
@@ -83,10 +87,10 @@ public:
 	UCameraComponent* Camera;
 
 private:
-	void Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting, float Pitch);
+	void Move(FVector Movement, bool Jumping, bool Sprinting, bool Crouching, bool JetpackActive, bool Shooting, float Pitch);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting, float Pitch);
+	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool Crouching, bool JetpackActive, bool Shooting, float Pitch);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Set_Name(const FName NewName);
@@ -112,6 +116,8 @@ private:
 	void InputJumpRelease();
 	void InputSprintPress();
 	void InputSprintRelease();
+	void InputCrouchPress();
+	void InputCrouchRelease();
 	void InputShootPress();
 	void InputShootRelease();
 
@@ -172,6 +178,9 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsSprinting() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool IsCrouching() const;
 
 	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
 	bool Join(FString IPAddress);
