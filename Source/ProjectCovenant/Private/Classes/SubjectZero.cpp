@@ -15,7 +15,7 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	// Position the camera a bit above the eyes
-	//Camera->RelativeLocation = FVector(0.f, 0, 75.f);
+	Camera->RelativeLocation = FVector(0.f, 0, StandingHeight);
 	// Allow the pawn to control rotation.
 	Camera->bUsePawnControlRotation = true;
 
@@ -93,14 +93,14 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 	}
 
-	Move(Movement, Jumping, Sprinting, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
-
 	if(Role == ROLE_SimulatedProxy || HasAuthority())
 	{
 		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 	}
 
 	Weapon->SetTrigger(IsTriggerPulled);
+
+	Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -113,9 +113,10 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Kills);
 	DOREPLIFETIME(ASubjectZero, DamageDealt);
 	DOREPLIFETIME(ASubjectZero, PlayerName);
+	DOREPLIFETIME(ASubjectZero, Crouching);
 }
 
-void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
+void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	if(Controller)
 	{
@@ -147,20 +148,24 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 		}
 	}
 
-	Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Jetpack, Client_Shooting, Client_Pitch);
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch);
+	}
 }
 
-void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
+void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	Movement = Client_Movement;
 	Jumping = Client_Jump;
 	Sprinting = Client_Sprinting;
+	Crouching = Client_Crouching;
 	JetpackActive = Client_Jetpack;
 	IsTriggerPulled = Client_Shooting;
 	Camera->RelativeRotation.Pitch = Client_Pitch;
 }
 
-bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
+bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	return true;
 }
@@ -277,6 +282,7 @@ float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
 bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
+bool ASubjectZero::IsCrouching() const { return Crouching; }
 int ASubjectZero::GetKills() const { return Kills; }
 int ASubjectZero::GetDamage() const { return DamageDealt; }
 FName ASubjectZero::GetPlayerName() const { return PlayerName; }
@@ -291,6 +297,8 @@ void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 	Input->BindAction("Jump", IE_Released, this, &ASubjectZero::InputJumpRelease);
 	Input->BindAction("Sprint", IE_Pressed, this, &ASubjectZero::InputSprintPress);
 	Input->BindAction("Sprint", IE_Released, this, &ASubjectZero::InputSprintRelease);
+	Input->BindAction("Crouch", IE_Pressed, this, &ASubjectZero::InputCrouchPress);
+	Input->BindAction("Crouch", IE_Released, this, &ASubjectZero::InputCrouchRelease);
 	Input->BindAction("Forward", IE_Pressed, this, &ASubjectZero::InputForwardPress);
 	Input->BindAction("Forward", IE_Released, this, &ASubjectZero::InputForwardRelease);
 	Input->BindAction("Backward", IE_Pressed, this, &ASubjectZero::InputBackwardPress);
@@ -351,6 +359,20 @@ void ASubjectZero::InputSprintPress()
 void ASubjectZero::InputSprintRelease()
 {
 	Sprinting = false;
+}
+
+void ASubjectZero::InputCrouchPress()
+{
+	Crouching = true;
+	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	Camera->AddRelativeLocation(FVector(0.f, 0, CrouchingHeight - StandingHeight));
+}
+
+void ASubjectZero::InputCrouchRelease()
+{
+	Crouching = false;
+	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	Camera->AddRelativeLocation(FVector(0.f, 0, StandingHeight - CrouchingHeight));
 }
 
 void ASubjectZero::InputShootPress()
