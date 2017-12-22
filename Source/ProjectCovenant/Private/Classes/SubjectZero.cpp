@@ -15,7 +15,7 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	// Position the camera a bit above the eyes
-	Camera->RelativeLocation = FVector(0.f, 0, 75.f);
+	//Camera->RelativeLocation = FVector(0.f, 0, 75.f);
 	// Allow the pawn to control rotation.
 	Camera->bUsePawnControlRotation = true;
 
@@ -58,8 +58,18 @@ void ASubjectZero::BeginPlay()
 			}
 		}
 	}
+
+	// If a simulated proxy, attach the weapon to the character mesh, otherwise attach it to the first person mesh
 	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(WeaponBlueprint);
-	Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	if(Role == ROLE_SimulatedProxy)
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+	else
+	{
+		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+
 	Weapon->SetShooter(this);
 }
 
@@ -83,15 +93,14 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 	}
 
-	Move(Movement, Jumping, Sprinting, JetpackActive, Shooting);
+	Move(Movement, Jumping, Sprinting, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 
-	if(Role == ROLE_SimulatedProxy)
+	if(Role == ROLE_SimulatedProxy || HasAuthority())
 	{
 		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 	}
 
-	Shoot();
-
+	Weapon->SetTrigger(IsTriggerPulled);
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -106,7 +115,7 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, PlayerName);
 }
 
-void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
+void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	if(Controller)
 	{
@@ -138,22 +147,24 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 		}
 	}
 
-	Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Jetpack, Client_Shooting);
+	Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Jetpack, Client_Shooting, Client_Pitch);
 }
 
-void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
+void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	Movement = Client_Movement;
 	Jumping = Client_Jump;
 	Sprinting = Client_Sprinting;
 	JetpackActive = Client_Jetpack;
-	Shooting = Client_Shooting;
+	IsTriggerPulled = Client_Shooting;
+	Camera->RelativeRotation.Pitch = Client_Pitch;
 }
 
-bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
+bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	return true;
 }
+
 void ASubjectZero::JetpackBurst()
 {
 	if(Controller)
@@ -183,24 +194,6 @@ void ASubjectZero::ApplyAirResistance()
 	FVector Direction = -1.f * Velocity.GetSafeNormal();
 	Force = Direction * (Magnitude * Magnitude) * AirResistanceConstant;
 	GetCharacterMovement()->AddForce(Force);
-}
-
-void ASubjectZero::Shoot()
-{
-	Weapon->SetTrigger(Shooting);
-	Server_Shoot();
-}
-
-/*
-*/
-void ASubjectZero::Server_Shoot_Implementation()
-{
-	Weapon->SetTrigger(Shooting);
-}
-
-bool ASubjectZero::Server_Shoot_Validate()
-{
-	return true;
 }
 
 void ASubjectZero::Server_Set_Name_Implementation(FName NewName)
@@ -257,10 +250,6 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			Health = MaxHealth;
 			return true;
 		}
-	}
-	else
-	{
-		return false;
 	}
 	return false;
 }
@@ -344,10 +333,6 @@ void ASubjectZero::InputJumpPress()
 		if(!Grounded)
 		{
 			JetpackActive = Fuel > 0.f;
-			if(Weapon)
-			{
-				//Weapon = nullptr;
-			}
 		}
 	}
 }
@@ -370,12 +355,12 @@ void ASubjectZero::InputSprintRelease()
 
 void ASubjectZero::InputShootPress()
 {
-	Shooting = true;
+	IsTriggerPulled = true;
 }
 
 void ASubjectZero::InputShootRelease()
 {
-	Shooting = false;
+	IsTriggerPulled = false;
 }
 
 bool ASubjectZero::Join(FString IPAddress)
