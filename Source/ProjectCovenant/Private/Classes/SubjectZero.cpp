@@ -35,10 +35,9 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 void ASubjectZero::BeginPlay()
 {
 	Super::BeginPlay();
-	Logger::Log("Character: Subject Zero");
 
 	// Set initial character movement characteristics
-	GetCharacterMovement()->MaxWalkSpeed = MaxGroundSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
 	GetCharacterMovement()->AirControl = NormalAirControl;
 	GetCharacterMovement()->MaxAcceleration = GroundAcceleration;
 	GetCharacterMovement()->GravityScale = 1.f;
@@ -56,6 +55,7 @@ void ASubjectZero::BeginPlay()
 			{
 				PlayerName = GameInstance->GetProfileName();
 				Server_Set_Name(PlayerName);
+				Logger::Log("Player " + PlayerName.ToString() + " has joined the game");
 			}
 		}
 	}
@@ -123,7 +123,22 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 	{
 		if(Grounded)
 		{
-			GetCharacterMovement()->MaxWalkSpeed = Sprinting ? MaxGroundSpeed * 2.f : MaxGroundSpeed;
+			if(Sprinting && !Crouching)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
+			}
+			else if(Sprinting && Crouching)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
+			}
+			else if(!Sprinting && Crouching)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
+			}
+			else
+			{
+				GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
+			}
 
 			if(Jumping)
 			{
@@ -144,6 +159,14 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 			if(JetpackActive)
 			{
 				JetpackBurst();
+			}
+			else
+			{
+				FRotator Rotation = Controller->GetControlRotation();
+				Rotation.Pitch = 0;
+
+				Movement.Z = 0.f;
+				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
 			}
 			ApplyAirResistance();
 		}

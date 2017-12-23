@@ -71,7 +71,10 @@ private:
 	float NormalAirControl = 0.3f;
 	float JumpSpeed = 500.f;
 	float JetpackSpeedScale = 1.f;
-	float MaxGroundSpeed = 400.f;
+	float StandingSprintSpeed = 600.f;
+	float StandingRunSpeed = 400.f;
+	float CrouchingSprintSpeed = 300.f;
+	float CrouchingRunSpeed = 200.f;
 	float JetpackAcceleration = 120000.f;
 	float GroundAcceleration = 1000.f;
 	float AirResistanceConstant = 0.008f;

@@ -7,12 +7,12 @@
 
 UProjectCovenantInstance::UProjectCovenantInstance(const FObjectInitializer & ObjectIn)
 {
-	Logger::Log("Project Covenant Instance constructed.");
+	Logger::Log("Project Covenant instance constructed.");
 }
 
 void UProjectCovenantInstance::Init()
 {
-	Logger::Log("Project Covenant Instance initialized.");
+	Logger::Log("Project Covenant instance initialized.");
 }
 
 bool UProjectCovenantInstance::SetProfileName(FName NewProfileName)

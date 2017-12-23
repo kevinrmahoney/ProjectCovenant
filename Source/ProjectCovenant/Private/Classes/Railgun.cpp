@@ -24,7 +24,7 @@ void ARailgun::BeginPlay()
 // Called every frame
 void ARailgun::Tick(float DeltaTime)
 {
-	TimeSinceLastShot = TimeSinceLastShot + DeltaTime;
+	TimeSinceLastShot = FMath::Min(TimeSinceLastShot + DeltaTime, Cooldown);
 
 	if(Trigger)
 	{
@@ -50,8 +50,9 @@ void ARailgun::Shoot()
 	FVector * EndTrace = new FVector(*StartTrace + (ForwardVector * Range));
 
 	// See if cooldown has passed (while loop prevents shots from being buffered if frame rate is horrendous)
-	while(TimeSinceLastShot >= Cooldown)
+	if(TimeSinceLastShot >= Cooldown)
 	{
+		Logger::Log(FString::SanitizeFloat(TimeSinceLastShot));
 		TimeSinceLastShot = TimeSinceLastShot - Cooldown;
 		DoDamage = true;
 	}
