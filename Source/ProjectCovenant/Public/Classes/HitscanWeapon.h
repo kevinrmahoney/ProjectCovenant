@@ -33,10 +33,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Ammo = 100.f;
 
-private:
-
 	bool Trigger = false;
-	float TimeSinceLastShot = 0.f;
+	float TimeSinceLastShot = Cooldown;
 
 public:
 	UPROPERTY()
@@ -65,9 +63,9 @@ public:
 	void SetShooter(ASubjectZero * NewShooter);
 
 private:
-	void Shoot();
+	virtual void Shoot();
 	
-	void DealDamage(ASubjectZero * Victim);
+	virtual void DealDamage(ASubjectZero * Victim);
 
-	void DrawLaser(FVector * Begin, FVector * End, float Duration);
+	virtual void DrawLaser(FVector * Begin, FVector * End, float Duration);
 };

@@ -8,6 +8,7 @@
 class UProjectCovenantInstance;
 
 class AHitscanWeapon;
+class ARailgun;
 
 UCLASS()
 class PROJECTCOVENANT_API ASubjectZero : public ACharacter
@@ -23,7 +24,10 @@ private:
 	UProjectCovenantInstance * GameInstance;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class AHitscanWeapon> WeaponBlueprint;
+	TSubclassOf<class AHitscanWeapon> HitscanWeaponBlueprint;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ARailgun> RailgunBlueprint;
 
 	UPROPERTY()
 	AHitscanWeapon * Weapon;
@@ -121,6 +125,10 @@ private:
 	void InputCrouchRelease();
 	void InputShootPress();
 	void InputShootRelease();
+	void InputPrimaryWeaponPress();
+	void InputPrimaryWeaponRelease();
+	void InputSecondaryWeaponPress();
+	void InputSecondaryWeaponRelease();
 
 protected:
 	virtual void BeginPlay() override;

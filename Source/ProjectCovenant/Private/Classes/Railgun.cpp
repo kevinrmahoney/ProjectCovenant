@@ -1,38 +1,29 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ProjectCovenant.h"
-#include "HitscanWeapon.h"
+#include "Railgun.h"
 #include "SubjectZero.h"
 
 // Sets default values
-AHitscanWeapon::AHitscanWeapon()
+ARailgun::ARailgun()
 {
-	PrimaryActorTick.bCanEverTick = true;
-
-	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	SetRootComponent(Root);
-	
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun Mesh"), false);
-	Mesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
-	Mesh->SetVisibility(true);
-	Mesh->SetOnlyOwnerSee(false);
-	Mesh->SetOwnerNoSee(false);
-
-	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"), false);
-	Muzzle->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 // Called when the game starts or when spawned
-void AHitscanWeapon::BeginPlay()
+void ARailgun::BeginPlay()
 {
 	Super::BeginPlay();
+	Damage = 50.f;
+	Range = 20000.f;
+	Cooldown = 2.f;
+	Falloff = 1.f;
+	Ammo = 100.f;
+	TimeSinceLastShot = Cooldown;
 }
 
 // Called every frame
-void AHitscanWeapon::Tick(float DeltaTime)
+void ARailgun::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
 	TimeSinceLastShot = TimeSinceLastShot + DeltaTime;
 
 	if(Trigger)
@@ -41,17 +32,17 @@ void AHitscanWeapon::Tick(float DeltaTime)
 	}
 }
 
-void AHitscanWeapon::SetShooter(ASubjectZero * NewShooter)
+void ARailgun::SetShooter(ASubjectZero * NewShooter)
 {
 	Shooter = NewShooter;
 }
 
-void AHitscanWeapon::SetTrigger(bool T)
+void ARailgun::SetTrigger(bool T)
 {
 	Trigger = T;
 }
 
-void AHitscanWeapon::Shoot()
+void ARailgun::Shoot()
 {
 	bool DoDamage = false;
 	FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());
@@ -87,15 +78,14 @@ void AHitscanWeapon::Shoot()
 
 		delete HitResult;
 		delete TraceParams;
+
+		DrawLaser(StartTrace, EndTrace, 2.f);
 	}
-
-	DrawLaser(StartTrace, EndTrace, GetWorld()->DeltaTimeSeconds * 2.f);
-
-	delete StartTrace; 
+	delete StartTrace;
 	delete EndTrace;
 }
 
-void AHitscanWeapon::DealDamage(ASubjectZero * Victim)
+void ARailgun::DealDamage(ASubjectZero * Victim)
 {
 	bool Killed = Victim->ReceiveDamage(Damage);
 	Shooter->AddDamageDealt(Damage);
@@ -107,13 +97,13 @@ void AHitscanWeapon::DealDamage(ASubjectZero * Victim)
 	}
 }
 
-void AHitscanWeapon::DrawLaser(FVector * Begin, FVector * End, float Duration)
+void ARailgun::DrawLaser(FVector * Begin, FVector * End, float Duration)
 {
 	UWorld * World = GetWorld();
 
-	DrawDebugLine(World, *Begin, *End, FColor::Green, false, Duration);
-	DrawDebugLine(World, *Begin + FVector(0.2f, 0.f, 0.f), *End, FColor::Green, false, Duration);
-	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, 0.2f), *End, FColor::Green, false, Duration);
-	DrawDebugLine(World, *Begin + FVector(-0.2f, 0.f, 0.f), *End, FColor::Green, false, Duration);
-	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, -0.2f), *End, FColor::Green, false, Duration);
+	DrawDebugLine(World, *Begin, *End, FColor::Red, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(0.2f, 0.f, 0.f), *End, FColor::Red, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, 0.2f), *End, FColor::Red, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(-0.2f, 0.f, 0.f), *End, FColor::Red, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, -0.2f), *End, FColor::Red, false, Duration);
 }
