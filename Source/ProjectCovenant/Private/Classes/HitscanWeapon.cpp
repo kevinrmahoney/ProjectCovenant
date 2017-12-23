@@ -7,20 +7,19 @@
 // Sets default values
 AHitscanWeapon::AHitscanWeapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
-
-	GunMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun Mesh"), false);
-	GunMesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
-	GunMesh->SetVisibility(true);
-	GunMesh->SetOnlyOwnerSee(false);
-	GunMesh->SetOwnerNoSee(false);
+	
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun Mesh"), false);
+	Mesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
+	Mesh->SetVisibility(true);
+	Mesh->SetOnlyOwnerSee(false);
+	Mesh->SetOwnerNoSee(false);
 
 	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"), false);
-	Muzzle->AttachToComponent(GunMesh, FAttachmentTransformRules::KeepRelativeTransform);
+	Muzzle->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 // Called when the game starts or when spawned
@@ -33,22 +32,12 @@ void AHitscanWeapon::BeginPlay()
 void AHitscanWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	bool Fire = false;
 
 	TimeSinceLastShot = TimeSinceLastShot + DeltaTime;
 
 	if(Trigger)
 	{
-		while(TimeSinceLastShot >= Cooldown)
-		{
-			TimeSinceLastShot = TimeSinceLastShot - Cooldown;
-			Fire = true;
-		}
-
-		if(Fire)
-		{
-			Shoot(DeltaTime);
-		}
+		Shoot();
 	}
 }
 
@@ -62,52 +51,69 @@ void AHitscanWeapon::SetTrigger(bool T)
 	Trigger = T;
 }
 
-void AHitscanWeapon::Shoot(float DeltaTime)
+void AHitscanWeapon::Shoot()
 {
-	FHitResult* HitResult = new FHitResult();
-	FVector StartTrace = Muzzle->GetComponentLocation();
+	bool DoDamage = false;
+	FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());
 	FVector ForwardVector = Muzzle->GetForwardVector();
-	FVector EndTrace = StartTrace + (ForwardVector * Range);
-	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
-	TraceParams->AddIgnoredActor(this);
+	FVector * EndTrace = new FVector(*StartTrace + (ForwardVector * Range));
 
-	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Pawn, *TraceParams))
+	// See if cooldown has passed (while loop prevents shots from being buffered if frame rate is horrendous)
+	while(TimeSinceLastShot >= Cooldown)
 	{
-		if(HitResult)
-		{
-			if(HitResult->GetActor())
-			{
-				DrawDebugLine(GetWorld(), StartTrace, StartTrace + (HitResult->Distance * ForwardVector), FColor::Red, false, Cooldown);
-
-				ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
-				if(Victim && HasAuthority())
-				{
-					bool Killed = Victim->ReceiveDamage(Damage);
-					Shooter->AddDamageDealt(Damage);
-
-					if(Killed)
-					{
-						Shooter->AddKill();
-						Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString());
-					}
-				}
-			}
-			else
-			{
-				DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, Cooldown);
-			}
-
-		}
-		else
-		{
-			DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, Cooldown);
-		}
-	}
-	else
-	{
-		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, Cooldown);
+		TimeSinceLastShot = TimeSinceLastShot - Cooldown;
+		DoDamage = true;
 	}
 
-	delete HitResult;
-	delete TraceParams;
+	if(DoDamage)
+	{
+		FHitResult* HitResult = new FHitResult();
+		FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
+		TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
+
+		// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
+		if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *EndTrace, ECC_Pawn, *TraceParams) && HitResult && HitResult->GetActor())
+		{
+			// Calculate the end of the trace (the actor's hitbox)
+			EndTrace = new FVector(*StartTrace + (HitResult->Distance * ForwardVector));
+
+			// Get the victim and attempt to cast to SubjectZero
+			ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
+			if(Victim && Shooter->HasAuthority())
+			{
+				DealDamage(Victim);
+			}
+		}
+
+		delete HitResult;
+		delete TraceParams;
+	}
+
+	DrawLaser(StartTrace, EndTrace, GetWorld()->DeltaTimeSeconds * 2.f);
+
+	delete StartTrace; 
+	delete EndTrace;
+}
+
+void AHitscanWeapon::DealDamage(ASubjectZero * Victim)
+{
+	bool Killed = Victim->ReceiveDamage(Damage);
+	Shooter->AddDamageDealt(Damage);
+
+	if(Killed)
+	{
+		Shooter->AddKill();
+		Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString());
+	}
+}
+
+void AHitscanWeapon::DrawLaser(FVector * Begin, FVector * End, float Duration)
+{
+	UWorld * World = GetWorld();
+
+	DrawDebugLine(World, *Begin, *End, FColor::Green, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(0.2f, 0.f, 0.f), *End, FColor::Green, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, 0.2f), *End, FColor::Green, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(-0.2f, 0.f, 0.f), *End, FColor::Green, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, -0.2f), *End, FColor::Green, false, Duration);
 }

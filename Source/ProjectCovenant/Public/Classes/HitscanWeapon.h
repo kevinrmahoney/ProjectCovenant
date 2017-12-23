@@ -22,7 +22,7 @@ protected:
 	float Damage = 5.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float Range = 10000.f;
+	float Range = 20000.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Cooldown = 0.1f;
@@ -33,9 +33,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Ammo = 100.f;
 
-private:
 	bool Trigger = false;
-	float TimeSinceLastShot = 0.f;
+	float TimeSinceLastShot = Cooldown;
 
 public:
 	UPROPERTY()
@@ -46,7 +45,7 @@ protected:
 	USceneComponent * Root;
 
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent * GunMesh;
+	UStaticMeshComponent * Mesh;
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent * Muzzle;
@@ -64,6 +63,9 @@ public:
 	void SetShooter(ASubjectZero * NewShooter);
 
 private:
-	void Shoot(float DeltaTime);
+	virtual void Shoot();
 	
+	virtual void DealDamage(ASubjectZero * Victim);
+
+	virtual void DrawLaser(FVector * Begin, FVector * End, float Duration);
 };

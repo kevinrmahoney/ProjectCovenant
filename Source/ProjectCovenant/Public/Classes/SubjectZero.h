@@ -8,6 +8,7 @@
 class UProjectCovenantInstance;
 
 class AHitscanWeapon;
+class ARailgun;
 
 UCLASS()
 class PROJECTCOVENANT_API ASubjectZero : public ACharacter
@@ -23,7 +24,10 @@ private:
 	UProjectCovenantInstance * GameInstance;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class AHitscanWeapon> WeaponBlueprint;
+	TSubclassOf<class AHitscanWeapon> HitscanWeaponBlueprint;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ARailgun> RailgunBlueprint;
 
 	UPROPERTY()
 	AHitscanWeapon * Weapon;
@@ -33,7 +37,7 @@ private:
 	bool Jumping = false;
 	bool Sprinting = false;
 	bool JetpackActive = false;
-	bool Shooting = false;
+	bool IsTriggerPulled = false;
 
 	bool Grounded = false;
 
@@ -60,19 +64,24 @@ private:
 	UPROPERTY(Replicated)
 	FName PlayerName = "Subject Zero";
 
+	UPROPERTY(Replicated)
+	bool Crouching = false;
+
 	// constants
-	const float NormalAirControl = 0.3f;
-	const float JumpSpeed = 500.f;
-	const float JetpackSpeedScale = 1.f;
-	const float MaxGroundSpeed = 400.f;
-	const float JetpackAcceleration = 120000.f;
-	const float GroundAcceleration = 1000.f;
-	const float AirResistanceConstant = 0.008f;
-	const float FuelUsage = 1.f;
-	const float MaxHealth = 100.f;
-	const float MaxArmor = 100.f;
-	const float MaxShield = 100.f;
-	const float MaxFuel = 1000.f;
+	float NormalAirControl = 0.3f;
+	float JumpSpeed = 500.f;
+	float JetpackSpeedScale = 1.f;
+	float MaxGroundSpeed = 400.f;
+	float JetpackAcceleration = 120000.f;
+	float GroundAcceleration = 1000.f;
+	float AirResistanceConstant = 0.008f;
+	float FuelUsage = 1.f;
+	float MaxHealth = 100.f;
+	float MaxArmor = 100.f;
+	float MaxShield = 100.f;
+	float MaxFuel = 1000.f;
+	float StandingHeight = 75.f;
+	float CrouchingHeight = 15.f;
 
 public:
 	UPROPERTY(VisibleDefaultsOnly)
@@ -83,15 +92,10 @@ public:
 	UCameraComponent* Camera;
 
 private:
-	void Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting);
+	void Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Move(FVector Movement, bool Jumping, bool Sprinting, bool JetpackActive, bool Shooting);
-
-	void Shoot();
-
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Shoot();
+	void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Set_Name(const FName NewName);
@@ -117,8 +121,14 @@ private:
 	void InputJumpRelease();
 	void InputSprintPress();
 	void InputSprintRelease();
+	void InputCrouchPress();
+	void InputCrouchRelease();
 	void InputShootPress();
 	void InputShootRelease();
+	void InputPrimaryWeaponPress();
+	void InputPrimaryWeaponRelease();
+	void InputSecondaryWeaponPress();
+	void InputSecondaryWeaponRelease();
 
 protected:
 	virtual void BeginPlay() override;
@@ -177,6 +187,9 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsSprinting() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool IsCrouching() const;
 
 	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
 	bool Join(FString IPAddress);

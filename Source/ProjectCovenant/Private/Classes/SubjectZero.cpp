@@ -4,6 +4,7 @@
 #include "Classes/SubjectZero.h"
 #include "UnrealNetwork.h"
 #include "HitscanWeapon.h"
+#include "Railgun.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -15,7 +16,7 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	// Position the camera a bit above the eyes
-	Camera->RelativeLocation = FVector(0.f, 0, 75.f);
+	Camera->RelativeLocation = FVector(0.f, 0, StandingHeight);
 	// Allow the pawn to control rotation.
 	Camera->bUsePawnControlRotation = true;
 
@@ -58,8 +59,18 @@ void ASubjectZero::BeginPlay()
 			}
 		}
 	}
-	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(WeaponBlueprint);
-	Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+
+	// If a simulated proxy, attach the weapon to the character mesh, otherwise attach it to the first person mesh
+	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
+	if(Role == ROLE_SimulatedProxy)
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+	else
+	{
+		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+
 	Weapon->SetShooter(this);
 }
 
@@ -83,15 +94,14 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 	}
 
-	Move(Movement, Jumping, Sprinting, JetpackActive, Shooting);
-
-	if(Role == ROLE_SimulatedProxy)
+	if(Role == ROLE_SimulatedProxy || HasAuthority())
 	{
 		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 	}
 
-	Shoot();
+	Weapon->SetTrigger(IsTriggerPulled);
 
+	Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -104,9 +114,10 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Kills);
 	DOREPLIFETIME(ASubjectZero, DamageDealt);
 	DOREPLIFETIME(ASubjectZero, PlayerName);
+	DOREPLIFETIME(ASubjectZero, Crouching);
 }
 
-void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
+void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	if(Controller)
 	{
@@ -138,22 +149,28 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 		}
 	}
 
-	Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Jetpack, Client_Shooting);
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch);
+	}
 }
 
-void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
+void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	Movement = Client_Movement;
 	Jumping = Client_Jump;
 	Sprinting = Client_Sprinting;
+	Crouching = Client_Crouching;
 	JetpackActive = Client_Jetpack;
-	Shooting = Client_Shooting;
+	IsTriggerPulled = Client_Shooting;
+	Camera->RelativeRotation.Pitch = Client_Pitch;
 }
 
-bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Jetpack, bool Client_Shooting)
+bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
 	return true;
 }
+
 void ASubjectZero::JetpackBurst()
 {
 	if(Controller)
@@ -183,24 +200,6 @@ void ASubjectZero::ApplyAirResistance()
 	FVector Direction = -1.f * Velocity.GetSafeNormal();
 	Force = Direction * (Magnitude * Magnitude) * AirResistanceConstant;
 	GetCharacterMovement()->AddForce(Force);
-}
-
-void ASubjectZero::Shoot()
-{
-	Weapon->SetTrigger(Shooting);
-	Server_Shoot();
-}
-
-/*
-*/
-void ASubjectZero::Server_Shoot_Implementation()
-{
-	Weapon->SetTrigger(Shooting);
-}
-
-bool ASubjectZero::Server_Shoot_Validate()
-{
-	return true;
 }
 
 void ASubjectZero::Server_Set_Name_Implementation(FName NewName)
@@ -258,10 +257,6 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			return true;
 		}
 	}
-	else
-	{
-		return false;
-	}
 	return false;
 }
 
@@ -288,6 +283,7 @@ float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
 bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
+bool ASubjectZero::IsCrouching() const { return Crouching; }
 int ASubjectZero::GetKills() const { return Kills; }
 int ASubjectZero::GetDamage() const { return DamageDealt; }
 FName ASubjectZero::GetPlayerName() const { return PlayerName; }
@@ -302,6 +298,8 @@ void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 	Input->BindAction("Jump", IE_Released, this, &ASubjectZero::InputJumpRelease);
 	Input->BindAction("Sprint", IE_Pressed, this, &ASubjectZero::InputSprintPress);
 	Input->BindAction("Sprint", IE_Released, this, &ASubjectZero::InputSprintRelease);
+	Input->BindAction("Crouch", IE_Pressed, this, &ASubjectZero::InputCrouchPress);
+	Input->BindAction("Crouch", IE_Released, this, &ASubjectZero::InputCrouchRelease);
 	Input->BindAction("Forward", IE_Pressed, this, &ASubjectZero::InputForwardPress);
 	Input->BindAction("Forward", IE_Released, this, &ASubjectZero::InputForwardRelease);
 	Input->BindAction("Backward", IE_Pressed, this, &ASubjectZero::InputBackwardPress);
@@ -312,6 +310,10 @@ void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 	Input->BindAction("Right", IE_Released, this, &ASubjectZero::InputRightRelease);
 	Input->BindAction("Shoot", IE_Pressed, this, &ASubjectZero::InputShootPress);
 	Input->BindAction("Shoot", IE_Released, this, &ASubjectZero::InputShootRelease);
+	Input->BindAction("PrimaryWeapon", IE_Pressed, this, &ASubjectZero::InputPrimaryWeaponPress);
+	Input->BindAction("PrimaryWeapon", IE_Released, this, &ASubjectZero::InputPrimaryWeaponRelease);
+	Input->BindAction("SecondaryWeapon", IE_Pressed, this, &ASubjectZero::InputSecondaryWeaponPress);
+	Input->BindAction("SecondaryWeapon", IE_Released, this, &ASubjectZero::InputSecondaryWeaponRelease);
 }
 
 void ASubjectZero::InputYaw(float Value) { 
@@ -344,10 +346,6 @@ void ASubjectZero::InputJumpPress()
 		if(!Grounded)
 		{
 			JetpackActive = Fuel > 0.f;
-			if(Weapon)
-			{
-				//Weapon = nullptr;
-			}
 		}
 	}
 }
@@ -368,14 +366,68 @@ void ASubjectZero::InputSprintRelease()
 	Sprinting = false;
 }
 
+void ASubjectZero::InputCrouchPress()
+{
+	Crouching = true;
+	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	Camera->AddRelativeLocation(FVector(0.f, 0, CrouchingHeight - StandingHeight));
+}
+
+void ASubjectZero::InputCrouchRelease()
+{
+	Crouching = false;
+	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	Camera->AddRelativeLocation(FVector(0.f, 0, StandingHeight - CrouchingHeight));
+}
+
 void ASubjectZero::InputShootPress()
 {
-	Shooting = true;
+	IsTriggerPulled = true;
 }
 
 void ASubjectZero::InputShootRelease()
 {
-	Shooting = false;
+	IsTriggerPulled = false;
+}
+
+void ASubjectZero::InputPrimaryWeaponPress()
+{
+	Weapon->Destroy();
+}
+
+void ASubjectZero::InputPrimaryWeaponRelease()
+{
+	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
+	if(Role == ROLE_SimulatedProxy)
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+	else
+	{
+		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+
+	Weapon->SetShooter(this);
+}
+
+void ASubjectZero::InputSecondaryWeaponPress()
+{
+	Weapon->Destroy();
+}
+
+void ASubjectZero::InputSecondaryWeaponRelease()
+{
+	Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
+	if(Role == ROLE_SimulatedProxy)
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+	else
+	{
+		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+
+	Weapon->SetShooter(this);
 }
 
 bool ASubjectZero::Join(FString IPAddress)
