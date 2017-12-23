@@ -7,25 +7,24 @@
 // Sets default values
 ARailgun::ARailgun()
 {
-	float Damage = 100.f;
-	float Range = 20000.f;
-	float Cooldown = 3.f;
-	float Falloff = 1.f;
-	float Ammo = 100.f;
 }
 
 // Called when the game starts or when spawned
 void ARailgun::BeginPlay()
 {
 	Super::BeginPlay();
+	Damage = 50.f;
+	Range = 20000.f;
+	Cooldown = 2.f;
+	Falloff = 1.f;
+	Ammo = 100.f;
+	TimeSinceLastShot = Cooldown;
 }
 
 // Called every frame
 void ARailgun::Tick(float DeltaTime)
 {
 	TimeSinceLastShot = TimeSinceLastShot + DeltaTime;
-
-	Logger::Log(FString::SanitizeFloat(TimeSinceLastShot));
 
 	if(Trigger)
 	{
@@ -63,7 +62,7 @@ void ARailgun::Shoot()
 		FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
 		TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
 
-												// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
+		// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
 		if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *EndTrace, ECC_Pawn, *TraceParams) && HitResult && HitResult->GetActor())
 		{
 			// Calculate the end of the trace (the actor's hitbox)
@@ -80,8 +79,8 @@ void ARailgun::Shoot()
 		delete HitResult;
 		delete TraceParams;
 
+		DrawLaser(StartTrace, EndTrace, 2.f);
 	}
-	DrawLaser(StartTrace, EndTrace, 2.f);
 	delete StartTrace;
 	delete EndTrace;
 }

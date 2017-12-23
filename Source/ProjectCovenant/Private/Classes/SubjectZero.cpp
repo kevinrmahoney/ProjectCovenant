@@ -100,7 +100,6 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 
 	Weapon->SetTrigger(IsTriggerPulled);
-	Logger::Log(IsTriggerPulled ? "Yes" : "No");
 
 	Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 }

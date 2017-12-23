@@ -17,13 +17,6 @@ class PROJECTCOVENANT_API ARailgun : public AHitscanWeapon
 public:
 	ARailgun();
 
-private:
-
-	bool Trigger = false;
-	float TimeSinceLastShot = 0.f;
-
-public:
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -37,9 +30,9 @@ public:
 	void SetShooter(ASubjectZero * NewShooter);
 
 private:
-	void Shoot();
+	void Shoot() override;
 
-	void DealDamage(ASubjectZero * Victim);
+	void DealDamage(ASubjectZero * Victim) override;
 
-	void DrawLaser(FVector * Begin, FVector * End, float Duration);
+	void DrawLaser(FVector * Begin, FVector * End, float Duration) override;
 };
