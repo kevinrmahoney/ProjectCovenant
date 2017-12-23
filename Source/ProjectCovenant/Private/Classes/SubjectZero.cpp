@@ -466,5 +466,11 @@ bool ASubjectZero::Host()
 bool ASubjectZero::Map(FString Map)
 {
 	Logger::Log("Changing map to " + Map);
-	return true;
+	UWorld * World = GetWorld();
+	if(World)
+	{
+		World->ServerTravel("/Game/Maps/" + Map + "?listen", true, true);
+		return true;
+	}
+	return false;
 }
