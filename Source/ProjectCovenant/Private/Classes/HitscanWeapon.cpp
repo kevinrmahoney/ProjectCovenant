@@ -111,8 +111,9 @@ void AHitscanWeapon::DrawLaser(FVector * Begin, FVector * End, float Duration)
 {
 	UWorld * World = GetWorld();
 
-	DrawDebugLine(World, *Begin + FVector(0.2f, 0.f, 0.f), *End, FColor::Red, false, Duration);
-	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, 0.2f), *End, FColor::Red, false, Duration);
-	DrawDebugLine(World, *Begin + FVector(-0.2f, 0.f, 0.f), *End, FColor::Red, false, Duration);
-	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, -0.2f), *End, FColor::Red, false, Duration);
+	DrawDebugLine(World, *Begin, *End, FColor::Green, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(0.2f, 0.f, 0.f), *End, FColor::Green, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, 0.2f), *End, FColor::Green, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(-0.2f, 0.f, 0.f), *End, FColor::Green, false, Duration);
+	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, -0.2f), *End, FColor::Green, false, Duration);
 }

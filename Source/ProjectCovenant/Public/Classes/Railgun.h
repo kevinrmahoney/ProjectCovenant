@@ -16,22 +16,6 @@ class PROJECTCOVENANT_API ARailgun : public AHitscanWeapon
 	
 public:
 	ARailgun();
-	
-protected:
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	//float Damage = 5.f;
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	//float Range = 20000.f;
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	//float Cooldown = 0.1f;
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	//float Falloff = 1.f;
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	//float Ammo = 100.f;
 
 private:
 
@@ -39,18 +23,6 @@ private:
 	float TimeSinceLastShot = 0.f;
 
 public:
-	//UPROPERTY()
-	//ASubjectZero * Shooter = nullptr;
-
-protected:
-	//UPROPERTY()
-	//USceneComponent * Root;
-
-	//UPROPERTY(VisibleAnywhere)
-	//UStaticMeshComponent * Mesh;
-
-	//UPROPERTY(VisibleAnywhere)
-	//USceneComponent * Muzzle;
 
 protected:
 	// Called when the game starts or when spawned

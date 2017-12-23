@@ -7,6 +7,11 @@
 // Sets default values
 ARailgun::ARailgun()
 {
+	float Damage = 100.f;
+	float Range = 20000.f;
+	float Cooldown = 3.f;
+	float Falloff = 1.f;
+	float Ammo = 100.f;
 }
 
 // Called when the game starts or when spawned
@@ -18,9 +23,9 @@ void ARailgun::BeginPlay()
 // Called every frame
 void ARailgun::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
 	TimeSinceLastShot = TimeSinceLastShot + DeltaTime;
+
+	Logger::Log(FString::SanitizeFloat(TimeSinceLastShot));
 
 	if(Trigger)
 	{
@@ -74,10 +79,9 @@ void ARailgun::Shoot()
 
 		delete HitResult;
 		delete TraceParams;
+
 	}
-
-	DrawLaser(StartTrace, EndTrace, GetWorld()->DeltaTimeSeconds * 2.f);
-
+	DrawLaser(StartTrace, EndTrace, 2.f);
 	delete StartTrace;
 	delete EndTrace;
 }
@@ -98,6 +102,7 @@ void ARailgun::DrawLaser(FVector * Begin, FVector * End, float Duration)
 {
 	UWorld * World = GetWorld();
 
+	DrawDebugLine(World, *Begin, *End, FColor::Red, false, Duration);
 	DrawDebugLine(World, *Begin + FVector(0.2f, 0.f, 0.f), *End, FColor::Red, false, Duration);
 	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, 0.2f), *End, FColor::Red, false, Duration);
 	DrawDebugLine(World, *Begin + FVector(-0.2f, 0.f, 0.f), *End, FColor::Red, false, Duration);

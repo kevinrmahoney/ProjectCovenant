@@ -4,6 +4,7 @@
 #include "Classes/SubjectZero.h"
 #include "UnrealNetwork.h"
 #include "HitscanWeapon.h"
+#include "Railgun.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -60,7 +61,7 @@ void ASubjectZero::BeginPlay()
 	}
 
 	// If a simulated proxy, attach the weapon to the character mesh, otherwise attach it to the first person mesh
-	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(WeaponBlueprint);
+	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
 	if(Role == ROLE_SimulatedProxy)
 	{
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
@@ -99,6 +100,7 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 
 	Weapon->SetTrigger(IsTriggerPulled);
+	Logger::Log(IsTriggerPulled ? "Yes" : "No");
 
 	Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 }
@@ -309,6 +311,10 @@ void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 	Input->BindAction("Right", IE_Released, this, &ASubjectZero::InputRightRelease);
 	Input->BindAction("Shoot", IE_Pressed, this, &ASubjectZero::InputShootPress);
 	Input->BindAction("Shoot", IE_Released, this, &ASubjectZero::InputShootRelease);
+	Input->BindAction("PrimaryWeapon", IE_Pressed, this, &ASubjectZero::InputPrimaryWeaponPress);
+	Input->BindAction("PrimaryWeapon", IE_Released, this, &ASubjectZero::InputPrimaryWeaponRelease);
+	Input->BindAction("SecondaryWeapon", IE_Pressed, this, &ASubjectZero::InputSecondaryWeaponPress);
+	Input->BindAction("SecondaryWeapon", IE_Released, this, &ASubjectZero::InputSecondaryWeaponRelease);
 }
 
 void ASubjectZero::InputYaw(float Value) { 
@@ -383,6 +389,46 @@ void ASubjectZero::InputShootPress()
 void ASubjectZero::InputShootRelease()
 {
 	IsTriggerPulled = false;
+}
+
+void ASubjectZero::InputPrimaryWeaponPress()
+{
+	Weapon->Destroy();
+}
+
+void ASubjectZero::InputPrimaryWeaponRelease()
+{
+	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
+	if(Role == ROLE_SimulatedProxy)
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+	else
+	{
+		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+
+	Weapon->SetShooter(this);
+}
+
+void ASubjectZero::InputSecondaryWeaponPress()
+{
+	Weapon->Destroy();
+}
+
+void ASubjectZero::InputSecondaryWeaponRelease()
+{
+	Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
+	if(Role == ROLE_SimulatedProxy)
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+	else
+	{
+		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+
+	Weapon->SetShooter(this);
 }
 
 bool ASubjectZero::Join(FString IPAddress)
