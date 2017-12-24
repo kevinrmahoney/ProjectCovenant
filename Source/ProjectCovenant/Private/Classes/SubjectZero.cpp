@@ -77,7 +77,6 @@ void ASubjectZero::BeginPlay()
 // Called every frame
 void ASubjectZero::Tick(float DeltaTime)
 {
-	Logger::Log(Movement.ToString());
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 

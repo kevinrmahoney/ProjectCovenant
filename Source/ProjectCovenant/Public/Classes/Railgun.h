@@ -29,8 +29,8 @@ public:
 
 	void SetShooter(ASubjectZero * NewShooter);
 
-	UFUNCTION(BlueprintPure, BlueprintCallable)
-	bool PlaySound();
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayShootSound();
 
 private:
 	void Shoot() override;
