@@ -57,6 +57,8 @@ void ARailgun::Shoot()
 		DoDamage = true;
 	}
 
+	PlayShootSound();
+
 	if(DoDamage)
 	{
 		FHitResult* HitResult = new FHitResult();
@@ -107,9 +109,4 @@ void ARailgun::DrawLaser(FVector * Begin, FVector * End, float Duration)
 	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, 0.2f), *End, FColor::Red, false, Duration);
 	DrawDebugLine(World, *Begin + FVector(-0.2f, 0.f, 0.f), *End, FColor::Red, false, Duration);
 	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, -0.2f), *End, FColor::Red, false, Duration);
-}
-
-bool ARailgun::PlaySound()
-{
-	return false;
 }
