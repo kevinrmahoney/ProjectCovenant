@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.01.10.00">
+    <object class="AudioFile" id="{26c79cdc-b69d-4af4-99cd-9d08fca48011}">
+        <property name="assetPath">
+            <value>RailGun_2.wav</value>
+        </property>
+        <property name="frequencyInKHz">
+            <value>44.0999985</value>
+        </property>
+        <property name="channelCount">
+            <value>2</value>
+        </property>
+        <property name="length">
+            <value>0.87501133786848073</value>
+        </property>
+        <relationship name="masterAssetFolder">
+            <destination>{ff120cd2-1218-4883-bd3d-98a4b5e0b1f3}</destination>
+        </relationship>
+    </object>
+</objects>
