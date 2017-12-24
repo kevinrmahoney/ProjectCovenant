@@ -29,10 +29,14 @@ public:
 
 	void SetShooter(ASubjectZero * NewShooter);
 
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool PlaySound();
+
 private:
 	void Shoot() override;
 
 	void DealDamage(ASubjectZero * Victim) override;
 
 	void DrawLaser(FVector * Begin, FVector * End, float Duration) override;
+
 };

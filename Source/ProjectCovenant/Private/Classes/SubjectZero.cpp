@@ -77,6 +77,7 @@ void ASubjectZero::BeginPlay()
 // Called every frame
 void ASubjectZero::Tick(float DeltaTime)
 {
+	Logger::Log(Movement.ToString());
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
@@ -334,9 +335,7 @@ void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 	Input->BindAction("Shoot", IE_Pressed, this, &ASubjectZero::InputShootPress);
 	Input->BindAction("Shoot", IE_Released, this, &ASubjectZero::InputShootRelease);
 	Input->BindAction("PrimaryWeapon", IE_Pressed, this, &ASubjectZero::InputPrimaryWeaponPress);
-	Input->BindAction("PrimaryWeapon", IE_Released, this, &ASubjectZero::InputPrimaryWeaponRelease);
 	Input->BindAction("SecondaryWeapon", IE_Pressed, this, &ASubjectZero::InputSecondaryWeaponPress);
-	Input->BindAction("SecondaryWeapon", IE_Released, this, &ASubjectZero::InputSecondaryWeaponRelease);
 }
 
 void ASubjectZero::InputYaw(float Value) { 
@@ -416,10 +415,6 @@ void ASubjectZero::InputShootRelease()
 void ASubjectZero::InputPrimaryWeaponPress()
 {
 	Weapon->Destroy();
-}
-
-void ASubjectZero::InputPrimaryWeaponRelease()
-{
 	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
 	if(Role == ROLE_SimulatedProxy)
 	{
@@ -436,10 +431,6 @@ void ASubjectZero::InputPrimaryWeaponRelease()
 void ASubjectZero::InputSecondaryWeaponPress()
 {
 	Weapon->Destroy();
-}
-
-void ASubjectZero::InputSecondaryWeaponRelease()
-{
 	Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
 	if(Role == ROLE_SimulatedProxy)
 	{
@@ -458,6 +449,26 @@ bool ASubjectZero::Join(FString IPAddress)
 	if(IPAddress.Equals(""))
 	{
 		IPAddress = "25.16.209.98";
+	}
+	else if(IPAddress.Equals("Kevin"))
+	{
+		IPAddress = "25.16.209.98";
+	}
+	else if(IPAddress.Equals("Ben"))
+	{
+		IPAddress = "25.16.234.201";
+	}
+	else if(IPAddress.Equals("Dave"))
+	{
+		IPAddress = "25.16.209.98";
+	}
+	else if(IPAddress.Equals("Matt"))
+	{
+		IPAddress = "25.80.30.209";
+	}
+	else if(IPAddress.Equals("Yousef"))
+	{
+		IPAddress = "25.53.50.17";
 	}
 
 	Logger::Log("Joining server " + IPAddress);
