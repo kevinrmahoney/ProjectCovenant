@@ -52,12 +52,9 @@ void ARailgun::Shoot()
 	// See if cooldown has passed (while loop prevents shots from being buffered if frame rate is horrendous)
 	if(TimeSinceLastShot >= Cooldown)
 	{
-		Logger::Log(FString::SanitizeFloat(TimeSinceLastShot));
 		TimeSinceLastShot = TimeSinceLastShot - Cooldown;
 		DoDamage = true;
 	}
-
-	PlayShootSound();
 
 	if(DoDamage)
 	{
@@ -83,6 +80,7 @@ void ARailgun::Shoot()
 		delete TraceParams;
 
 		DrawLaser(StartTrace, EndTrace, 2.f);
+		PlayShootSound();
 	}
 	delete StartTrace;
 	delete EndTrace;
