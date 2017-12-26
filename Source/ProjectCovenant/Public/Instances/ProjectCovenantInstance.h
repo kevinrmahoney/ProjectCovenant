@@ -9,14 +9,15 @@
 /**
  * 
  */
-UCLASS(Config=TestIni)
+UCLASS(Config=Settings)
 class PROJECTCOVENANT_API UProjectCovenantInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
 public:
 
-	FName ProfileName = "Subject Zero";
+	UPROPERTY(Config)
+	FName ProfileName;
 
 	UProjectCovenantInstance(const FObjectInitializer & ObjectIn);
 
@@ -29,6 +30,10 @@ public:
 	UFUNCTION(Exec)
 	void Sensitivity(float Sens);
 
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool SetSensitivity(float Sens);
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSensitivity();
 
 private:

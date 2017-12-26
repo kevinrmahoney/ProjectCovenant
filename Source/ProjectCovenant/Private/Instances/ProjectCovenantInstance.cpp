@@ -18,6 +18,7 @@ void UProjectCovenantInstance::Init()
 bool UProjectCovenantInstance::SetProfileName(FName NewProfileName)
 {
 	ProfileName = NewProfileName;
+	SaveConfig();
 	return true;
 }
 
@@ -29,9 +30,17 @@ FName UProjectCovenantInstance::GetProfileName()
 void UProjectCovenantInstance::Sensitivity(float Sens)
 {
 	cl_sensitivity = Sens;
+	SaveConfig();
 }
 
 float UProjectCovenantInstance::GetSensitivity()
 {
 	return cl_sensitivity;
+}
+
+bool UProjectCovenantInstance::SetSensitivity(float Sens)
+{
+	cl_sensitivity = Sens;
+	SaveConfig();
+	return true;
 }

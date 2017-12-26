@@ -37,7 +37,6 @@ private:
 	bool Jumping = false;
 	bool Sprinting = false;
 	bool JetpackActive = false;
-	bool IsTriggerPulled = false;
 
 	bool Grounded = false;
 
@@ -66,6 +65,9 @@ private:
 
 	UPROPERTY(Replicated)
 	bool Crouching = false;
+
+	UPROPERTY(Replicated)
+	bool IsTriggerPulled = false;
 
 	// constants
 	float NormalAirControl = 0.3f;
