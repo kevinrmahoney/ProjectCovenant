@@ -17,7 +17,7 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 
 	// Position the camera a bit above the eyes
 	Camera->RelativeLocation = FVector(0.f, 0, StandingHeight);
-	// Allow the pawn to control rotation.
+	// Allow the pawn to control rotation
 	Camera->bUsePawnControlRotation = true;
 
 	// Mesh
@@ -62,7 +62,7 @@ void ASubjectZero::BeginPlay()
 
 	// If a simulated proxy, attach the weapon to the character mesh, otherwise attach it to the first person mesh
 	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
-	if(Role == ROLE_SimulatedProxy)
+	if(!IsLocallyControlled())
 	{
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 	}
@@ -115,6 +115,7 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, DamageDealt);
 	DOREPLIFETIME(ASubjectZero, PlayerName);
 	DOREPLIFETIME(ASubjectZero, Crouching);
+	DOREPLIFETIME(ASubjectZero, IsTriggerPulled)
 }
 
 void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
@@ -415,7 +416,7 @@ void ASubjectZero::InputPrimaryWeaponPress()
 {
 	Weapon->Destroy();
 	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
-	if(Role == ROLE_SimulatedProxy)
+	if(!IsLocallyControlled())
 	{
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 	}
@@ -431,7 +432,7 @@ void ASubjectZero::InputSecondaryWeaponPress()
 {
 	Weapon->Destroy();
 	Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
-	if(Role == ROLE_SimulatedProxy)
+	if(!IsLocallyControlled())
 	{
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 	}
