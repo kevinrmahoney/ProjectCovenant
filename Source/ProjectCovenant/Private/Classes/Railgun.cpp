@@ -58,8 +58,8 @@ void ARailgun::Shoot()
 
 	if(DoDamage)
 	{
-		FHitResult* HitResult = new FHitResult();
-		FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
+		FHitResult * HitResult = new FHitResult();
+		FCollisionQueryParams * TraceParams = new FCollisionQueryParams();
 		TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
 
 		// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
@@ -107,4 +107,6 @@ void ARailgun::DrawLaser(FVector * Begin, FVector * End, float Duration)
 	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, 0.2f), *End, FColor::Red, false, Duration);
 	DrawDebugLine(World, *Begin + FVector(-0.2f, 0.f, 0.f), *End, FColor::Red, false, Duration);
 	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, -0.2f), *End, FColor::Red, false, Duration);
+
+	delete World;
 }
