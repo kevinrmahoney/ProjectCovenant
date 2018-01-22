@@ -43,7 +43,7 @@ private:
 	float Time;       
 
 	UPROPERTY(Replicated)
-	float Health = 100.f;
+	float Health = 50.f;
 
 	UPROPERTY(Replicated)
 	float Armor = 100.f;
@@ -144,9 +144,13 @@ public:
 
 	bool ReceiveDamage(float Damage);
 
+	bool ReceiveDamageOverTime(float DamageAmount, bool Overlapped);
+
 	void AddDamageDealt(float DamageDealt);
 
 	void AddKill();
+
+	void IncreaseHealth(float amount);
   
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSpeed() const;

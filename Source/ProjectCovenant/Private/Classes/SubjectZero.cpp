@@ -284,6 +284,11 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 	return false;
 }
 
+bool ASubjectZero::ReceiveDamageOverTime(float DamageAmount, bool Overlapped) {
+	
+	return true;
+}
+
 void ASubjectZero::AddDamageDealt(float AddedDamage)
 {
 	DamageDealt += AddedDamage;
@@ -292,6 +297,10 @@ void ASubjectZero::AddDamageDealt(float AddedDamage)
 void ASubjectZero::AddKill()
 {
 	Kills += 1;
+}
+
+void ASubjectZero::IncreaseHealth(float amount) {
+	Health += MaxHealth * amount;
 }
 
 // Getters
