@@ -13,8 +13,36 @@ UCLASS()
 class PROJECTCOVENANT_API AShotgun : public AHitscanWeapon
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+public: 
+	AShotgun();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	void SetTrigger(bool T);
+
+	void SetShooter(ASubjectZero * NewShooter);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlayShootSound();
+
+private:
+	void Shoot() override;
+
+	void DealDamage(ASubjectZero * Victim) override;
+
+	void DrawLaser(FVector * Begin, FVector * End, float Duration) override;
+
+	float MaxConeAngle = 2.f;
+
+	//maybe change to FRotator
+	float RollCount = 8.f;
+
+	float CircleCount = 1.f;
 };

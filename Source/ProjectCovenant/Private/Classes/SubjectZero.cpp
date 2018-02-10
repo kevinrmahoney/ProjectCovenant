@@ -5,6 +5,7 @@
 #include "UnrealNetwork.h"
 #include "HitscanWeapon.h"
 #include "Railgun.h"
+#include "Shotgun.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -336,6 +337,7 @@ void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
 	Input->BindAction("Shoot", IE_Released, this, &ASubjectZero::InputShootRelease);
 	Input->BindAction("PrimaryWeapon", IE_Pressed, this, &ASubjectZero::InputPrimaryWeaponPress);
 	Input->BindAction("SecondaryWeapon", IE_Pressed, this, &ASubjectZero::InputSecondaryWeaponPress);
+	Input->BindAction("TertiaryWeapon", IE_Pressed, this, &ASubjectZero::InputTertiaryWeaponPress);
 }
 
 void ASubjectZero::InputYaw(float Value) { 
@@ -433,6 +435,22 @@ void ASubjectZero::InputSecondaryWeaponPress()
 	Weapon->Destroy();
 	Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
 	if(!IsLocallyControlled())
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+	else
+	{
+		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+
+	Weapon->SetShooter(this);
+}
+
+void ASubjectZero::InputTertiaryWeaponPress()
+{
+	Weapon->Destroy();
+	Weapon = GetWorld()->SpawnActor<AShotgun>(ShotgunBlueprint);
+	if (!IsLocallyControlled())
 	{
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 	}
