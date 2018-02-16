@@ -195,13 +195,4 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsCrouching() const;
-
-	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
-	bool Join(FString IPAddress);
-
-	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
-	bool Host();
-
-	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
-	bool Map(FString Map);
 };

@@ -14,7 +14,8 @@ class PROJECTCOVENANT_API APractice : public AGameMode
 	GENERATED_BODY()
 
 	APractice(const FObjectInitializer& ObjectInitializer);
-		
+	
+	/*
 	virtual void StartPlay() override;
 
 protected:
@@ -23,4 +24,5 @@ protected:
 
 	UPROPERTY()
 	class UUserWidget* CurrentWidget;
+	*/
 };

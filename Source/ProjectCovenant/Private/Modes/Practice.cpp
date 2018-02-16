@@ -8,14 +8,17 @@
 
 APractice::APractice(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	/*
 	DefaultPawnClass = ASubjectZero::StaticClass();
 
 	// Wizardry involving turning Blueprints into objects. 
 	// PlayerHUD is a blueprint that creates widgets (ex. BP_HUD). Make this
 	static ConstructorHelpers::FClassFinder <AHUD> PlayerHUD(TEXT("/Game/Blueprints/HUD/PlayerHUD_BP"));
 	HUDClass = (UClass*)PlayerHUD.Class;
+	*/
 }
 
+/*
 void APractice::StartPlay() 
 {
 	Super::StartPlay();
@@ -37,5 +40,5 @@ void APractice::StartPlay()
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Mode: Practice"));
 	}
-
 }
+*/

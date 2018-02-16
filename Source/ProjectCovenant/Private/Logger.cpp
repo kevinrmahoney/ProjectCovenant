@@ -3,6 +3,8 @@
 #include "ProjectCovenant.h"
 #include "Logger.h"
 
+const float Logger::TimeOnScreen = 10.f;
+
 Logger::Logger()
 {
 }
@@ -15,41 +17,41 @@ void Logger::Log(FString msg)
 {
 	if(GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, msg);
+		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Cyan, msg);
 	}
 }
 void Logger::Error(FString msg)
 {
 	if(GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, msg);
+		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Red, msg);
 	}
 }
 void Logger::Warning(FString msg)
 {
 	if(GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, msg);
+		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Yellow, msg);
 	}
 }
-static void Log(float msg) 
+void Logger::Log(float msg) 
 {
 	if(GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::SanitizeFloat(msg));
+		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Cyan, FString::SanitizeFloat(msg));
 	}
 }
-static void Error(float msg)
+void Logger::Error(float msg)
 {
 	if(GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::SanitizeFloat(msg));
+		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Red, FString::SanitizeFloat(msg));
 	}
 }
-static void Warning(float msg)
+void Logger::Warning(float msg)
 {
 	if(GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::SanitizeFloat(msg));
+		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Yellow, FString::SanitizeFloat(msg));
 	}
 }

@@ -20,4 +20,6 @@ public:
 	static void Log(float msg);
 	static void Error(float msg);
 	static void Warning(float msg);
+
+	static const float TimeOnScreen;
 };

@@ -4,5 +4,16 @@
 #include "Deathmatch.h"
 
 
+ADeathmatch::ADeathmatch()
+{
+	Logger::Log("Game mode: Deathmatch");
+}
 
-
+void ADeathmatch::PostLogin(APlayerController * NewPlayer)
+{
+	if(HasAuthority())
+	{
+		Super::PostLogin(NewPlayer);
+		Logger::Log("Welcome " + GetFullName());
+	}
+}

@@ -12,8 +12,9 @@ UCLASS()
 class PROJECTCOVENANT_API ADeathmatch : public AGameMode
 {
 	GENERATED_BODY()
+	public:
+		ADeathmatch();
 	
-	
-	
-	
+	private:
+		void PostLogin(APlayerController * NewPlayer);
 };
