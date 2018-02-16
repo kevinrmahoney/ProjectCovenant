@@ -21,6 +21,9 @@ class PROJECTCOVENANT_API ASpectator : public ASpectatorPawn
 		virtual void SetupPlayerInputComponent(class UInputComponent* Input) override;
 
 private:
-	virtual void Spawn();
+	void Spawn();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_Spawn();
 	
 };

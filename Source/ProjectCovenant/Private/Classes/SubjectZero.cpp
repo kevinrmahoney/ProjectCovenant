@@ -72,7 +72,6 @@ void ASubjectZero::BeginPlay()
 	{
 		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 	}
-
 	Weapon->SetShooter(this);
 }
 

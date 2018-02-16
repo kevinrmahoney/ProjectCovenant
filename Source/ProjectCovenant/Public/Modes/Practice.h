@@ -5,6 +5,8 @@
 #include "GameFramework/GameMode.h"
 #include "Practice.generated.h"
 
+class ASubjectZero;
+
 /**
  * 
  */
@@ -13,7 +15,21 @@ class PROJECTCOVENANT_API APractice : public AGameMode
 {
 	GENERATED_BODY()
 
-	APractice(const FObjectInitializer& ObjectInitializer);
+public:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ASubjectZero> SubjectZeroBlueprint;
+
+	APractice();
+	void SpawnPlayer();
+
+	void BeginPlay();
+
+private:
+	void PostLogin(APlayerController * NewPlayer);
+
+	TArray<AActor*> SpawnPoints;
+
+	int SpawnCount = 0;
 	
 	/*
 	virtual void StartPlay() override;
