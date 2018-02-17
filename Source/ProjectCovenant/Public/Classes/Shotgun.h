@@ -39,10 +39,10 @@ private:
 
 	void DrawLaser(FVector * Begin, FVector * End, float Duration) override;
 
-	float MaxConeAngle = 2.f;
+	float MaxConeAngle = 200.f;
 
 	//maybe change to FRotator
 	float RollCount = 8.f;
 
-	float CircleCount = 1.f;
+	float CircleCount = 2.f;
 };

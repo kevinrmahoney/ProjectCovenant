@@ -103,6 +103,7 @@ void AHitscanWeapon::DealDamage(ASubjectZero * Victim)
 	if(Killed)
 	{
 		Shooter->AddKill();
+		Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString());
 	}
 }
 

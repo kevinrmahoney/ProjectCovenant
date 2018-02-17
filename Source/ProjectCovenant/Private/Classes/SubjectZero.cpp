@@ -310,7 +310,7 @@ bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
 bool ASubjectZero::IsCrouching() const { return Crouching; }
 int ASubjectZero::GetKills() const { return Kills; }
-int ASubjectZero::GetDamage() const { return DamageDealt; }
+float ASubjectZero::GetDamage() const { return DamageDealt; }
 FName ASubjectZero::GetPlayerName() const { return PlayerName; }
 
 // Input methods

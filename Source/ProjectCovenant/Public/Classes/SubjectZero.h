@@ -62,7 +62,7 @@ private:
 	int Kills = 0;
 
 	UPROPERTY(Replicated)
-	int DamageDealt = 0;
+	float DamageDealt = 0.f;
 
 	UPROPERTY(Replicated)
 	FName PlayerName = "Subject Zero";
@@ -187,7 +187,7 @@ public:
 	int GetKills() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
-	int GetDamage() const;
+	float GetDamage() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FName GetPlayerName() const;
