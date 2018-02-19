@@ -5,6 +5,7 @@
 #include "UnrealNetwork.h"
 #include "HitscanWeapon.h"
 #include "Railgun.h"
+#include "Deathmatch.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -281,6 +282,13 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			Shield = MaxShield;
 			Armor = MaxArmor;
 			Health = MaxHealth;
+			if(ADeathmatch * DeathmatchMode = Cast<ADeathmatch>(GetWorld()->GetAuthGameMode()))
+			{
+				if(AHumanController * HumanController = Cast<AHumanController>(GetController()))
+				{
+					DeathmatchMode->KillPlayer(HumanController);
+				}
+			}
 			return true;
 		}
 	}

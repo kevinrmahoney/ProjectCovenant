@@ -2,8 +2,9 @@
 
 #include "ProjectCovenant.h"
 #include "Deathmatch.h"
+#include "Spectator.h"
 #include "SubjectZero.h"
-
+//#include "HumanController.h"
 
 ADeathmatch::ADeathmatch()
 {
@@ -34,7 +35,7 @@ void ADeathmatch::PostLogin(APlayerController * NewPlayer)
 /* SpawnPlayer() - Spawns a character at a PlayerStart location. 
 	Spawn location rotates over the course of the game
 */
-void ADeathmatch::SpawnPlayer()
+void ADeathmatch::SpawnPlayer(AHumanController * Controller)
 {
 	if(HasAuthority())
 	{
@@ -42,8 +43,27 @@ void ADeathmatch::SpawnPlayer()
 		if(GetWorld())
 		{
 			Logger::Log("Spawning at " + SpawnPoints[SpawnCount]->GetActorLocation().ToString());
-			GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
+			ASubjectZero * NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
+			APawn * OldPawn = Controller->GetPawn();
+			Controller->UnPossess();
+			Controller->Possess(NewPawn);
+			OldPawn->Destroy();
 		}
 	}
 	SpawnCount++;
+}
+
+void ADeathmatch::KillPlayer(AHumanController * Controller)
+{
+	if(HasAuthority())
+	{
+		if(GetWorld())
+		{
+			ASpectator * NewPawn = GetWorld()->SpawnActor<ASpectator>(Controller->GetPawn()->GetActorLocation(), Controller->GetPawn()->GetActorRotation());
+			APawn * OldPawn = Controller->GetPawn();
+			Controller->UnPossess();
+			Controller->Possess(NewPawn);
+			OldPawn->Destroy();
+		}
+	}
 }

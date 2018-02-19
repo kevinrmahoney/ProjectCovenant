@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/GameMode.h"
+#include "HumanController.h"
 #include "Deathmatch.generated.h"
 
 class ASubjectZero;
@@ -19,7 +20,9 @@ class PROJECTCOVENANT_API ADeathmatch : public AGameMode
 		TSubclassOf<class ASubjectZero> SubjectZeroBlueprint;
 
 		ADeathmatch();
-		void SpawnPlayer();
+		void SpawnPlayer(AHumanController * Controller);
+
+		void KillPlayer(AHumanController * Controller);
 
 		void BeginPlay();
 	

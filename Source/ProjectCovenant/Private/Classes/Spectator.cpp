@@ -49,13 +49,16 @@ void ASpectator::Spawn()
 void ASpectator::Server_Spawn_Implementation()
 {
 	Logger::Log("Server Spawn Implementation");
-	if(ADeathmatch * GameMode = Cast<ADeathmatch>(GetWorld()->GetAuthGameMode()))
+	if(ADeathmatch * DeathmatchMode = Cast<ADeathmatch>(GetWorld()->GetAuthGameMode()))
 	{
-		GameMode->SpawnPlayer();
+		if(AHumanController * HumanController = Cast<AHumanController>(GetController()))
+		{
+			DeathmatchMode->SpawnPlayer(HumanController);
+		}
 	}
-	else if(APractice * GameMode = Cast<APractice>(GetWorld()->GetAuthGameMode()))
+	else if(APractice * PracticeMode = Cast<APractice>(GetWorld()->GetAuthGameMode()))
 	{
-		GameMode->SpawnPlayer();
+		//GameMode->SpawnPlayer(GetController());
 	}
 }
 
