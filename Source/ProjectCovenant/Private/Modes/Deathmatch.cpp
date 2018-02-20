@@ -28,6 +28,11 @@ void ADeathmatch::PostLogin(APlayerController * NewPlayer)
 	if(HasAuthority())
 	{
 		Super::PostLogin(NewPlayer);
+		if(AHumanController * Controller = Cast<AHumanController>(NewPlayer))
+		{
+			ASpectator * NewPawn = GetWorld()->SpawnActor<ASpectator>();
+			Controller->Possess(NewPawn);
+		}
 		Logger::Log("Welcome " + GetFullName());
 	}
 }
@@ -44,13 +49,15 @@ void ADeathmatch::SpawnPlayer(AHumanController * Controller)
 		{
 			Logger::Log("Spawning at " + SpawnPoints[SpawnCount]->GetActorLocation().ToString());
 			ASubjectZero * NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
+			Characters.Add(NewPawn);
 			APawn * OldPawn = Controller->GetPawn();
 			Controller->UnPossess();
 			Controller->Possess(NewPawn);
 			OldPawn->Destroy();
 		}
 	}
-	SpawnCount++;
+	SpawnCount = (SpawnCount + 1) % SpawnPoints.Num();
+	Logger::Log(FString::FromInt(Characters.Num()));
 }
 
 void ADeathmatch::KillPlayer(AHumanController * Controller)
@@ -61,6 +68,10 @@ void ADeathmatch::KillPlayer(AHumanController * Controller)
 		{
 			ASpectator * NewPawn = GetWorld()->SpawnActor<ASpectator>(Controller->GetPawn()->GetActorLocation(), Controller->GetPawn()->GetActorRotation());
 			APawn * OldPawn = Controller->GetPawn();
+			if(ASubjectZero * SubjectZero = Cast<ASubjectZero>(OldPawn))
+			{
+				Characters.Remove(SubjectZero);
+			}
 			Controller->UnPossess();
 			Controller->Possess(NewPawn);
 			OldPawn->Destroy();

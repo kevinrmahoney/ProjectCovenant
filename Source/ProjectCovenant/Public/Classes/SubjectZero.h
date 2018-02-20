@@ -111,6 +111,11 @@ private:
 
 	void ApplyAirResistance();
 
+	void Equip(int Num);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_Equip(int Num);
+
 	//Input functions
 	void InputYaw(float Value);
 	void InputPitch(float Value);

@@ -8,7 +8,14 @@
 
 ASpectator::ASpectator()
 {
-	Logger::Log("Spawned as Spectator");
+	if(HasAuthority())
+	{
+		Logger::Log("Spectator Authority");
+	}
+	else
+	{
+		Logger::Log("Spectator Authority");
+	}
 }
 
 // Input methods
@@ -36,30 +43,26 @@ void ASpectator::Spawn()
 		Logger::Log("Autonomous");
 	}
 
-	if(GetOwner())
+	if(HasAuthority())
 	{
+		if(ADeathmatch * DeathmatchMode = Cast<ADeathmatch>(GetWorld()->GetAuthGameMode()))
+		{
+			if(AHumanController * HumanController = Cast<AHumanController>(GetController()))
+			{
+				DeathmatchMode->SpawnPlayer(HumanController);
+			}
+		}
 	}
 	else
 	{
-		Logger::Log("No Owner");
+		Server_Spawn();
 	}
-	Server_Spawn();
 }
 
 void ASpectator::Server_Spawn_Implementation()
 {
 	Logger::Log("Server Spawn Implementation");
-	if(ADeathmatch * DeathmatchMode = Cast<ADeathmatch>(GetWorld()->GetAuthGameMode()))
-	{
-		if(AHumanController * HumanController = Cast<AHumanController>(GetController()))
-		{
-			DeathmatchMode->SpawnPlayer(HumanController);
-		}
-	}
-	else if(APractice * PracticeMode = Cast<APractice>(GetWorld()->GetAuthGameMode()))
-	{
-		//GameMode->SpawnPlayer(GetController());
-	}
+	Spawn();
 }
 
 bool ASpectator::Server_Spawn_Validate()

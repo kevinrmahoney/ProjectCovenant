@@ -63,24 +63,12 @@ void ASubjectZero::BeginPlay()
 		}
 	}
 
-	// If a simulated proxy, attach the weapon to the character mesh, otherwise attach it to the first person mesh
-	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
-	if(!IsLocallyControlled())
-	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-	else
-	{
-		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-	Weapon->SetShooter(this);
+	//Equip(0);
 }
 
 // Called every frame
 void ASubjectZero::Tick(float DeltaTime)
 {
-	ReceiveDamage(50.f * DeltaTime);
-
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
@@ -103,7 +91,10 @@ void ASubjectZero::Tick(float DeltaTime)
 		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
 	}
 
-	Weapon->SetTrigger(IsTriggerPulled);
+	if(Weapon)
+	{
+		Weapon->SetTrigger(IsTriggerPulled);
+	}
 
 	Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 }
@@ -199,6 +190,54 @@ bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jum
 	return true;
 }
 
+void ASubjectZero::Equip(int Num)
+{
+	if(Num == 0)
+	{
+		Weapon->Destroy();
+		Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
+		if(!IsLocallyControlled())
+		{
+			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+		}
+		else
+		{
+			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+		}
+
+		Weapon->SetShooter(this);
+	}
+	else if(Num == 1)
+	{
+		if(Weapon)
+		{
+			Weapon->Destroy();
+		}
+		Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
+
+		if(!IsLocallyControlled())
+		{
+			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+		}
+		else
+		{
+			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+		}
+
+		Weapon->SetShooter(this);
+	}
+}
+
+void ASubjectZero::Server_Equip_Implementation(int Num)
+{
+	Equip(Num);
+}
+
+bool ASubjectZero::Server_Equip_Validate(int Num)
+{
+	return true;
+}
+
 void ASubjectZero::JetpackBurst()
 {
 	if(Controller)
@@ -242,54 +281,57 @@ bool ASubjectZero::Server_Set_Name_Validate(FName Name)
 
 bool ASubjectZero::ReceiveDamage(float Dmg)
 {
-	if(Shield != 0.f)
+	if(HasAuthority())
 	{
-		if(Shield > Dmg)
+		if(Shield != 0.f)
 		{
-			Shield = Shield - Dmg;
-			return false;
-		}
-		else
-		{
-			Dmg = Dmg - Shield;
-			Shield = 0.f;
-			ReceiveDamage(Dmg);
-		}
-	} 
-	else if(Armor != 0.f)
-	{
-		if(Armor > Dmg)
-		{
-			Armor = Armor - Dmg;
-			return false;
-		}
-		else
-		{
-			Dmg = Dmg - Armor;
-			Armor = 0.f;
-			ReceiveDamage(Dmg);
-		}
-	} 
-	else if(Health != 0.f)
-	{
-		if(Health > Dmg)
-		{
-			Health = Health - Dmg;
-			return false;
-		}
-		else
-		{
-			Shield = MaxShield;
-			Armor = MaxArmor;
-			Health = MaxHealth;
-			if(ADeathmatch * DeathmatchMode = Cast<ADeathmatch>(GetWorld()->GetAuthGameMode()))
+			if(Shield > Dmg)
 			{
-				if(AHumanController * HumanController = Cast<AHumanController>(GetController()))
-				{
-					DeathmatchMode->KillPlayer(HumanController);
-				}
+				Shield = Shield - Dmg;
+				return false;
 			}
-			return true;
+			else
+			{
+				Dmg = Dmg - Shield;
+				Shield = 0.f;
+				ReceiveDamage(Dmg);
+			}
+		}
+		else if(Armor != 0.f)
+		{
+			if(Armor > Dmg)
+			{
+				Armor = Armor - Dmg;
+				return false;
+			}
+			else
+			{
+				Dmg = Dmg - Armor;
+				Armor = 0.f;
+				ReceiveDamage(Dmg);
+			}
+		}
+		else if(Health != 0.f)
+		{
+			if(Health > Dmg)
+			{
+				Health = Health - Dmg;
+				return false;
+			}
+			else
+			{
+				Shield = MaxShield;
+				Armor = MaxArmor;
+				Health = MaxHealth;
+				if(ADeathmatch * DeathmatchMode = Cast<ADeathmatch>(GetWorld()->GetAuthGameMode()))
+				{
+					if(AHumanController * HumanController = Cast<AHumanController>(GetController()))
+					{
+						DeathmatchMode->KillPlayer(HumanController);
+					}
+				}
+				return true;
+			}
 		}
 	}
 	return false;
@@ -425,32 +467,18 @@ void ASubjectZero::InputShootRelease()
 
 void ASubjectZero::InputPrimaryWeaponPress()
 {
-	Weapon->Destroy();
-	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
-	if(!IsLocallyControlled())
+	Equip(0);
+	if(!HasAuthority())
 	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+		Server_Equip(0);
 	}
-	else
-	{
-		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-
-	Weapon->SetShooter(this);
 }
 
 void ASubjectZero::InputSecondaryWeaponPress()
 {
-	Weapon->Destroy();
-	Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
-	if(!IsLocallyControlled())
+	Equip(1);
+	if(!HasAuthority())
 	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+		Server_Equip(1);
 	}
-	else
-	{
-		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-
-	Weapon->SetShooter(this);
 }

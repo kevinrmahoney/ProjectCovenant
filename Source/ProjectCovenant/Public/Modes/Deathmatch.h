@@ -19,6 +19,9 @@ class PROJECTCOVENANT_API ADeathmatch : public AGameMode
 		UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<class ASubjectZero> SubjectZeroBlueprint;
 
+		UPROPERTY()
+		TArray<ASubjectZero*> Characters;
+
 		ADeathmatch();
 		void SpawnPlayer(AHumanController * Controller);
 
