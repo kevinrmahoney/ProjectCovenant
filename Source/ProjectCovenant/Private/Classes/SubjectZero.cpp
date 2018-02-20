@@ -97,6 +97,7 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 
 	Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
+	Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 0.5f * DeltaTime));
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const

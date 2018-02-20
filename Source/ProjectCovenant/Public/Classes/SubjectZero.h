@@ -80,7 +80,7 @@ private:
 	float JetpackAcceleration = 120000.f;
 	float GroundAcceleration = 1000.f;
 	float AirResistanceConstant = 0.008f;
-	float FuelUsage = 1.f;
+	float FuelUsage = 100.f;
 	float MaxHealth = 100.f;
 	float MaxArmor = 100.f;
 	float MaxShield = 100.f;
