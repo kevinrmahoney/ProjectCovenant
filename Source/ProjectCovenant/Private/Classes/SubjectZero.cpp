@@ -60,11 +60,7 @@ void ASubjectZero::Tick(float DeltaTime)
 	// Movement depends on if grounded or in the air
 	if(Grounded)
 	{
-		// Jump
-		if(!Jumping)
-		{
-			JetpackActive = false;
-		}
+		JetpackActive = false;
 	}
 
 	if(AHumanController * HumanController = Cast<AHumanController>(GetController()))

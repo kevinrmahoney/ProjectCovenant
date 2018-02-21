@@ -20,10 +20,7 @@ void ASpectator::Move()
 	if(Controller)
 	{
 		FRotator Rotation = Controller->GetControlRotation();
-		//AddActorLocalOffset(Rotation.RotateVector(Movement.GetSafeNormal()));
-		//AddActorLocalOffset(Rotation.RotateVector(Movement));
 		FVector Distance = Movement * (Sprinting ? 3.f : 1.f);
-		Logger::Chat(Distance.ToString());
 		AddMovementInput(Rotation.RotateVector(Distance), 1.f);
 	}
 	else
@@ -53,12 +50,16 @@ void ASpectator::Spawn()
 	Logger::Log("Trying to Spawn...");
 	if(HasAuthority())
 	{
-		if(ADeathmatch * DeathmatchMode = Cast<ADeathmatch>(GetWorld()->GetAuthGameMode()))
+		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{
 			if(AHumanController * HumanController = Cast<AHumanController>(GetController()))
 			{
-				DeathmatchMode->SpawnPlayer(HumanController);
+				Mode->SpawnPlayer(HumanController);
 			}
+		}
+		else
+		{
+			Logger::Chat("Whoops");
 		}
 	}
 	else

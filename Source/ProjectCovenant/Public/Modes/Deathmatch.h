@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "GameFramework/GameMode.h"
+#include "BaseMode.h"
 #include "HumanController.h"
 #include "Deathmatch.generated.h"
 
@@ -12,27 +12,12 @@ class ASubjectZero;
  * 
  */
 UCLASS()
-class PROJECTCOVENANT_API ADeathmatch : public AGameMode
+class PROJECTCOVENANT_API ADeathmatch : public ABaseMode
 {
 	GENERATED_BODY()
-	public:
-		UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class ASubjectZero> SubjectZeroBlueprint;
 
-		UPROPERTY()
-		TArray<ASubjectZero*> Characters;
+public:
 
-		ADeathmatch();
-		void SpawnPlayer(AHumanController * Controller);
+	ADeathmatch();
 
-		void KillPlayer(AHumanController * Controller);
-
-		void BeginPlay();
-	
-	private:
-		void PostLogin(APlayerController * NewPlayer);
-
-		TArray<AActor*> SpawnPoints;
-
-		int SpawnCount = 0;
 };

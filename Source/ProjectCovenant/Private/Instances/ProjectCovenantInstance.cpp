@@ -121,3 +121,8 @@ bool UProjectCovenantInstance::Kill()
 	}
 	return true;
 }
+
+bool UProjectCovenantInstance::Sudoku()
+{
+	return Kill();
+}

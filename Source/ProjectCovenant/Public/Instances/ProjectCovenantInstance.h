@@ -48,6 +48,9 @@ public:
 	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
 	bool Kill();
 
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Sudoku();
+
 private:
 	virtual void Init();
 
