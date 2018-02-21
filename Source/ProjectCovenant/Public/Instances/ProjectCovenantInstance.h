@@ -45,6 +45,9 @@ public:
 	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
 	bool Map(FString Map);
 
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Kill();
+
 private:
 	virtual void Init();
 

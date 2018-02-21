@@ -8,41 +8,12 @@
 
 ASpectator::ASpectator()
 {
-	if(HasAuthority())
-	{
-		Logger::Log("Spectator Authority");
-	}
-	else
-	{
-		Logger::Log("Spectator Authority");
-	}
-}
-
-// Input methods
-void ASpectator::SetupPlayerInputComponent(class UInputComponent* Input)
-{
-	Super::SetupPlayerInputComponent(Input);
-
-	Input->BindAction("Use", IE_Pressed, this, &ASpectator::Spawn);
 }
 
 /* Spawn() - Spawns a new character. Can only be done on the server */
 void ASpectator::Spawn()
 {
-	Logger::Log("SPAWNING");
-	if(Role == ROLE_Authority)
-	{
-		Logger::Log("Authority");
-	}
-	else if(Role == ROLE_SimulatedProxy)
-	{
-		Logger::Log("Simulated");
-	}
-	else if(Role == ROLE_AutonomousProxy)
-	{
-		Logger::Log("Autonomous");
-	}
-
+	Logger::Log("Trying to Spawn...");
 	if(HasAuthority())
 	{
 		if(ADeathmatch * DeathmatchMode = Cast<ADeathmatch>(GetWorld()->GetAuthGameMode()))
@@ -61,12 +32,11 @@ void ASpectator::Spawn()
 
 void ASpectator::Server_Spawn_Implementation()
 {
-	Logger::Log("Server Spawn Implementation");
+	Logger::Log("Spawning");
 	Spawn();
 }
 
 bool ASpectator::Server_Spawn_Validate()
 {
-	Logger::Log("Server Spawn Validate");
 	return true;
 }

@@ -13,45 +13,43 @@ Logger::~Logger()
 {
 }
 
-void Logger::Log(FString msg)
+void Logger::Chat(FString msg)
 {
 	if(GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Cyan, msg);
 	}
 }
-void Logger::Error(FString msg)
-{
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Red, msg);
-	}
-}
-void Logger::Warning(FString msg)
-{
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Yellow, msg);
-	}
-}
-void Logger::Log(float msg) 
+
+void Logger::Chat(float msg)
 {
 	if(GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Cyan, FString::SanitizeFloat(msg));
 	}
 }
+
+void Logger::Log(FString msg)
+{
+	UE_LOG(LogTemp, Log, TEXT("%s"), *msg);
+}
+void Logger::Error(FString msg)
+{
+	UE_LOG(LogTemp, Error, TEXT("%s"), *msg);
+}
+void Logger::Warning(FString msg)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *msg);
+}
+void Logger::Log(float msg) 
+{
+	UE_LOG(LogTemp, Log, TEXT("%f"), msg);
+}
 void Logger::Error(float msg)
 {
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Red, FString::SanitizeFloat(msg));
-	}
+	UE_LOG(LogTemp, Error, TEXT("%f"), msg);
 }
 void Logger::Warning(float msg)
 {
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, TimeOnScreen, FColor::Yellow, FString::SanitizeFloat(msg));
-	}
+	UE_LOG(LogTemp, Warning, TEXT("%f"), msg);
 }

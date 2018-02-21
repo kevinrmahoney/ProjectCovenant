@@ -5,8 +5,6 @@
 #include "GameFramework/Character.h"
 #include "SubjectZero.generated.h"
 
-class UProjectCovenantInstance;
-
 class AHitscanWeapon;
 class ARailgun;
 
@@ -18,11 +16,12 @@ class PROJECTCOVENANT_API ASubjectZero : public ACharacter
 public:
 	ASubjectZero(const FObjectInitializer& ObjectInitializer);
 
+	FVector Movement;
+	bool Jumping = false;
+	bool Sprinting = false;
+	bool JetpackActive = false;
+
 private:
-
-	UPROPERTY()
-	UProjectCovenantInstance * GameInstance;
-
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AHitscanWeapon> HitscanWeaponBlueprint;
 
@@ -33,14 +32,11 @@ private:
 	AHitscanWeapon * Weapon;
 
 	FVector Velocity;
-	FVector Movement;
-	bool Jumping = false;
-	bool Sprinting = false;
-	bool JetpackActive = false;
 
 	bool Grounded = false;
 
-	float Time;       
+	float Time;    
+	float TimeSinceJetpack = 0.f;
 
 	UPROPERTY(Replicated)
 	float Health = 100.f;
@@ -61,9 +57,6 @@ private:
 	int DamageDealt = 0;
 
 	UPROPERTY(Replicated)
-	FName PlayerName = "Subject Zero";
-
-	UPROPERTY(Replicated)
 	bool Crouching = false;
 
 	UPROPERTY(Replicated)
@@ -78,7 +71,7 @@ private:
 	float CrouchingSprintSpeed = 300.f;
 	float CrouchingRunSpeed = 200.f;
 	float JetpackAcceleration = 120000.f;
-	float GroundAcceleration = 1000.f;
+	float GroundAcceleration = 5000.f;
 	float AirResistanceConstant = 0.008f;
 	float FuelUsage = 100.f;
 	float MaxHealth = 100.f;
@@ -102,11 +95,6 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Set_Name(const FName NewName);
-  
-	void DepleteJetpack();
-
 	void JetpackBurst();
 
 	void ApplyAirResistance();
@@ -116,33 +104,8 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Equip(int Num);
 
-	//Input functions
-	void InputYaw(float Value);
-	void InputPitch(float Value);
-	void InputForwardPress();
-	void InputForwardRelease();
-	void InputBackwardPress();
-	void InputBackwardRelease();
-	void InputLeftPress();
-	void InputLeftRelease();
-	void InputRightPress();
-	void InputRightRelease();
-	void InputJumpPress();
-	void InputJumpRelease();
-	void InputSprintPress();
-	void InputSprintRelease();
-	void InputCrouchPress();
-	void InputCrouchRelease();
-	void InputShootPress();
-	void InputShootRelease();
-	void InputPrimaryWeaponPress();
-	void InputPrimaryWeaponRelease();
-	void InputSecondaryWeaponPress();
-	void InputSecondaryWeaponRelease();
-
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* Input) override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -152,6 +115,25 @@ public:
 	void AddDamageDealt(float DamageDealt);
 
 	void AddKill();
+
+	void Kill();
+
+	void LookRight(float Set);
+	void LookUp(float Set);
+	void Crouch(bool Set);
+	void Sprint(bool Set);
+	void Jump(bool Set);
+	void MoveLeft(bool Set);
+	void MoveRight(bool Set);
+	void MoveForward(bool Set);
+	void MoveBackward(bool Set);
+	void Fire(bool Set);
+	void SecondaryFire(bool Set);
+	void Use(bool Set);
+	void Slot0();
+	void Slot1();
+	void Slot2();
+	void Slot3();
   
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSpeed() const;
@@ -200,4 +182,6 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsCrouching() const;
+
+
 };

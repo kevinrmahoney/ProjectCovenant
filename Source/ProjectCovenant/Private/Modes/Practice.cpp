@@ -3,6 +3,7 @@
 #include "ProjectCovenant.h"
 #include "Practice.h"
 #include "SubjectZero.h"
+#include "HumanController.h"
 #include "Blueprint/UserWidget.h"
 #include "Runtime/CoreUObject/Public/UObject/ConstructorHelpers.h"
 
@@ -21,14 +22,7 @@ APractice::APractice()
 
 void APractice::BeginPlay()
 {
-	Logger::Log("Beginning deathmatch");
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPoints);
-
-	for(auto& SpawnPoint : SpawnPoints)
-	{
-		Logger::Log(SpawnPoint->GetActorLocation().ToString());
-	}
-	Logger::Log("There are " + FString::FromInt(SpawnPoints.Num()) + " spawn points on this map, in the following locations:");
 }
 
 void APractice::PostLogin(APlayerController * NewPlayer)
@@ -36,7 +30,10 @@ void APractice::PostLogin(APlayerController * NewPlayer)
 	if(HasAuthority())
 	{
 		Super::PostLogin(NewPlayer);
-		Logger::Log("Welcome " + GetFullName());
+		if(AHumanController * HumanController = Cast<AHumanController>(NewPlayer))
+		{
+			Logger::Log("Welcome " + HumanController->GetPlayerName().ToString());
+		}
 	}
 }
 
@@ -47,10 +44,8 @@ void APractice::SpawnPlayer()
 {
 	if(HasAuthority())
 	{
-		Logger::Log("Respawning...");
 		if(GetWorld())
 		{
-			Logger::Log("Spawning at " + SpawnPoints[SpawnCount]->GetActorLocation().ToString());
 			GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
 		}
 	}

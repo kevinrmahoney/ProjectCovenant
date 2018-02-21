@@ -15,12 +15,8 @@ class PROJECTCOVENANT_API ASpectator : public ASpectatorPawn
 	GENERATED_BODY()
 
 	public:
-		ASpectator();
-	
-	protected:
-		virtual void SetupPlayerInputComponent(class UInputComponent* Input) override;
+	ASpectator();
 
-private:
 	void Spawn();
 
 	UFUNCTION(Server, Reliable, WithValidation)

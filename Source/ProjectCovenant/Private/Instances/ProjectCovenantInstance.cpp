@@ -2,17 +2,16 @@
 
 #include "ProjectCovenant.h"
 #include "Logger.h"
+#include "SubjectZero.h"
 #include "ProjectCovenantInstance.h"
 
 
 UProjectCovenantInstance::UProjectCovenantInstance(const FObjectInitializer & ObjectIn)
 {
-	Logger::Log("Project Covenant instance constructed.");
 }
 
 void UProjectCovenantInstance::Init()
 {
-	Logger::Log("Project Covenant instance initialized.");
 }
 
 bool UProjectCovenantInstance::SetProfileName(FName NewProfileName)
@@ -112,4 +111,13 @@ bool UProjectCovenantInstance::Map(FString Map)
 		return true;
 	}
 	return false;
+}
+
+bool UProjectCovenantInstance::Kill()
+{
+	if(ASubjectZero * SubjectZero = Cast<ASubjectZero>(GetFirstLocalPlayerController()->AcknowledgedPawn))
+	{
+		SubjectZero->ReceiveDamage(9001.f);
+	}
+	return true;
 }
