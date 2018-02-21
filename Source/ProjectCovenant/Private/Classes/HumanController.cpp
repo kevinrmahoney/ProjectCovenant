@@ -110,12 +110,20 @@ void AHumanController::InputYaw(float Value)
 	{
 		SubjectZero->LookRight(Value * GameInstance->GetSensitivity());
 	}
+	if(Spectator)
+	{
+		Spectator->LookRight(Value * GameInstance->GetSensitivity());
+	}
 }
 void AHumanController::InputPitch(float Value) 
 {
 	if(SubjectZero)
 	{
 		SubjectZero->LookUp(Value * GameInstance->GetSensitivity());
+	}
+	else if(Spectator)
+	{
+		Spectator->LookUp(Value * GameInstance->GetSensitivity());
 	}
 }
 void AHumanController::InputForwardPress() 
@@ -124,12 +132,20 @@ void AHumanController::InputForwardPress()
 	{
 		SubjectZero->MoveForward(true);
 	}
+	else if(Spectator)
+	{
+		Spectator->MoveForward(true);
+	}
 }
 void AHumanController::InputForwardRelease() 
 { 
 	if(SubjectZero)
 	{
 		SubjectZero->MoveForward(false);
+	}
+	else if(Spectator)
+	{
+		Spectator->MoveForward(false);
 	}
 }
 void AHumanController::InputBackwardPress() 
@@ -138,12 +154,20 @@ void AHumanController::InputBackwardPress()
 	{
 		SubjectZero->MoveBackward(true);
 	}
+	else if(Spectator)
+	{
+		Spectator->MoveBackward(true);
+	}
 }
 void AHumanController::InputBackwardRelease() 
 { 
 	if(SubjectZero)
 	{
 		SubjectZero->MoveBackward(false);
+	}
+	else if(Spectator)
+	{
+		Spectator->MoveBackward(false);
 	}
 }
 void AHumanController::InputLeftPress() 
@@ -152,12 +176,20 @@ void AHumanController::InputLeftPress()
 	{
 		SubjectZero->MoveLeft(true);
 	}
+	else if(Spectator)
+	{
+		Spectator->MoveLeft(true);;
+	}
 }
 void AHumanController::InputLeftRelease()
 {
 	if(SubjectZero)
 	{
 		SubjectZero->MoveLeft(false);
+	}
+	else if(Spectator)
+	{
+		Spectator->MoveLeft(false);
 	}
 }
 void AHumanController::InputRightPress() 
@@ -166,12 +198,20 @@ void AHumanController::InputRightPress()
 	{
 		SubjectZero->MoveRight(true);
 	}
+	else if(Spectator)
+	{
+		Spectator->MoveRight(true);
+	}
 }
 void AHumanController::InputRightRelease() 
 { 
 	if(SubjectZero)
 	{
 		SubjectZero->MoveRight(false);
+	}
+	else if(Spectator)
+	{
+		Spectator->MoveRight(false);
 	}
 }
 void AHumanController::InputJumpPress()
@@ -180,12 +220,20 @@ void AHumanController::InputJumpPress()
 	{
 		SubjectZero->Jump(true);
 	}
+	else if(Spectator)
+	{
+		Spectator->Jump(true);
+	}
 }
 void AHumanController::InputJumpRelease()
 {
 	if(SubjectZero)
 	{
 		SubjectZero->Jump(false);
+	}
+	else if(Spectator)
+	{
+		Spectator->Jump(false);
 	}
 }
 void AHumanController::InputSprintPress()
@@ -194,12 +242,20 @@ void AHumanController::InputSprintPress()
 	{
 		SubjectZero->Sprint(true);
 	}
+	else if(Spectator)
+	{
+		Spectator->Sprint(true);
+	}
 }
 void AHumanController::InputSprintRelease()
 {
 	if(SubjectZero)
 	{
 		SubjectZero->Sprint(false);
+	}
+	else if(Spectator)
+	{
+		Spectator->Sprint(false);
 	}
 }
 void AHumanController::InputCrouchPress()
@@ -208,12 +264,20 @@ void AHumanController::InputCrouchPress()
 	{
 		SubjectZero->Crouch(true);
 	}
+	else if(Spectator)
+	{
+		Spectator->Crouch(true);
+	}
 }
 void AHumanController::InputCrouchRelease()
 {
 	if(SubjectZero)
 	{
 		SubjectZero->Crouch(false);
+	}
+	else if(Spectator)
+	{
+		Spectator->Crouch(false);
 	}
 }
 void AHumanController::InputShootPress()
@@ -222,12 +286,20 @@ void AHumanController::InputShootPress()
 	{
 		SubjectZero->Fire(true);
 	}
+	else if(Spectator)
+	{
+		Spectator->Fire(true);
+	}
 }
 void AHumanController::InputShootRelease()
 {
 	if(SubjectZero)
 	{
 		SubjectZero->Fire(false);
+	}
+	else if(Spectator)
+	{
+		Spectator->Fire(false);
 	}
 }
 void AHumanController::InputPrimaryWeaponPress()
@@ -236,12 +308,20 @@ void AHumanController::InputPrimaryWeaponPress()
 	{
 		SubjectZero->Slot0();
 	}
+	else if(Spectator)
+	{
+		Spectator->Slot0();
+	}
 }
 void AHumanController::InputSecondaryWeaponPress()
 {
 	if(SubjectZero)
 	{
 		SubjectZero->Slot1();
+	}
+	else if(Spectator)
+	{
+		Spectator->Slot1();
 	}
 }
 void AHumanController::InputThirdaryWeaponPress()
@@ -250,19 +330,21 @@ void AHumanController::InputThirdaryWeaponPress()
 	{
 		SubjectZero->Slot2();
 	}
+	else if(Spectator)
+	{
+		Spectator->Slot2();
+	}
 }
 
 void AHumanController::InputUsePress()
 {
-	Logger::Log("Pressed");
-	if(ASpectator * Test = Cast<ASpectator>(AcknowledgedPawn))
+	if(SubjectZero)
 	{
-		Logger::Log("Asking spectator to spawn...");
-		Test->Spawn();
+		SubjectZero->Use(true);
 	}
-	else
+	else if(Spectator)
 	{
-		Logger::Log(AcknowledgedPawn->GetName());
+		Spectator->Use(true);
 	}
 }
 
