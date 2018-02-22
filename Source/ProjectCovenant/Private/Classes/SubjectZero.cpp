@@ -125,7 +125,7 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 
 			if(Jumping)
 			{
-				Super::Jump();
+				Jump();
 			}
 			else
 			{
@@ -298,11 +298,11 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 				Shield = MaxShield;
 				Armor = MaxArmor;
 				Health = MaxHealth;
-				if(ADeathmatch * DeathmatchMode = Cast<ADeathmatch>(GetWorld()->GetAuthGameMode()))
+				if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 				{
 					if(AHumanController * HumanController = Cast<AHumanController>(GetController()))
 					{
-						DeathmatchMode->KillPlayer(HumanController);
+						Mode->KillPlayer(HumanController);
 					}
 				}
 				return true;
@@ -328,39 +328,45 @@ void ASubjectZero::Kill()
 	GetMesh()->SetAllBodiesSimulatePhysics(true);
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->WakeAllRigidBodies();
+	if(Weapon)
+	{
+		Weapon->Destroy();
+	}
 	Super::Destroy();
 }
 
-void ASubjectZero::LookRight(float Set)
+void ASubjectZero::SetYaw(float Set)
 {
 	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set);
 }
-void ASubjectZero::LookUp(float Set)
+void ASubjectZero::SetPitch(float Set)
 {
 	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
 }
 
-void ASubjectZero::Crouch(bool Set)
+void ASubjectZero::SetCrouch(bool Set)
 {
 	Crouching = Set;
 	if(Set)
 	{
 		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 		Camera->AddRelativeLocation(FVector(0.f, 0, CrouchingHeight - StandingHeight));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(66.f);
 	}
 	else
 	{
 		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 		Camera->AddRelativeLocation(FVector(0.f, 0, StandingHeight - CrouchingHeight));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
 	}
 }
 
-void ASubjectZero::Sprint(bool Set)
+void ASubjectZero::SetSprint(bool Set)
 {
 	Sprinting = Set;
 }
 
-void ASubjectZero::Jump(bool Set)
+void ASubjectZero::SetJump(bool Set)
 {
 	Jumping = Set;
 	if(!Grounded && Jumping)
@@ -369,37 +375,37 @@ void ASubjectZero::Jump(bool Set)
 	}
 }
 
-void ASubjectZero::MoveLeft(bool Set)
+void ASubjectZero::SetMoveLeft(bool Set)
 {
 	Movement.Y -= Set ? 1.f : -1.f;
 }
 
-void ASubjectZero::MoveRight(bool Set)
+void ASubjectZero::SetMoveRight(bool Set)
 {
 	Movement.Y += Set ? 1.f : -1.f;
 }
 
-void ASubjectZero::MoveForward(bool Set)
+void ASubjectZero::SetMoveForward(bool Set)
 {
 	Movement.X += Set ? 1.f : -1.f;
 }
 
-void ASubjectZero::MoveBackward(bool Set)
+void ASubjectZero::SetMoveBackward(bool Set)
 {
 	Movement.X -= Set ? 1.f : -1.f;
 }
 
-void ASubjectZero::Fire(bool Set)
+void ASubjectZero::SetFire(bool Set)
 {
 	IsTriggerPulled = Set;
 }
 
-void ASubjectZero::SecondaryFire(bool Set)
+void ASubjectZero::SetSecondaryFire(bool Set)
 {
 
 }
 
-void ASubjectZero::Use(bool Set)
+void ASubjectZero::SetUse(bool Set)
 {
 
 }

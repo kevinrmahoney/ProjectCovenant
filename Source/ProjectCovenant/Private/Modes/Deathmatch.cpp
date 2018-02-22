@@ -10,3 +10,22 @@ ADeathmatch::ADeathmatch()
 {
 	Logger::Log("Mode: Deathmatch");
 }
+
+
+void ADeathmatch::KillPlayer(AHumanController * Controller)
+{
+	Super::KillPlayer(Controller);
+	Logger::Chat("ADeathmatch::Killplayer");
+}
+
+void ADeathmatch::PostLogin(APlayerController * NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+	Logger::Chat("ADeathmatch::PostLogin");
+}
+
+void ADeathmatch::SpawnPlayer(AHumanController * Controller)
+{
+	Super::SpawnPlayer(Controller);
+	Logger::Chat("ADeathmatch::SpawnPlayer");
+}

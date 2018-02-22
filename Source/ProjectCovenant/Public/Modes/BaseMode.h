@@ -21,20 +21,20 @@ public:
 	ABaseMode();
 	
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class ASubjectZero> SubjectZeroBlueprint;
+	TSubclassOf<class ASubjectZero> SubjectZeroBlueprint;
 
 	UPROPERTY()
-		TArray<ASubjectZero*> Characters;
+	TArray<ASubjectZero*> Characters;
 
-	void SpawnPlayer(AHumanController * Controller);
+	virtual void SpawnPlayer(AHumanController * Controller);
 
-	void KillPlayer(AHumanController * Controller);
+	virtual void KillPlayer(AHumanController * Controller);
 
-	void BeginPlay();
+	virtual void BeginPlay();
+
+	virtual void PostLogin(APlayerController * NewPlayer);
 
 private:
-	void PostLogin(APlayerController * NewPlayer);
-
 	TArray<AActor*> SpawnPoints;
 
 	int SpawnCount = 0;

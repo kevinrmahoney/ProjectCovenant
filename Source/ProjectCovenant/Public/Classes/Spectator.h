@@ -27,18 +27,18 @@ class PROJECTCOVENANT_API ASpectator : public ASpectatorPawn
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Spawn();
 
-	void LookRight(float Set);
-	void LookUp(float Set);
-	void Crouch(bool Set);
-	void Sprint(bool Set);
-	void Jump(bool Set);
-	void MoveLeft(bool Set);
-	void MoveRight(bool Set);
-	void MoveForward(bool Set);
-	void MoveBackward(bool Set);
-	void Fire(bool Set);
-	void SecondaryFire(bool Set);
-	void Use(bool Set);
+	void SetYaw(float Set);
+	void SetPitch(float Set);
+	void SetCrouch(bool Set);
+	void SetSprint(bool Set);
+	void SetJump(bool Set);
+	void SetMoveLeft(bool Set);
+	void SetMoveRight(bool Set);
+	void SetMoveForward(bool Set);
+	void SetMoveBackward(bool Set);
+	void SetFire(bool Set);
+	void SetSecondaryFire(bool Set);
+	void SetUse(bool Set);
 	void Slot0();
 	void Slot1();
 	void Slot2();

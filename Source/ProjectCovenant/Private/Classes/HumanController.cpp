@@ -108,198 +108,198 @@ void AHumanController::InputYaw(float Value)
 {
 	if(SubjectZero)
 	{
-		SubjectZero->LookRight(Value * GameInstance->GetSensitivity());
+		SubjectZero->SetYaw(Value * GameInstance->GetSensitivity());
 	}
 	if(Spectator)
 	{
-		Spectator->LookRight(Value * GameInstance->GetSensitivity());
+		Spectator->SetYaw(Value * GameInstance->GetSensitivity());
 	}
 }
 void AHumanController::InputPitch(float Value) 
 {
 	if(SubjectZero)
 	{
-		SubjectZero->LookUp(Value * GameInstance->GetSensitivity());
+		SubjectZero->SetPitch(Value * GameInstance->GetSensitivity());
 	}
 	else if(Spectator)
 	{
-		Spectator->LookUp(Value * GameInstance->GetSensitivity());
+		Spectator->SetPitch(Value * GameInstance->GetSensitivity());
 	}
 }
 void AHumanController::InputForwardPress() 
 { 
 	if(SubjectZero)
 	{
-		SubjectZero->MoveForward(true);
+		SubjectZero->SetMoveForward(true);
 	}
 	else if(Spectator)
 	{
-		Spectator->MoveForward(true);
+		Spectator->SetMoveForward(true);
 	}
 }
 void AHumanController::InputForwardRelease() 
 { 
 	if(SubjectZero)
 	{
-		SubjectZero->MoveForward(false);
+		SubjectZero->SetMoveForward(false);
 	}
 	else if(Spectator)
 	{
-		Spectator->MoveForward(false);
+		Spectator->SetMoveForward(false);
 	}
 }
 void AHumanController::InputBackwardPress() 
 { 
 	if(SubjectZero)
 	{
-		SubjectZero->MoveBackward(true);
+		SubjectZero->SetMoveBackward(true);
 	}
 	else if(Spectator)
 	{
-		Spectator->MoveBackward(true);
+		Spectator->SetMoveBackward(true);
 	}
 }
 void AHumanController::InputBackwardRelease() 
 { 
 	if(SubjectZero)
 	{
-		SubjectZero->MoveBackward(false);
+		SubjectZero->SetMoveBackward(false);
 	}
 	else if(Spectator)
 	{
-		Spectator->MoveBackward(false);
+		Spectator->SetMoveBackward(false);
 	}
 }
 void AHumanController::InputLeftPress() 
 { 
 	if(SubjectZero)
 	{
-		SubjectZero->MoveLeft(true);
+		SubjectZero->SetMoveLeft(true);
 	}
 	else if(Spectator)
 	{
-		Spectator->MoveLeft(true);;
+		Spectator->SetMoveLeft(true);;
 	}
 }
 void AHumanController::InputLeftRelease()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->MoveLeft(false);
+		SubjectZero->SetMoveLeft(false);
 	}
 	else if(Spectator)
 	{
-		Spectator->MoveLeft(false);
+		Spectator->SetMoveLeft(false);
 	}
 }
 void AHumanController::InputRightPress() 
 {
 	if(SubjectZero)
 	{
-		SubjectZero->MoveRight(true);
+		SubjectZero->SetMoveRight(true);
 	}
 	else if(Spectator)
 	{
-		Spectator->MoveRight(true);
+		Spectator->SetMoveRight(true);
 	}
 }
 void AHumanController::InputRightRelease() 
 { 
 	if(SubjectZero)
 	{
-		SubjectZero->MoveRight(false);
+		SubjectZero->SetMoveRight(false);
 	}
 	else if(Spectator)
 	{
-		Spectator->MoveRight(false);
+		Spectator->SetMoveRight(false);
 	}
 }
 void AHumanController::InputJumpPress()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->Jump(true);
+		SubjectZero->SetJump(true);
 	}
 	else if(Spectator)
 	{
-		Spectator->Jump(true);
+		Spectator->SetJump(true);
 	}
 }
 void AHumanController::InputJumpRelease()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->Jump(false);
+		SubjectZero->SetJump(false);
 	}
 	else if(Spectator)
 	{
-		Spectator->Jump(false);
+		Spectator->SetJump(false);
 	}
 }
 void AHumanController::InputSprintPress()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->Sprint(true);
+		SubjectZero->SetSprint(true);
 	}
 	else if(Spectator)
 	{
-		Spectator->Sprint(true);
+		Spectator->SetSprint(true);
 	}
 }
 void AHumanController::InputSprintRelease()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->Sprint(false);
+		SubjectZero->SetSprint(false);
 	}
 	else if(Spectator)
 	{
-		Spectator->Sprint(false);
+		Spectator->SetSprint(false);
 	}
 }
 void AHumanController::InputCrouchPress()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->Crouch(true);
+		SubjectZero->SetCrouch(true);
 	}
 	else if(Spectator)
 	{
-		Spectator->Crouch(true);
+		Spectator->SetCrouch(true);
 	}
 }
 void AHumanController::InputCrouchRelease()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->Crouch(false);
+		SubjectZero->SetCrouch(false);
 	}
 	else if(Spectator)
 	{
-		Spectator->Crouch(false);
+		Spectator->SetCrouch(false);
 	}
 }
 void AHumanController::InputShootPress()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->Fire(true);
+		SubjectZero->SetFire(true);
 	}
 	else if(Spectator)
 	{
-		Spectator->Fire(true);
+		Spectator->SetFire(true);
 	}
 }
 void AHumanController::InputShootRelease()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->Fire(false);
+		SubjectZero->SetFire(false);
 	}
 	else if(Spectator)
 	{
-		Spectator->Fire(false);
+		Spectator->SetFire(false);
 	}
 }
 void AHumanController::InputPrimaryWeaponPress()
@@ -340,11 +340,11 @@ void AHumanController::InputUsePress()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->Use(true);
+		SubjectZero->SetUse(true);
 	}
 	else if(Spectator)
 	{
-		Spectator->Use(true);
+		Spectator->SetUse(true);
 	}
 }
 

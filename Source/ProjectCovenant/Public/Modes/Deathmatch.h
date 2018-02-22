@@ -20,4 +20,11 @@ public:
 
 	ADeathmatch();
 
+	void KillPlayer(AHumanController * Controller) override;
+
+	void SpawnPlayer(AHumanController * Controller) override;
+
+private:
+	void PostLogin(APlayerController * NewPlayer) override;
+
 };

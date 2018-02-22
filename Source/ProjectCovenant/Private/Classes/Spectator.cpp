@@ -17,19 +17,18 @@ void ASpectator::Tick(float DeltaTime)
 
 void ASpectator::Move()
 {
-	if(Controller)
+	if(HasAuthority())
 	{
-		FRotator Rotation = Controller->GetControlRotation();
-		FVector Distance = Movement * (Sprinting ? 3.f : 1.f);
-		AddMovementInput(Rotation.RotateVector(Distance), 1.f);
-	}
-	else
-	{
-		Logger::Error("No controller");
+		if(Controller)
+		{
+			FRotator Rotation = Controller->GetControlRotation();
+			FVector Distance = Movement * (Sprinting ? 3.f : 1.f);
+			AddMovementInput(Rotation.RotateVector(Distance), 1.f);
+		}
 	}
 	if(!HasAuthority())
 	{
-		Server_Move();
+		//Server_Move();
 	}
 }
 
@@ -80,60 +79,60 @@ bool ASpectator::Server_Spawn_Validate()
 }
 
 
-void ASpectator::LookRight(float Set)
+void ASpectator::SetYaw(float Set)
 {
 	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set);
 }
-void ASpectator::LookUp(float Set)
+void ASpectator::SetPitch(float Set)
 {
 	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
 }
 
-void ASpectator::Crouch(bool Set)
+void ASpectator::SetCrouch(bool Set)
 {
 	Movement.Z -= Set ? 1.f : -1.f;
 }
 
-void ASpectator::Sprint(bool Set)
+void ASpectator::SetSprint(bool Set)
 {
 	Sprinting = Set;
 }
 
-void ASpectator::Jump(bool Set)
+void ASpectator::SetJump(bool Set)
 {
 	Movement.Z += Set ? 1.f : -1.f;
 }
 
-void ASpectator::MoveLeft(bool Set)
+void ASpectator::SetMoveLeft(bool Set)
 {
 	Movement.Y -= Set ? 1.f : -1.f;
 }
 
-void ASpectator::MoveRight(bool Set)
+void ASpectator::SetMoveRight(bool Set)
 {
 	Movement.Y += Set ? 1.f : -1.f;
 }
 
-void ASpectator::MoveForward(bool Set)
+void ASpectator::SetMoveForward(bool Set)
 {
 	Movement.X += Set ? 1.f : -1.f;
 }
 
-void ASpectator::MoveBackward(bool Set)
+void ASpectator::SetMoveBackward(bool Set)
 {
 	Movement.X -= Set ? 1.f : -1.f;
 }
 
-void ASpectator::Fire(bool Set)
+void ASpectator::SetFire(bool Set)
 {
 }
 
-void ASpectator::SecondaryFire(bool Set)
+void ASpectator::SetSecondaryFire(bool Set)
 {
 
 }
 
-void ASpectator::Use(bool Set)
+void ASpectator::SetUse(bool Set)
 {
 	Spawn();
 }
