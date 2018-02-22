@@ -36,6 +36,21 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSensitivity();
 
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Join(FString IPAddress);
+
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Host();
+
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Map(FString Map);
+
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Kill();
+
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Sudoku();
+
 private:
 	virtual void Init();
 

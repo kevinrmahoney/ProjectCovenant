@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include "GameFramework/GameMode.h"
+#include "BaseMode.h"
 #include "BattleRoyale.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTCOVENANT_API ABattleRoyale : public AGameMode
+class PROJECTCOVENANT_API ABattleRoyale : public ABaseMode
 {
 	GENERATED_BODY()
 	

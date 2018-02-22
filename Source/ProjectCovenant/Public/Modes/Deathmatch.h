@@ -2,18 +2,29 @@
 
 #pragma once
 
-#include "GameFramework/GameMode.h"
+#include "BaseMode.h"
+#include "HumanController.h"
 #include "Deathmatch.generated.h"
+
+class ASubjectZero;
 
 /**
  * 
  */
 UCLASS()
-class PROJECTCOVENANT_API ADeathmatch : public AGameMode
+class PROJECTCOVENANT_API ADeathmatch : public ABaseMode
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+public:
+
+	ADeathmatch();
+
+	void KillPlayer(AHumanController * Controller) override;
+
+	void SpawnPlayer(AHumanController * Controller) override;
+
+private:
+	void PostLogin(APlayerController * NewPlayer) override;
+
 };
