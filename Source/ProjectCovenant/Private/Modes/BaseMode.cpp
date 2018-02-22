@@ -22,7 +22,15 @@ void ABaseMode::PostLogin(APlayerController * NewPlayer)
 	Super::PostLogin(NewPlayer);
 	if(AHumanController * Controller = Cast<AHumanController>(NewPlayer))
 	{
-		ASpectator * NewPawn = GetWorld()->SpawnActor<ASpectator>(FVector(0.f, 0.f, 100.f), FRotator(0.f, 0.f, 0.f));
+		ASpectator * NewPawn;
+		if(SpawnPoints.Num() > 0)
+		{
+			NewPawn = GetWorld()->SpawnActor<ASpectator>(SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
+		}
+		else
+		{
+			NewPawn = GetWorld()->SpawnActor<ASpectator>(FVector::ZeroVector, FRotator::ZeroRotator);
+		}
 		Controller->Possess(NewPawn);
 	}
 	Logger::Log("Welcome " + NewPlayer->GetNetOwningPlayer()->GetName());

@@ -166,12 +166,6 @@ public:
 	float GetFuel() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
-	int GetKills() const;
-
-	UFUNCTION(BlueprintPure, BlueprintCallable)
-	int GetDamage() const;
-
-	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FName GetPlayerName() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)

@@ -2,6 +2,7 @@
 
 #include "ProjectCovenant.h"
 #include "HitscanWeapon.h"
+#include "BasePlayerState.h"
 #include "SubjectZero.h"
 
 // Sets default values
@@ -97,12 +98,29 @@ void AHitscanWeapon::Shoot()
 
 void AHitscanWeapon::DealDamage(ASubjectZero * Victim)
 {
-	bool Killed = Victim->ReceiveDamage(Damage);
-	Shooter->AddDamageDealt(Damage);
-
-	if(Killed)
+	if(HasAuthority())
 	{
-		Shooter->AddKill();
+		bool Killed = Victim->ReceiveDamage(Damage);
+		if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Shooter->PlayerState))
+		{
+			PlayerState->AddDamageDealt(Damage);
+			Logger::Log("DamageDealt");
+		}
+		if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Victim->PlayerState))
+		{
+			PlayerState->AddDamageTaken(Damage);
+			Logger::Log("DamageTaken");
+		}
+
+		if(Killed)
+		{
+			Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString());
+			if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Shooter->PlayerState))
+			{
+				PlayerState->AddKill(1);
+				Logger::Log("Kill");
+			}
+		}
 	}
 }
 

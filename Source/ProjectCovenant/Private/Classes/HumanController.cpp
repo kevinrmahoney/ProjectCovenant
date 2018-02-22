@@ -8,6 +8,7 @@
 
 AHumanController::AHumanController()
 {
+
 }
 
 void AHumanController::BeginPlay()
@@ -27,6 +28,7 @@ void AHumanController::BeginPlay()
 			}
 		}
 	}
+	
 }
 
 void AHumanController::Tick(float DeltaTime)
@@ -69,16 +71,16 @@ void AHumanController::Possess(APawn* aPawn)
 {
 	Super::Possess(aPawn);
 
-	if(ASubjectZero * Test = Cast<ASubjectZero>(AcknowledgedPawn))
+	if(ASubjectZero * New = Cast<ASubjectZero>(AcknowledgedPawn))
 	{
 		Logger::Log("Spawning as SubjectZero");
-		SubjectZero = Test;
+		SubjectZero = New;
 		Spectator = nullptr;
 	} 
-	else if(ASpectator * Test = Cast<ASpectator>(AcknowledgedPawn))
+	else if(ASpectator * New = Cast<ASpectator>(AcknowledgedPawn))
 	{
 		Logger::Log("Spawning as Spectator");
-		Spectator = Test;
+		Spectator = New;
 		SubjectZero = nullptr;
 	}
 }
