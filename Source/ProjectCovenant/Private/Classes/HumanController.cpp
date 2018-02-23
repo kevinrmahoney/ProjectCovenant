@@ -4,10 +4,15 @@
 #include "HumanController.h"
 #include "ProjectCovenantInstance.h"
 #include "SubjectZero.h"
+#include "BaseState.h"
+#include "BasePlayerState.h"
+#include "ScoreboardWidget.h"
+#include "Blueprint/UserWidget.h"
 #include "Spectator.h"
 
 AHumanController::AHumanController()
 {
+
 }
 
 void AHumanController::BeginPlay()
@@ -26,6 +31,10 @@ void AHumanController::BeginPlay()
 				Server_Set_Name(PlayerName);
 			}
 		}
+	}
+	if(IsLocalController())
+	{
+		InitializeHUD();
 	}
 }
 
@@ -62,6 +71,8 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("PrimaryWeapon", IE_Pressed, this, &AHumanController::InputPrimaryWeaponPress);
 		InputComponent->BindAction("SecondaryWeapon", IE_Pressed, this, &AHumanController::InputSecondaryWeaponPress);
 		InputComponent->BindAction("Use", IE_Pressed, this, &AHumanController::InputUsePress);
+		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
+		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
 	}
 }
 
@@ -69,16 +80,16 @@ void AHumanController::Possess(APawn* aPawn)
 {
 	Super::Possess(aPawn);
 
-	if(ASubjectZero * Test = Cast<ASubjectZero>(AcknowledgedPawn))
+	if(ASubjectZero * NewSubjectZero = Cast<ASubjectZero>(AcknowledgedPawn))
 	{
 		Logger::Log("Spawning as SubjectZero");
-		SubjectZero = Test;
+		SubjectZero = NewSubjectZero;
 		Spectator = nullptr;
 	} 
-	else if(ASpectator * Test = Cast<ASpectator>(AcknowledgedPawn))
+	else if(ASpectator * NewSpectator = Cast<ASpectator>(AcknowledgedPawn))
 	{
 		Logger::Log("Spawning as Spectator");
-		Spectator = Test;
+		Spectator = NewSpectator;
 		SubjectZero = nullptr;
 	}
 }
@@ -103,6 +114,31 @@ bool AHumanController::Server_Set_Name_Validate(FName Name)
 	return true;
 }
 
+void AHumanController::InitializeHUD()
+{
+	Logger::Log("Initializing HUD");
+
+	Logger::Log("Initializing Base HUD");
+	if(HUD)
+	{
+		PlayerHUD = CreateWidget<UUserWidget>(this, HUD);
+		if(PlayerHUD)
+		{
+			PlayerHUD->AddToViewport();
+		}
+	}
+
+	Logger::Log("Initializing Scoreboard");
+	if(Scoreboard)
+	{
+		PlayerScoreboard = CreateWidget<UUserWidget>(this, Scoreboard);
+		if(PlayerScoreboard)
+		{
+			PlayerScoreboard->AddToViewport();
+			PlayerScoreboard->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
 
 void AHumanController::InputYaw(float Value) 
 {
@@ -346,6 +382,20 @@ void AHumanController::InputUsePress()
 	{
 		Spectator->SetUse(true);
 	}
+}
+
+void AHumanController::InputScoreboardPress()
+{
+	PlayerScoreboard->SetVisibility(ESlateVisibility::Visible);
+	if(UScoreboardWidget * ScoreboardWidget = Cast<UScoreboardWidget>(PlayerScoreboard))
+	{
+		ScoreboardWidget->Update();
+	}
+}
+
+void AHumanController::InputScoreboardRelease()
+{
+	PlayerScoreboard->SetVisibility(ESlateVisibility::Hidden);
 }
 
 FName AHumanController::GetPlayerName() const { return PlayerName; }

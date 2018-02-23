@@ -312,16 +312,6 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 	return false;
 }
 
-void ASubjectZero::AddDamageDealt(float AddedDamage)
-{
-	DamageDealt += AddedDamage;
-}
-
-void ASubjectZero::AddKill()
-{
-	Kills += 1;
-}
-
 void ASubjectZero::Kill()
 {
 	Logger::Chat("DEAD");
@@ -452,8 +442,6 @@ float ASubjectZero::GetFuel() const { return Fuel; }
 bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
 bool ASubjectZero::IsCrouching() const { return Crouching; }
-int ASubjectZero::GetKills() const { return Kills; }
-int ASubjectZero::GetDamage() const { return DamageDealt; }
 FName ASubjectZero::GetPlayerName() const {
 	FName Name = "Unknown";
 	if(AHumanController * HumanController = Cast<AHumanController>(GetController()))

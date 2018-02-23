@@ -20,7 +20,7 @@ class PROJECTCOVENANT_API AHumanController : public APlayerController
 
 public:
 	AHumanController();
-	void Tick(float DeltaTime);
+	void Tick(float DeltaTime) override;
 
 	void Possess(APawn* aPawn) override;
 
@@ -36,6 +36,16 @@ public:
 
 	FName PlayerName = "Subject Zero";
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UUserWidget> HUD;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UUserWidget> Scoreboard;
+
+	UUserWidget * PlayerHUD;
+
+	UUserWidget * PlayerScoreboard;
+
 protected:
 	void BeginPlay();
 	void SetupInputComponent() override;
@@ -48,6 +58,8 @@ private:
 	void Server_Set_Name(const FName NewName);
 
 	APawn * PossessedPawn;
+
+	void InitializeHUD();
 
 	void InputYaw(float Value);
 	void InputPitch(float Value);
@@ -71,5 +83,6 @@ private:
 	void InputSecondaryWeaponPress();
 	void InputThirdaryWeaponPress();
 	void InputUsePress();
-
+	void InputScoreboardPress();
+	void InputScoreboardRelease();
 };

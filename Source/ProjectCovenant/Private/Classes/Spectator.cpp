@@ -17,18 +17,11 @@ void ASpectator::Tick(float DeltaTime)
 
 void ASpectator::Move()
 {
-	if(HasAuthority())
+	if(Controller)
 	{
-		if(Controller)
-		{
-			FRotator Rotation = Controller->GetControlRotation();
-			FVector Distance = Movement * (Sprinting ? 3.f : 1.f);
-			AddMovementInput(Rotation.RotateVector(Distance), 1.f);
-		}
-	}
-	if(!HasAuthority())
-	{
-		//Server_Move();
+		FRotator Rotation = Controller->GetControlRotation();
+		FVector Distance = Movement * (Sprinting ? 3.f : 1.f);
+		AddMovementInput(Rotation.RotateVector(Distance), 1.f);
 	}
 }
 
