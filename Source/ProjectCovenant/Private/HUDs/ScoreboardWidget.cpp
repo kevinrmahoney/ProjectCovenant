@@ -12,7 +12,6 @@ void UScoreboardWidget::Update()
 {
 	if(ABaseState * State = Cast<ABaseState>(GetWorld()->GetGameState()))
 	{
-		Logger::Chat("HELLO");
 		UpdateScoreboard(State);
 	}
 }

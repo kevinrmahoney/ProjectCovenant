@@ -20,6 +20,9 @@ public:
 	void Tick(float DeltaTime) override;
 	
 	UPROPERTY(Replicated)
+	FString Name = "Unknown";
+
+	UPROPERTY(Replicated)
 	int Kills = 0;
 
 	UPROPERTY(Replicated)
@@ -39,6 +42,9 @@ public:
 
 public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
+	FString GetName() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
 	int GetKills() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
@@ -54,5 +60,6 @@ public:
 	void AddDeath(int Death);
 	void AddDamageDealt(float Damage);
 	void AddDamageTaken(float Damage);
+	void SetName(const FString S);
 
 };

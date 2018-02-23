@@ -18,6 +18,7 @@ void ABasePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABasePlayerState, Kills);
 	DOREPLIFETIME(ABasePlayerState, Deaths);
+	DOREPLIFETIME(ABasePlayerState, Name);
 	DOREPLIFETIME(ABasePlayerState, DamageDealt);
 	DOREPLIFETIME(ABasePlayerState, DamageTaken);
 	DOREPLIFETIME(ABasePlayerState, TimeStart);
@@ -47,7 +48,12 @@ void ABasePlayerState::AddDamageTaken(float Damage)
 	DamageTaken += Damage;
 }
 
+FString ABasePlayerState::GetName() const { return Name; }
 int ABasePlayerState::GetKills() const { return Kills; }
 int ABasePlayerState::GetDeaths() const { return Deaths; }
 float ABasePlayerState::GetDamageDealt() const { return DamageDealt; }
 float ABasePlayerState::GetDamageTaken() const { return DamageTaken; }
+void ABasePlayerState::SetName(FString S) 
+{ 
+	Name = S;
+}

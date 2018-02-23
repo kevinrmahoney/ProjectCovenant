@@ -49,10 +49,6 @@ void ASpectator::Spawn()
 				Mode->SpawnPlayer(HumanController);
 			}
 		}
-		else
-		{
-			Logger::Chat("Whoops");
-		}
 	}
 	else
 	{

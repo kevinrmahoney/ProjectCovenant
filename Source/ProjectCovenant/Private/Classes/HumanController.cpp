@@ -29,6 +29,7 @@ void AHumanController::BeginPlay()
 			{
 				PlayerName = GameInstance->GetProfileName();
 				Server_Set_Name(PlayerName);
+
 			}
 		}
 	}
@@ -107,6 +108,10 @@ ASubjectZero * AHumanController::GetSubjectZero()
 void AHumanController::Server_Set_Name_Implementation(FName NewName)
 {
 	PlayerName = NewName;
+	if(ABasePlayerState * BasePlayerState = Cast<ABasePlayerState>(PlayerState))
+	{
+		BasePlayerState->SetName(NewName.ToString());
+	}
 }
 
 bool AHumanController::Server_Set_Name_Validate(FName Name)

@@ -14,7 +14,6 @@ ABaseMode::ABaseMode()
 void ABaseMode::BeginPlay()
 {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPoints);
-	Logger::Chat("SpawnPoints: " + FString::FromInt(SpawnPoints.Num()));
 }
 
 void ABaseMode::PostLogin(APlayerController * NewPlayer)

@@ -32,6 +32,7 @@ public:
 
 	ASubjectZero * GetSubjectZero();
 
+	UFUNCTION(BlueprintCallable)
 	FName GetPlayerName() const;
 
 	FName PlayerName = "Subject Zero";
