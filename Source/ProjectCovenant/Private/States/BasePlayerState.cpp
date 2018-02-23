@@ -10,7 +10,6 @@ ABasePlayerState::ABasePlayerState()
 	{
 		Logger::Log("PlayerState: BasePlayerState");
 		TimeStart = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-		Logger::Log(TimeStart);
 	}
 }
 
@@ -22,12 +21,17 @@ void ABasePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & Ou
 	DOREPLIFETIME(ABasePlayerState, DamageTaken);
 	DOREPLIFETIME(ABasePlayerState, TimeStart);
 	DOREPLIFETIME(ABasePlayerState, CurrentPing);
+
+}
+
+void ABasePlayerState::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 void ABasePlayerState::AddKill(int Kill)
 {
 	Kills += Kill;
-	Logger::Log(Kill);
 }
 void ABasePlayerState::AddDamageDealt(float Damage)
 {
@@ -40,4 +44,4 @@ void ABasePlayerState::AddDamageTaken(float Damage)
 
 int ABasePlayerState::GetKills() const { return Kills; }
 float ABasePlayerState::GetDamageDealt() const { return DamageDealt; }
-float ABasePlayerState::GetDamageTaken() const { return DamageTaken;  }
+float ABasePlayerState::GetDamageTaken() const { return DamageTaken; }

@@ -13,8 +13,12 @@ UCLASS()
 class PROJECTCOVENANT_API ABaseState : public AGameState
 {
 	GENERATED_BODY()
+
+public:
+	ABaseState();
 	
-	
-	
+	void BeginPlay() override;
+
+	void Tick(float DeltaTime) override;
 	
 };

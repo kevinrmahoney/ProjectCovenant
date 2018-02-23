@@ -16,6 +16,8 @@ class PROJECTCOVENANT_API ABasePlayerState : public APlayerState
 
 public:
 	ABasePlayerState();
+
+	void Tick(float DeltaTime) override;
 	
 	UPROPERTY(Replicated)
 	int Kills = 0;
