@@ -23,6 +23,9 @@ public:
 	int Kills = 0;
 
 	UPROPERTY(Replicated)
+	int Deaths = 0;
+
+	UPROPERTY(Replicated)
 	float DamageDealt = 0.f;
 
 	UPROPERTY(Replicated)
@@ -39,12 +42,16 @@ public:
 	int GetKills() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
+	int GetDeaths() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetDamageDealt() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetDamageTaken() const;
 
 	void AddKill(int Kill);
+	void AddDeath(int Death);
 	void AddDamageDealt(float Damage);
 	void AddDamageTaken(float Damage);
 

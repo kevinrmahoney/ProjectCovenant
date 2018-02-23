@@ -104,21 +104,23 @@ void AHitscanWeapon::DealDamage(ASubjectZero * Victim)
 		if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Shooter->PlayerState))
 		{
 			PlayerState->AddDamageDealt(Damage);
-			Logger::Log("DamageDealt");
+			Logger::Log(Shooter->GetPlayerName().ToString() + " has dealt " + FString::SanitizeFloat(Damage) + " to " + Victim->GetPlayerName().ToString() + " using " + GetName());
 		}
 		if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Victim->PlayerState))
 		{
 			PlayerState->AddDamageTaken(Damage);
-			Logger::Log("DamageTaken");
 		}
 
 		if(Killed)
 		{
-			Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString());
+			Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString() + " using " + GetName());
 			if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Shooter->PlayerState))
 			{
 				PlayerState->AddKill(1);
-				Logger::Log("Kill");
+			}
+			if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Victim->PlayerState))
+			{
+				PlayerState->AddDeath(1);
 			}
 		}
 	}
