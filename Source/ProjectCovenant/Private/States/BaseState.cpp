@@ -16,6 +16,5 @@ void ABaseState::BeginPlay()
 void ABaseState::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	Logger::Chat("HELLO");
 }
 

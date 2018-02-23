@@ -314,7 +314,6 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 
 void ASubjectZero::Kill()
 {
-	Logger::Chat("DEAD");
 	GetMesh()->SetAllBodiesSimulatePhysics(true);
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->WakeAllRigidBodies();
