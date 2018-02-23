@@ -81,6 +81,11 @@ private:
 	float StandingHeight = 75.f;
 	float CrouchingHeight = 15.f;
 
+	bool Left = false;
+	bool Right = false;
+	bool Forward = false;
+	bool Backward = false;
+
 public:
 	UPROPERTY(VisibleDefaultsOnly)
 	USkeletalMeshComponent * FirstPersonMesh;

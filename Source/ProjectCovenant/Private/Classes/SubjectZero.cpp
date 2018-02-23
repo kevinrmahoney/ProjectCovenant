@@ -78,6 +78,31 @@ void ASubjectZero::Tick(float DeltaTime)
 
 	JetpackActive = JetpackActive && Fuel > 0.f;
 
+	if(Left && !Right)
+	{
+		Movement.Y = -1.f;
+	}
+	else if(Right && !Left)
+	{
+		Movement.Y = 1.f;
+	}
+	else
+	{
+		Movement.Y = 0.f;
+	}
+
+	if(Backward && !Forward)
+	{
+		Movement.X = -1.f;
+	}
+	else if(Forward && !Backward)
+	{
+		Movement.X = 1.f;
+	}
+	else
+	{
+		Movement.X = 0.f;
+	}
 	Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 	
 	TimeSinceJetpack += DeltaTime;
@@ -181,7 +206,10 @@ void ASubjectZero::Equip(int Num)
 {
 	if(Num == 0)
 	{
-		Weapon->Destroy();
+		if(Weapon)
+		{
+			Weapon->Destroy();
+		}
 		Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
 		if(!IsLocallyControlled())
 		{
@@ -191,8 +219,10 @@ void ASubjectZero::Equip(int Num)
 		{
 			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 		}
-
-		Weapon->SetShooter(this);
+		if(Weapon)
+		{
+			Weapon->SetShooter(this);
+		}
 	}
 	else if(Num == 1)
 	{
@@ -210,8 +240,10 @@ void ASubjectZero::Equip(int Num)
 		{
 			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 		}
-
-		Weapon->SetShooter(this);
+		if(Weapon)
+		{
+			Weapon->SetShooter(this);
+		}
 	}
 }
 
@@ -366,22 +398,22 @@ void ASubjectZero::SetJump(bool Set)
 
 void ASubjectZero::SetMoveLeft(bool Set)
 {
-	Movement.Y -= Set ? 1.f : -1.f;
+	Left = Set;
 }
 
 void ASubjectZero::SetMoveRight(bool Set)
 {
-	Movement.Y += Set ? 1.f : -1.f;
+	Right = Set;
 }
 
 void ASubjectZero::SetMoveForward(bool Set)
 {
-	Movement.X += Set ? 1.f : -1.f;
+	Forward = Set;
 }
 
 void ASubjectZero::SetMoveBackward(bool Set)
 {
-	Movement.X -= Set ? 1.f : -1.f;
+	Backward = Set;
 }
 
 void ASubjectZero::SetFire(bool Set)

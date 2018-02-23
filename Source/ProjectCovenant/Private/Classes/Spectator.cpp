@@ -12,6 +12,44 @@ ASpectator::ASpectator()
 
 void ASpectator::Tick(float DeltaTime)
 {
+	if(Left && !Right)
+	{
+		Movement.Y = -1.f;
+	}
+	else if(Right && !Left)
+	{
+		Movement.Y = 1.f;
+	}
+	else
+	{
+		Movement.Y = 0.f;
+	}
+
+	if(Backward && !Forward)
+	{
+		Movement.X = -1.f;
+	}
+	else if(Forward && !Backward)
+	{
+		Movement.X = 1.f;
+	}
+	else
+	{
+		Movement.X = 0.f;
+	}
+
+	if(Up && !Down)
+	{
+		Movement.Z = 1.f;
+	}
+	else if(Down && !Up)
+	{
+		Movement.Z = -1.f;
+	}
+	else
+	{
+		Movement.Z = 0.f;
+	}
 	Move();
 }
 
@@ -79,7 +117,7 @@ void ASpectator::SetPitch(float Set)
 
 void ASpectator::SetCrouch(bool Set)
 {
-	Movement.Z -= Set ? 1.f : -1.f;
+	Down = Set;
 }
 
 void ASpectator::SetSprint(bool Set)
@@ -89,27 +127,27 @@ void ASpectator::SetSprint(bool Set)
 
 void ASpectator::SetJump(bool Set)
 {
-	Movement.Z += Set ? 1.f : -1.f;
+	Up = Set;
 }
 
 void ASpectator::SetMoveLeft(bool Set)
 {
-	Movement.Y -= Set ? 1.f : -1.f;
+	Left = Set;
 }
 
 void ASpectator::SetMoveRight(bool Set)
 {
-	Movement.Y += Set ? 1.f : -1.f;
+	Right= Set;
 }
 
 void ASpectator::SetMoveForward(bool Set)
 {
-	Movement.X += Set ? 1.f : -1.f;
+	Forward = Set;
 }
 
 void ASpectator::SetMoveBackward(bool Set)
 {
-	Movement.X -= Set ? 1.f : -1.f;
+	Backward = Set;
 }
 
 void ASpectator::SetFire(bool Set)

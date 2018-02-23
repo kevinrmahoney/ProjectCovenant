@@ -13,12 +13,12 @@ ABaseMode::ABaseMode()
 
 void ABaseMode::BeginPlay()
 {
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPoints);
 }
 
 void ABaseMode::PostLogin(APlayerController * NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPoints);
 	if(AHumanController * Controller = Cast<AHumanController>(NewPlayer))
 	{
 		ASpectator * NewPawn;

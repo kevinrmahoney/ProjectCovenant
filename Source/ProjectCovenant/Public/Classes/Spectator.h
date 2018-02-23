@@ -47,5 +47,12 @@ class PROJECTCOVENANT_API ASpectator : public ASpectatorPawn
 private:
 	FVector Movement;
 	bool Sprinting;
+
+	bool Left = false;
+	bool Right = false;
+	bool Forward = false;
+	bool Backward = false;
+	bool Up = false;
+	bool Down = false;
 	
 };
