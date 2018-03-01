@@ -4,6 +4,8 @@
 #include "HitscanWeapon.h"
 #include "BasePlayerState.h"
 #include "SubjectZero.h"
+#include "HumanController.h"
+#include "BaseMode.h"
 
 // Sets default values
 AHitscanWeapon::AHitscanWeapon()
@@ -98,29 +100,50 @@ void AHitscanWeapon::Shoot()
 
 void AHitscanWeapon::DealDamage(ASubjectZero * Victim)
 {
+	// Only execute the following code on the server
 	if(HasAuthority())
 	{
+		// Deal damage to the victim, returns if the player was killed by the damage
 		bool Killed = Victim->ReceiveDamage(Damage);
-		if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Shooter->PlayerState))
+
+		// Log the damage and if the player was killed by it
+		Logger::Log(Shooter->GetPlayerName().ToString() + " has dealt " + FString::SanitizeFloat(Damage) + " to " + Victim->GetPlayerName().ToString() + " using " + GetName());
+		if(Killed) Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString() + " using " + GetName());
+
+		// Obtain the player states for the shooter and the victim
+		ABasePlayerState * ShooterPlayerState = Cast<ABasePlayerState>(Shooter->PlayerState);
+		ABasePlayerState * VictimPlayerState = Cast<ABasePlayerState>(Victim->PlayerState);
+
+		// If the player state is successfully obtained, add the damage that was dealt to the player state, and if killed, add the kill
+		if(ShooterPlayerState)
 		{
-			PlayerState->AddDamageDealt(Damage);
-			Logger::Log(Shooter->GetPlayerName().ToString() + " has dealt " + FString::SanitizeFloat(Damage) + " to " + Victim->GetPlayerName().ToString() + " using " + GetName());
+			ShooterPlayerState->AddDamageDealt(Damage);
+			if(Killed) ShooterPlayerState->AddKill(1);
 		}
-		if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Victim->PlayerState))
+		else
 		{
-			PlayerState->AddDamageTaken(Damage);
+			Logger::Error("Could not cast or obtain shooter's PlayerState");
+		}
+
+		// If the player state is successfully obtained, add the damage that was dealt to the player state, and if killed, add the kill
+		if(VictimPlayerState)
+		{
+			VictimPlayerState->AddDamageTaken(Damage);
+			if(Killed) VictimPlayerState->AddDeath(1);
+		}
+		else
+		{
+			Logger::Error("Could not cast or obtain victim's PlayerState");
 		}
 
 		if(Killed)
 		{
-			Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString() + " using " + GetName());
-			if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Shooter->PlayerState))
+			if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 			{
-				PlayerState->AddKill(1);
-			}
-			if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Victim->PlayerState))
-			{
-				PlayerState->AddDeath(1);
+				if(AHumanController * HumanController = Cast<AHumanController>(Victim->GetController()))
+				{
+					Mode->KillPlayer(HumanController);
+				}
 			}
 		}
 	}

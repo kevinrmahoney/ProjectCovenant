@@ -30,8 +30,6 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-
 }
 
 // Called when the game starts or when spawned
@@ -56,16 +54,20 @@ void ASubjectZero::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
+	// Update if the character is grounded and its velocity
+	Grounded = !GetCharacterMovement()->IsFalling();
+	Velocity = GetVelocity();
+
+	// If the character is locally controlled, process the input coming from the controller
 	if(IsLocallyControlled() )
 	{
-		Grounded = !GetCharacterMovement()->IsFalling();
-		Velocity = GetVelocity();
-
+		// Turn off the jetpack if the character has hit the ground
 		if(Grounded)
 		{
 			JetpackActive = false;
 		}
 
+		// Process left/right movement
 		if(Left && !Right)
 		{
 			Movement.Y = -1.f;
@@ -79,6 +81,7 @@ void ASubjectZero::Tick(float DeltaTime)
 			Movement.Y = 0.f;
 		}
 
+		// Process forward/backward movement
 		if(Backward && !Forward)
 		{
 			Movement.X = -1.f;
@@ -92,10 +95,13 @@ void ASubjectZero::Tick(float DeltaTime)
 			Movement.X = 0.f;
 		}
 
+		// Move the character using the input 
 		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 	}
+
+	// Add passive fuel if its been long enough
 	TimeSinceJetpack += DeltaTime;
-	if(TimeSinceJetpack > 3.f)
+	if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
 	{
 		Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 0.5f * DeltaTime));
 	}
@@ -103,36 +109,41 @@ void ASubjectZero::Tick(float DeltaTime)
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
 {
+	// The follow variables are replicated from server to the clients
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASubjectZero, Health);
-	DOREPLIFETIME(ASubjectZero, Armor);
-	DOREPLIFETIME(ASubjectZero, Shield);
-	DOREPLIFETIME(ASubjectZero, Fuel);
-	DOREPLIFETIME(ASubjectZero, Kills);
-	DOREPLIFETIME(ASubjectZero, DamageDealt);
-	DOREPLIFETIME(ASubjectZero, Crouching);
+	DOREPLIFETIME(ASubjectZero, Health)
+	DOREPLIFETIME(ASubjectZero, Armor)
+	DOREPLIFETIME(ASubjectZero, Shield)
+	DOREPLIFETIME(ASubjectZero, Fuel)
+	DOREPLIFETIME(ASubjectZero, Kills)
+	DOREPLIFETIME(ASubjectZero, DamageDealt)
+	DOREPLIFETIME(ASubjectZero, Crouching)
 	DOREPLIFETIME(ASubjectZero, IsTriggerPulled)
 }
 
 void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
-	Grounded = !GetCharacterMovement()->IsFalling();
+	// If the character is autonomous, send the move to the server
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch);
 	}
+	// If the character is the authority, take the input from the client and proceed with the move
 	else if(Role == ROLE_Authority)
 	{
 		Movement = Client_Movement;
 		Jumping = Client_Jump;
 		Sprinting = Client_Sprinting;
+		Crouching = Client_Crouching;
 		JetpackActive = Client_Jetpack;
 		IsTriggerPulled = Client_Shooting;
 		Camera->RelativeRotation.Pitch = Client_Pitch;
 	}
 
+	// Jetpack can only be activated if it has enough fuel
 	JetpackActive = JetpackActive && Fuel > 0.f;
 
+	// Set the trigger as pulled or not pulled
 	if(Weapon)
 	{
 		Weapon->SetTrigger(IsTriggerPulled);
@@ -140,6 +151,7 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 
 	if(Grounded)
 	{
+		// Update movement speeds depending on the character's stance
 		if(Sprinting && !Crouching)
 		{
 			GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
@@ -157,25 +169,24 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 			GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
 		}
 
-		if(Jumping)
-		{
-			Jump();
-		}
-		else
-		{
-			FRotator Rotation = Controller->GetControlRotation();
-			Rotation.Pitch = 0;
+		// Jump if commanded
+		if(Jumping)Jump();
 
-			Movement.Z = 0.f;
-			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-		}
+		// Move the character on the ground
+		FRotator Rotation = Controller->GetControlRotation();
+		Rotation.Pitch = 0;
+
+		Movement.Z = 0.f;
+		AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
 	}
 	else
 	{
+		// Activated the jetpack 
 		if(JetpackActive)
 		{
 			JetpackBurst();
 		}
+		// Strafe in the air
 		else
 		{
 			FRotator Rotation = Controller->GetControlRotation();
@@ -184,6 +195,8 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 			Movement.Z = 0.f;
 			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
 		}
+
+		// Apply the force of the air if midair
 		ApplyAirResistance();
 	}
 }
@@ -200,46 +213,36 @@ bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jum
 
 void ASubjectZero::Equip(int Num)
 {
+	if(Weapon)
+	{
+		Weapon->Destroy();
+	}
+
 	if(Num == 0)
 	{
-		if(Weapon)
-		{
-			Weapon->Destroy();
-		}
 		Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
-		if(!IsLocallyControlled())
-		{
-			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-		}
-		else
-		{
-			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-		}
-		if(Weapon)
-		{
-			Weapon->SetShooter(this);
-		}
 	}
 	else if(Num == 1)
 	{
-		if(Weapon)
-		{
-			Weapon->Destroy();
-		}
 		Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
+	}
 
-		if(!IsLocallyControlled())
-		{
-			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-		}
-		else
-		{
-			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-		}
-		if(Weapon)
-		{
-			Weapon->SetShooter(this);
-		}
+	// If this actor is controlled by the local client or the server, attach the weapon to the first person mesh
+	if(IsLocallyControlled() || Role == ROLE_Authority)
+	{
+		// Attach the weapon to the actor's third person mesh if the actor is not controlled by the local player, but another player
+		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+	// If this actor is controlled by a remote client or server, attach to the third person mesh
+	else
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+
+	// Make who is considered the shooter to be this character
+	if(Weapon)
+	{
+		Weapon->SetShooter(this);
 	}
 }
 
@@ -328,13 +331,6 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 				Shield = MaxShield;
 				Armor = MaxArmor;
 				Health = MaxHealth;
-				if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
-				{
-					if(AHumanController * HumanController = Cast<AHumanController>(GetController()))
-					{
-						Mode->KillPlayer(HumanController);
-					}
-				}
 				return true;
 			}
 		}

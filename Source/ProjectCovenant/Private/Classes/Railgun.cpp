@@ -73,7 +73,7 @@ void ARailgun::Shoot()
 
 			// Get the victim and attempt to cast to SubjectZero
 			ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
-			if(Victim && Shooter->HasAuthority())
+			if(Victim)
 			{
 				DealDamage(Victim);
 			}
@@ -91,32 +91,7 @@ void ARailgun::Shoot()
 
 void ARailgun::DealDamage(ASubjectZero * Victim)
 {
-	if(HasAuthority())
-	{
-		bool Killed = Victim->ReceiveDamage(Damage);
-		if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Shooter->PlayerState))
-		{
-			PlayerState->AddDamageDealt(Damage);
-			Logger::Log(Shooter->GetPlayerName().ToString() + " has dealt " + FString::SanitizeFloat(Damage) + " to " + Victim->GetPlayerName().ToString() + " using " + GetName());
-		}
-		if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Victim->PlayerState))
-		{
-			PlayerState->AddDamageTaken(Damage);
-		}
-
-		if(Killed)
-		{
-			Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString() + " using " + GetName());
-			if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Shooter->PlayerState))
-			{
-				PlayerState->AddKill(1);
-			}
-			if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Victim->PlayerState))
-			{
-				PlayerState->AddDeath(1);
-			}
-		}
-	}
+	Super::DealDamage(Victim);
 }
 
 void ARailgun::DrawLaser(FVector * Begin, FVector * End, float Duration)
