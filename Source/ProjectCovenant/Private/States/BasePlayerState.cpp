@@ -8,7 +8,7 @@ ABasePlayerState::ABasePlayerState()
 {
 	if(HasAuthority())
 	{
-		Logger::Log("PlayerState: BasePlayerState");
+		Logger::Log("PlayerState: BasePlayerState" + GetName());
 		TimeStart = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 	}
 }
@@ -23,7 +23,6 @@ void ABasePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & Ou
 	DOREPLIFETIME(ABasePlayerState, DamageTaken);
 	DOREPLIFETIME(ABasePlayerState, TimeStart);
 	DOREPLIFETIME(ABasePlayerState, CurrentPing);
-
 }
 
 void ABasePlayerState::Tick(float DeltaTime)

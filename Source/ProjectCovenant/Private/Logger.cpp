@@ -3,7 +3,7 @@
 #include "ProjectCovenant.h"
 #include "Logger.h"
 
-const float Logger::TimeOnScreen = 10.f;
+const float Logger::TimeOnScreen = 5.f;
 
 Logger::Logger()
 {

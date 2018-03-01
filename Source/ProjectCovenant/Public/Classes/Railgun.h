@@ -32,7 +32,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayShootSound();
 
-private:
+protected:
 	void Shoot() override;
 
 	void DealDamage(ASubjectZero * Victim) override;
