@@ -6,6 +6,7 @@
 #include "HitscanWeapon.h"
 #include "Railgun.h"
 #include "Shotgun.h"
+#include "Deathmatch.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -45,34 +46,7 @@ void ASubjectZero::BeginPlay()
 	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
 	GetCharacterMovement()->GetPhysicsVolume()->TerminalVelocity = 10000.f;
 
-	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
-	{
-		UGameInstance * Instance = GetGameInstance();
-
-		if(Instance)
-		{
-			GameInstance = Cast<UProjectCovenantInstance>(Instance);
-			if(GameInstance)
-			{
-				PlayerName = GameInstance->GetProfileName();
-				Server_Set_Name(PlayerName);
-				Logger::Log("Player " + PlayerName.ToString() + " has joined the game");
-			}
-		}
-	}
-
-	// If a simulated proxy, attach the weapon to the character mesh, otherwise attach it to the first person mesh
-	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
-	if(!IsLocallyControlled())
-	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-	else
-	{
-		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-
-	Weapon->SetShooter(this);
+	//Equip(0);
 }
 
 // Called every frame
@@ -81,117 +55,204 @@ void ASubjectZero::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
+	// Update if the character is grounded and its velocity
 	Grounded = !GetCharacterMovement()->IsFalling();
-	JetpackActive = JetpackActive && Fuel > 0.f && !Grounded;
 	Velocity = GetVelocity();
 
-	// Movement depends on if grounded or in the air
-	if(Grounded)
+	// If the character is locally controlled, process the input coming from the controller
+	if(IsLocallyControlled() )
 	{
-		// Jump
-		if(!Jumping)
+		// Turn off the jetpack if the character has hit the ground
+		if(Grounded)
 		{
 			JetpackActive = false;
 		}
+
+		// Process left/right movement
+		if(Left && !Right)
+		{
+			Movement.Y = -1.f;
+		}
+		else if(Right && !Left)
+		{
+			Movement.Y = 1.f;
+		}
+		else
+		{
+			Movement.Y = 0.f;
+		}
+
+		// Process forward/backward movement
+		if(Backward && !Forward)
+		{
+			Movement.X = -1.f;
+		}
+		else if(Forward && !Backward)
+		{
+			Movement.X = 1.f;
+		}
+		else
+		{
+			Movement.X = 0.f;
+		}
+
+		// Move the character using the input 
+		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 	}
 
-	if(Role == ROLE_SimulatedProxy || HasAuthority())
+	// Add passive fuel if its been long enough
+	TimeSinceJetpack += DeltaTime;
+	if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
 	{
-		DrawDebugString(GetWorld(), FVector(0.f, 0.f, 90.f), PlayerName.ToString(), this, FColor::White, DeltaTime, true);
+		Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 0.5f * DeltaTime));
 	}
-
-	Weapon->SetTrigger(IsTriggerPulled);
-
-	Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
 }
 
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
 {
+	// The follow variables are replicated from server to the clients
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASubjectZero, Health);
-	DOREPLIFETIME(ASubjectZero, Armor);
-	DOREPLIFETIME(ASubjectZero, Shield);
-	DOREPLIFETIME(ASubjectZero, Fuel);
-	DOREPLIFETIME(ASubjectZero, Kills);
-	DOREPLIFETIME(ASubjectZero, DamageDealt);
-	DOREPLIFETIME(ASubjectZero, PlayerName);
-	DOREPLIFETIME(ASubjectZero, Crouching);
+	DOREPLIFETIME(ASubjectZero, Health)
+	DOREPLIFETIME(ASubjectZero, Armor)
+	DOREPLIFETIME(ASubjectZero, Shield)
+	DOREPLIFETIME(ASubjectZero, Fuel)
+	DOREPLIFETIME(ASubjectZero, Kills)
+	DOREPLIFETIME(ASubjectZero, DamageDealt)
+	DOREPLIFETIME(ASubjectZero, Crouching)
 	DOREPLIFETIME(ASubjectZero, IsTriggerPulled)
 }
 
 void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
-	if(Controller)
-	{
-		if(Grounded)
-		{
-			if(Sprinting && !Crouching)
-			{
-				GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
-			}
-			else if(Sprinting && Crouching)
-			{
-				GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
-			}
-			else if(!Sprinting && Crouching)
-			{
-				GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
-			}
-			else
-			{
-				GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
-			}
-
-			if(Jumping)
-			{
-				Jump();
-			}
-			else
-			{
-				FRotator Rotation = Controller->GetControlRotation();
-				Rotation.Pitch = 0;
-
-				Movement.Z = 0.f;
-				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-
-			}
-		}
-		else
-		{
-			if(JetpackActive)
-			{
-				JetpackBurst();
-			}
-			else
-			{
-				FRotator Rotation = Controller->GetControlRotation();
-				Rotation.Pitch = 0;
-
-				Movement.Z = 0.f;
-				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-			}
-			ApplyAirResistance();
-		}
-	}
-
+	// If the character is autonomous, send the move to the server
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch);
+	}
+	// If the character is the authority, take the input from the client and proceed with the move
+	else if(Role == ROLE_Authority)
+	{
+		Movement = Client_Movement;
+		Jumping = Client_Jump;
+		Sprinting = Client_Sprinting;
+		Crouching = Client_Crouching;
+		JetpackActive = Client_Jetpack;
+		IsTriggerPulled = Client_Shooting;
+		Camera->RelativeRotation.Pitch = Client_Pitch;
+	}
+
+	// Jetpack can only be activated if it has enough fuel
+	JetpackActive = JetpackActive && Fuel > 0.f;
+
+	// Set the trigger as pulled or not pulled
+	if(Weapon)
+	{
+		Weapon->SetTrigger(IsTriggerPulled);
+	}
+
+	if(Grounded)
+	{
+		// Update movement speeds depending on the character's stance
+		if(Sprinting && !Crouching)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
+		}
+		else if(Sprinting && Crouching)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
+		}
+		else if(!Sprinting && Crouching)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
+		}
+		else
+		{
+			GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
+		}
+
+		// Jump if commanded
+		if(Jumping)Jump();
+
+		// Move the character on the ground
+		FRotator Rotation = Controller->GetControlRotation();
+		Rotation.Pitch = 0;
+
+		Movement.Z = 0.f;
+		AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+	}
+	else
+	{
+		// Activated the jetpack 
+		if(JetpackActive)
+		{
+			JetpackBurst();
+		}
+		// Strafe in the air
+		else
+		{
+			FRotator Rotation = Controller->GetControlRotation();
+			Rotation.Pitch = 0;
+
+			Movement.Z = 0.f;
+			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+		}
+
+		// Apply the force of the air if midair
+		ApplyAirResistance();
 	}
 }
 
 void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
 {
-	Movement = Client_Movement;
-	Jumping = Client_Jump;
-	Sprinting = Client_Sprinting;
-	Crouching = Client_Crouching;
-	JetpackActive = Client_Jetpack;
-	IsTriggerPulled = Client_Shooting;
-	Camera->RelativeRotation.Pitch = Client_Pitch;
+	Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch);
 }
 
 bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
+{
+	return true;
+}
+
+void ASubjectZero::Equip(int Num)
+{
+	if(Weapon)
+	{
+		Weapon->Destroy();
+	}
+
+	if(Num == 0)
+	{
+		Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
+	}
+	else if(Num == 1)
+	{
+		Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
+	}
+
+	// If this actor is controlled by the local client or the server, attach the weapon to the first person mesh
+	if(IsLocallyControlled() || Role == ROLE_Authority)
+	{
+		// Attach the weapon to the actor's third person mesh if the actor is not controlled by the local player, but another player
+		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+	// If this actor is controlled by a remote client or server, attach to the third person mesh
+	else
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+	}
+
+	// Make who is considered the shooter to be this character
+	if(Weapon)
+	{
+		Weapon->SetShooter(this);
+	}
+}
+
+void ASubjectZero::Server_Equip_Implementation(int Num)
+{
+	Equip(Num);
+}
+
+bool ASubjectZero::Server_Equip_Validate(int Num)
 {
 	return true;
 }
@@ -207,15 +268,15 @@ void ASubjectZero::JetpackBurst()
 
 		// Create a vector that represents the movement of the character within the world
 		FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, Jumping ? JetpackAcceleration : 0.f);
-		GetCharacterMovement()->AddForce(Force);
-		DepleteJetpack();
-	}
-}
+		Force = Force * (Sprinting ? 2.f : 1.f);
 
-void ASubjectZero::DepleteJetpack()
-{
-	float FuelUsed = FuelUsage * ((Movement.X != 0.f ? 1.f : 0.f) + (Movement.Y != 0.f ? 1.f : 0.f) + (Movement.Z != 0.f ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
-	Fuel = Fuel - (FuelUsed * Time);
+		GetCharacterMovement()->AddForce(Force);
+
+
+		float FuelUsed = FuelUsage * ((Movement.X != 0.f ? 1.f : 0.f) + (Movement.Y != 0.f ? 1.f : 0.f) + (Jumping ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
+		if(FuelUsed > 0.f) TimeSinceJetpack = 0.f;
+		Fuel = FMath::Max(0.f, Fuel - (FuelUsed * Time));
+	}
 }
 
 void ASubjectZero::ApplyAirResistance()
@@ -227,72 +288,77 @@ void ASubjectZero::ApplyAirResistance()
 	GetCharacterMovement()->AddForce(Force);
 }
 
-void ASubjectZero::Server_Set_Name_Implementation(FName NewName)
-{
-	PlayerName = NewName;
-}
-
-bool ASubjectZero::Server_Set_Name_Validate(FName Name)
-{
-	return true;
-}
-
 bool ASubjectZero::ReceiveDamage(float Dmg)
 {
-	if(Shield != 0.f)
+	if(HasAuthority())
 	{
-		if(Shield > Dmg)
+		if(Shield != 0.f)
 		{
-			Shield = Shield - Dmg;
-			return false;
+			if(Shield > Dmg)
+			{
+				Shield = Shield - Dmg;
+				return false;
+			}
+			else
+			{
+				Dmg = Dmg - Shield;
+				Shield = 0.f;
+				ReceiveDamage(Dmg);
+			}
 		}
-		else
+		else if(Armor != 0.f)
 		{
-			Dmg = Dmg - Shield;
-			Shield = 0.f;
-			ReceiveDamage(Dmg);
+			if(Armor > Dmg)
+			{
+				Armor = Armor - Dmg;
+				return false;
+			}
+			else
+			{
+				Dmg = Dmg - Armor;
+				Armor = 0.f;
+				ReceiveDamage(Dmg);
+			}
 		}
-	} 
-	else if(Armor != 0.f)
-	{
-		if(Armor > Dmg)
+		else if(Health != 0.f)
 		{
-			Armor = Armor - Dmg;
-			return false;
-		}
-		else
-		{
-			Dmg = Dmg - Armor;
-			Armor = 0.f;
-			ReceiveDamage(Dmg);
-		}
-	} 
-	else if(Health != 0.f)
-	{
-		if(Health > Dmg)
-		{
-			Health = Health - Dmg;
-			return false;
-		}
-		else
-		{
-			Shield = MaxShield;
-			Armor = MaxArmor;
-			Health = MaxHealth;
-			return true;
+			if(Health > Dmg)
+			{
+				Health = Health - Dmg;
+				return false;
+			}
+			else
+			{
+				Shield = MaxShield;
+				Armor = MaxArmor;
+				Health = MaxHealth;
+				return true;
+			}
 		}
 	}
 	return false;
 }
 
-void ASubjectZero::AddDamageDealt(float AddedDamage)
+void ASubjectZero::Kill()
 {
-	DamageDealt += AddedDamage;
+	GetMesh()->SetAllBodiesSimulatePhysics(true);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->WakeAllRigidBodies();
+	if(Weapon)
+	{
+		Weapon->Destroy();
+	}
+	Super::Destroy();
 }
 
-void ASubjectZero::AddKill()
+void ASubjectZero::SetYaw(float Set)
 {
-	Kills += 1;
+	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set);
+}
+
+void ASubjectZero::SetPitch(float Set)
+{
+	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
 }
 
 // Getters
@@ -313,220 +379,123 @@ int ASubjectZero::GetKills() const { return Kills; }
 float ASubjectZero::GetDamage() const { return DamageDealt; }
 FName ASubjectZero::GetPlayerName() const { return PlayerName; }
 
-// Input methods
-void ASubjectZero::SetupPlayerInputComponent(class UInputComponent* Input)
+void ASubjectZero::SetCrouch(bool Set)
 {
-	// Movement binds
-	Input->BindAxis("Yaw", this, &ASubjectZero::InputYaw);
-	Input->BindAxis("Pitch", this, &ASubjectZero::InputPitch);
-	Input->BindAction("Jump", IE_Pressed, this, &ASubjectZero::InputJumpPress);
-	Input->BindAction("Jump", IE_Released, this, &ASubjectZero::InputJumpRelease);
-	Input->BindAction("Sprint", IE_Pressed, this, &ASubjectZero::InputSprintPress);
-	Input->BindAction("Sprint", IE_Released, this, &ASubjectZero::InputSprintRelease);
-	Input->BindAction("Crouch", IE_Pressed, this, &ASubjectZero::InputCrouchPress);
-	Input->BindAction("Crouch", IE_Released, this, &ASubjectZero::InputCrouchRelease);
-	Input->BindAction("Forward", IE_Pressed, this, &ASubjectZero::InputForwardPress);
-	Input->BindAction("Forward", IE_Released, this, &ASubjectZero::InputForwardRelease);
-	Input->BindAction("Backward", IE_Pressed, this, &ASubjectZero::InputBackwardPress);
-	Input->BindAction("Backward", IE_Released, this, &ASubjectZero::InputBackwardRelease);
-	Input->BindAction("Left", IE_Pressed, this, &ASubjectZero::InputLeftPress);
-	Input->BindAction("Left", IE_Released, this, &ASubjectZero::InputLeftRelease);
-	Input->BindAction("Right", IE_Pressed, this, &ASubjectZero::InputRightPress);
-	Input->BindAction("Right", IE_Released, this, &ASubjectZero::InputRightRelease);
-	Input->BindAction("Shoot", IE_Pressed, this, &ASubjectZero::InputShootPress);
-	Input->BindAction("Shoot", IE_Released, this, &ASubjectZero::InputShootRelease);
-	Input->BindAction("PrimaryWeapon", IE_Pressed, this, &ASubjectZero::InputPrimaryWeaponPress);
-	Input->BindAction("SecondaryWeapon", IE_Pressed, this, &ASubjectZero::InputSecondaryWeaponPress);
-	Input->BindAction("TertiaryWeapon", IE_Pressed, this, &ASubjectZero::InputTertiaryWeaponPress);
-}
-
-void ASubjectZero::InputYaw(float Value) { 
-	if(GameInstance != nullptr && GetWorld() != nullptr)
+	Crouching = Set;
+	if(Set)
 	{
-		ASubjectZero::AddControllerYawInput(GetWorld()->GetDeltaSeconds() * GameInstance->GetSensitivity() * Value);
+		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		Camera->AddRelativeLocation(FVector(0.f, 0, CrouchingHeight - StandingHeight));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(66.f);
+	}
+	else
+	{
+		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		Camera->AddRelativeLocation(FVector(0.f, 0, StandingHeight - CrouchingHeight));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
 	}
 }
-void ASubjectZero::InputPitch(float Value) { 
-	if(GameInstance != nullptr && GetWorld() != nullptr)
+
+void ASubjectZero::SetSprint(bool Set)
+{
+	Sprinting = Set;
+}
+
+void ASubjectZero::SetJump(bool Set)
+{
+	if(!Grounded && !Jumping && Set)
 	{
-		ASubjectZero::AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * GameInstance->GetSensitivity() * Value);
+		JetpackActive = Fuel > 0.f;
+	}
+	Jumping = Set;
+}
+
+void ASubjectZero::SetMoveLeft(bool Set)
+{
+	Left = Set;
+}
+
+void ASubjectZero::SetMoveRight(bool Set)
+{
+	Right = Set;
+}
+
+void ASubjectZero::SetMoveForward(bool Set)
+{
+	Forward = Set;
+}
+
+void ASubjectZero::SetMoveBackward(bool Set)
+{
+	Backward = Set;
+}
+
+void ASubjectZero::SetFire(bool Set)
+{
+	IsTriggerPulled = Set;
+}
+
+void ASubjectZero::SetSecondaryFire(bool Set)
+{
+
+}
+
+void ASubjectZero::SetUse(bool Set)
+{
+
+}
+
+void ASubjectZero::Slot0()
+{
+	Equip(0);
+	if(!HasAuthority())
+	{
+		Server_Equip(0);
 	}
 }
-void ASubjectZero::InputForwardPress() { Movement.X += 1.f; }
-void ASubjectZero::InputForwardRelease() { Movement.X += -1.f; }
-void ASubjectZero::InputBackwardPress() { Movement.X += -1.f; }
-void ASubjectZero::InputBackwardRelease() { Movement.X += 1.f; }
-void ASubjectZero::InputLeftPress() { Movement.Y += -1.f; }
-void ASubjectZero::InputLeftRelease() { Movement.Y += 1.f; }
-void ASubjectZero::InputRightPress() { Movement.Y += 1.f; }
-void ASubjectZero::InputRightRelease() { Movement.Y += -1.f; }
 
-void ASubjectZero::InputJumpPress()
+void ASubjectZero::Slot1()
 {
-	if(Controller)
+	Equip(1);
+	if(!HasAuthority())
 	{
-		Movement.Z = 1.f;
-		Jumping = true;
-		if(!Grounded)
+		Server_Equip(1);
+	}
+}
+
+
+void ASubjectZero::Slot2()
+{
+
+}
+
+void ASubjectZero::Slot3()
+{
+
+}
+
+// Getters
+float ASubjectZero::GetSpeed() const { return GetVelocity().Size()/100.f; }
+float ASubjectZero::GetVerticalSpeed() const { return GetVelocity().Z; }
+float ASubjectZero::GetMaxHealth() { return MaxHealth; }
+float ASubjectZero::GetHealth() { return Health; }
+float ASubjectZero::GetMaxArmor() const { return MaxArmor; }
+float ASubjectZero::GetArmor() const { return Armor; }
+float ASubjectZero::GetMaxShield() const { return MaxShield; }
+float ASubjectZero::GetShield() const { return Shield; }
+float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
+float ASubjectZero::GetFuel() const { return Fuel; }
+bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
+bool ASubjectZero::IsSprinting() const { return Sprinting; }
+bool ASubjectZero::IsCrouching() const { return Crouching; }
+FName ASubjectZero::GetPlayerName() const {
+	FName Name = "Unknown";
+	if(AHumanController * HumanController = Cast<AHumanController>(GetController()))
+	{
+		if(Role == ROLE_SimulatedProxy || HasAuthority())
 		{
-			JetpackActive = Fuel > 0.f;
+			Name = HumanController->PlayerName;
 		}
 	}
-}
-
-void ASubjectZero::InputJumpRelease()
-{
-	Movement.Z = 0.f;
-	Jumping = false;
-}
-
-void ASubjectZero::InputSprintPress()
-{
-	Sprinting = true;
-}
-
-void ASubjectZero::InputSprintRelease()
-{
-	Sprinting = false;
-}
-
-void ASubjectZero::InputCrouchPress()
-{
-	Crouching = true;
-	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	Camera->AddRelativeLocation(FVector(0.f, 0, CrouchingHeight - StandingHeight));
-}
-
-void ASubjectZero::InputCrouchRelease()
-{
-	Crouching = false;
-	Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	Camera->AddRelativeLocation(FVector(0.f, 0, StandingHeight - CrouchingHeight));
-}
-
-void ASubjectZero::InputShootPress()
-{
-	IsTriggerPulled = true;
-}
-
-void ASubjectZero::InputShootRelease()
-{
-	IsTriggerPulled = false;
-}
-
-void ASubjectZero::InputPrimaryWeaponPress()
-{
-	Weapon->Destroy();
-	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
-	if(!IsLocallyControlled())
-	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-	else
-	{
-		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-
-	Weapon->SetShooter(this);
-}
-
-void ASubjectZero::InputSecondaryWeaponPress()
-{
-	Weapon->Destroy();
-	Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
-	if(!IsLocallyControlled())
-	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-	else
-	{
-		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-
-	Weapon->SetShooter(this);
-}
-
-void ASubjectZero::InputTertiaryWeaponPress()
-{
-	Weapon->Destroy();
-	Weapon = GetWorld()->SpawnActor<AShotgun>(ShotgunBlueprint);
-	if (!IsLocallyControlled())
-	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-	else
-	{
-		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-
-	Weapon->SetShooter(this);
-}
-
-bool ASubjectZero::Join(FString IPAddress)
-{
-	if(IPAddress.Equals(""))
-	{
-		IPAddress = "25.16.209.98";
-	}
-	else if(IPAddress.Equals("Kevin"))
-	{
-		IPAddress = "25.16.209.98";
-	}
-	else if(IPAddress.Equals("Ben"))
-	{
-		IPAddress = "25.16.234.201";
-	}
-	else if(IPAddress.Equals("Dave"))
-	{
-		IPAddress = "25.16.209.98";
-	}
-	else if(IPAddress.Equals("Matt"))
-	{
-		IPAddress = "25.80.30.209";
-	}
-	else if(IPAddress.Equals("Yousef"))
-	{
-		IPAddress = "25.53.50.17";
-	}
-	else if (IPAddress.Equals("Patrick"))
-	{
-		IPAddress = "25.3.152.72";
-	}
-
-	Logger::Log("Joining server " + IPAddress);
-	UWorld * World = GetWorld();
-	if(World)
-	{
-		APlayerController * PlayerController = World->GetFirstPlayerController();
-		if(PlayerController)
-		{
-			PlayerController->ClientTravel(IPAddress, ETravelType::TRAVEL_Absolute);
-			return true;
-		}
-	}
-	return false;
-}
-
-bool ASubjectZero::Host()
-{
-	Logger::Log("Hosting server");
-	UWorld * World = GetWorld();
-	if(World)
-	{
-		World->ServerTravel("/Game/Maps/TargetRange?listen", true, true);
-		return true;
-	}
-	return false;
-}
-
-bool ASubjectZero::Map(FString Map)
-{
-	Logger::Log("Changing map to " + Map);
-	UWorld * World = GetWorld();
-	if(World)
-	{
-		World->ServerTravel("/Game/Maps/" + Map + "?listen", true, true);
-		return true;
-	}
-	return false;
+	return Name;
 }

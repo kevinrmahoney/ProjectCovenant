@@ -5,8 +5,6 @@
 #include "GameFramework/Character.h"
 #include "SubjectZero.generated.h"
 
-class UProjectCovenantInstance;
-
 class AHitscanWeapon;
 class ARailgun;
 class AShotgun;
@@ -19,11 +17,12 @@ class PROJECTCOVENANT_API ASubjectZero : public ACharacter
 public:
 	ASubjectZero(const FObjectInitializer& ObjectInitializer);
 
+	FVector Movement;
+	bool Jumping = false;
+	bool Sprinting = false;
+	bool JetpackActive = false;
+
 private:
-
-	UPROPERTY()
-	UProjectCovenantInstance * GameInstance;
-
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AHitscanWeapon> HitscanWeaponBlueprint;
 
@@ -37,14 +36,11 @@ private:
 	AHitscanWeapon * Weapon;
 
 	FVector Velocity;
-	FVector Movement;
-	bool Jumping = false;
-	bool Sprinting = false;
-	bool JetpackActive = false;
 
 	bool Grounded = false;
 
-	float Time;       
+	float Time;    
+	float TimeSinceJetpack = 0.f;
 
 	UPROPERTY(Replicated)
 	float Health = 100.f;
@@ -65,9 +61,6 @@ private:
 	float DamageDealt = 0.f;
 
 	UPROPERTY(Replicated)
-	FName PlayerName = "Subject Zero";
-
-	UPROPERTY(Replicated)
 	bool Crouching = false;
 
 	UPROPERTY(Replicated)
@@ -82,15 +75,20 @@ private:
 	float CrouchingSprintSpeed = 300.f;
 	float CrouchingRunSpeed = 200.f;
 	float JetpackAcceleration = 120000.f;
-	float GroundAcceleration = 1000.f;
+	float GroundAcceleration = 5000.f;
 	float AirResistanceConstant = 0.008f;
-	float FuelUsage = 1.f;
+	float FuelUsage = 100.f;
 	float MaxHealth = 100.f;
 	float MaxArmor = 100.f;
 	float MaxShield = 100.f;
 	float MaxFuel = 1000.f;
 	float StandingHeight = 75.f;
 	float CrouchingHeight = 15.f;
+
+	bool Left = false;
+	bool Right = false;
+	bool Forward = false;
+	bool Backward = false;
 
 public:
 	UPROPERTY(VisibleDefaultsOnly)
@@ -106,43 +104,17 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Set_Name(const FName NewName);
-  
-	void DepleteJetpack();
-
 	void JetpackBurst();
 
 	void ApplyAirResistance();
 
-	//Input functions
-	void InputYaw(float Value);
-	void InputPitch(float Value);
-	void InputForwardPress();
-	void InputForwardRelease();
-	void InputBackwardPress();
-	void InputBackwardRelease();
-	void InputLeftPress();
-	void InputLeftRelease();
-	void InputRightPress();
-	void InputRightRelease();
-	void InputJumpPress();
-	void InputJumpRelease();
-	void InputSprintPress();
-	void InputSprintRelease();
-	void InputCrouchPress();
-	void InputCrouchRelease();
-	void InputShootPress();
-	void InputShootRelease();
-	void InputPrimaryWeaponPress();
-	void InputPrimaryWeaponRelease();
-	void InputSecondaryWeaponPress();
-	void InputSecondaryWeaponRelease();
-	void InputTertiaryWeaponPress();
+	void Equip(int Num);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_Equip(int Num);
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* Input) override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -152,6 +124,25 @@ public:
 	void AddDamageDealt(float DamageDealt);
 
 	void AddKill();
+
+	void Kill();
+
+	void SetYaw(float Set);
+	void SetPitch(float Set);
+	void SetCrouch(bool Set);
+	void SetSprint(bool Set);
+	void SetJump(bool Set);
+	void SetMoveLeft(bool Set);
+	void SetMoveRight(bool Set);
+	void SetMoveForward(bool Set);
+	void SetMoveBackward(bool Set);
+	void SetFire(bool Set);
+	void SetSecondaryFire(bool Set);
+	void SetUse(bool Set);
+	void Slot0();
+	void Slot1();
+	void Slot2();
+	void Slot3();
   
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSpeed() const;
@@ -184,12 +175,7 @@ public:
 	float GetFuel() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
-	int GetKills() const;
 
-	UFUNCTION(BlueprintPure, BlueprintCallable)
-	float GetDamage() const;
-
-	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FName GetPlayerName() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
@@ -201,12 +187,5 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsCrouching() const;
 
-	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
-	bool Join(FString IPAddress);
 
-	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
-	bool Host();
-
-	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
-	bool Map(FString Map);
 };
