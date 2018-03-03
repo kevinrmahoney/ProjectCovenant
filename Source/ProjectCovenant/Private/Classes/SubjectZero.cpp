@@ -5,6 +5,7 @@
 #include "UnrealNetwork.h"
 #include "HitscanWeapon.h"
 #include "Railgun.h"
+#include "Shotgun.h"
 #include "Deathmatch.h"
 #include "ProjectCovenantInstance.h"
 
@@ -354,10 +355,29 @@ void ASubjectZero::SetYaw(float Set)
 {
 	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set);
 }
+
 void ASubjectZero::SetPitch(float Set)
 {
 	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
 }
+
+// Getters
+float ASubjectZero::GetSpeed() const { return GetVelocity().Size()/100.f; }
+float ASubjectZero::GetVerticalSpeed() const { return GetVelocity().Z; }
+float ASubjectZero::GetMaxHealth() { return MaxHealth; }
+float ASubjectZero::GetHealth() { return Health; }
+float ASubjectZero::GetMaxArmor() const { return MaxArmor; }
+float ASubjectZero::GetArmor() const { return Armor; }
+float ASubjectZero::GetMaxShield() const { return MaxShield; }
+float ASubjectZero::GetShield() const { return Shield; }
+float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
+float ASubjectZero::GetFuel() const { return Fuel; }
+bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
+bool ASubjectZero::IsSprinting() const { return Sprinting; }
+bool ASubjectZero::IsCrouching() const { return Crouching; }
+int ASubjectZero::GetKills() const { return Kills; }
+float ASubjectZero::GetDamage() const { return DamageDealt; }
+FName ASubjectZero::GetPlayerName() const { return PlayerName; }
 
 void ASubjectZero::SetCrouch(bool Set)
 {
@@ -442,6 +462,7 @@ void ASubjectZero::Slot1()
 		Server_Equip(1);
 	}
 }
+
 
 void ASubjectZero::Slot2()
 {

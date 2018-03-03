@@ -7,6 +7,7 @@
 
 class AHitscanWeapon;
 class ARailgun;
+class AShotgun;
 
 UCLASS()
 class PROJECTCOVENANT_API ASubjectZero : public ACharacter
@@ -27,6 +28,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ARailgun> RailgunBlueprint;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AShotgun> ShotgunBlueprint;
 
 	UPROPERTY()
 	AHitscanWeapon * Weapon;
@@ -54,7 +58,7 @@ private:
 	int Kills = 0;
 
 	UPROPERTY(Replicated)
-	int DamageDealt = 0;
+	float DamageDealt = 0.f;
 
 	UPROPERTY(Replicated)
 	bool Crouching = false;
@@ -171,6 +175,7 @@ public:
 	float GetFuel() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
+
 	FName GetPlayerName() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
