@@ -85,6 +85,7 @@ void ARailgun::Shoot()
 		DrawLaser(StartTrace, EndTrace, 2.f);
 		PlayShootSound();
 	}
+
 	delete StartTrace;
 	delete EndTrace;
 }

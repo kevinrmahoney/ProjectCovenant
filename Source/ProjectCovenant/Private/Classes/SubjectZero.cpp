@@ -343,6 +343,11 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 	return false;
 }
 
+bool ASubjectZero::ReceiveDamageOverTime(float DamageAmount, bool Overlapped) {
+	
+	return true;
+}
+
 void ASubjectZero::Kill()
 {
 	GetMesh()->SetAllBodiesSimulatePhysics(true);
@@ -358,6 +363,10 @@ void ASubjectZero::Kill()
 void ASubjectZero::SetYaw(float Set)
 {
 	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set);
+}
+
+void ASubjectZero::IncreaseHealth(float amount) {
+	Health += MaxHealth * amount;
 }
 
 void ASubjectZero::SetPitch(float Set)
