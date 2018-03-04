@@ -12,7 +12,7 @@ class ASubjectZero;
  * 
  */
 UCLASS()
-class PROJECTCOVENANT_API AHealthPack : public ATriggerBox
+class PROJECTCOVENANT_API AHealthPack : public AActor
 {
 	GENERATED_BODY()
 	

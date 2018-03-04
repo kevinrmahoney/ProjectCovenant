@@ -5,6 +5,9 @@
 #include "SubjectZero.h"
 
 bool AHealthPack::AddHealth(ASubjectZero * player, float HealthBoost) {
-	player->IncreaseHealth(0.25f);
-	return true;
+	if(HasAuthority())
+	{
+		player->IncreaseHealth(0.25f);
+	}
+		return true;
 }

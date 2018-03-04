@@ -43,7 +43,7 @@ private:
 	float TimeSinceJetpack = 0.f;
 
 	UPROPERTY(Replicated)
-	float Health = 50.f;
+	float Health = 100.f;
 
 	UPROPERTY(Replicated)
 	float Armor = 100.f;
