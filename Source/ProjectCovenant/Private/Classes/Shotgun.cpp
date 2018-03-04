@@ -46,25 +46,27 @@ void AShotgun::Shoot()
 {
 	// See if cooldown has passed (while loop prevents shots from being buffered if frame rate is horrendous)
 	int count = 0;
-	if (TimeSinceLastShot >= Cooldown)
+	if(TimeSinceLastShot >= Cooldown)
 	{
+		float TotalDamage = 0.f;
 		UWorld * World = GetWorld();
 		FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());	//start trace at the muzzle of the weapon (in world space)
 		FVector * AxisEnd = new FVector(*StartTrace + (Muzzle->GetForwardVector() * Range)); //because the forwardvector comes from the origin, add it to the start trace
 		FVector * SpreadEnd = new FVector(0.f, 0.f, 0.f);
 		FRotator * Rotation = new FRotator(0.f, 0.f, 0.f);
+		ASubjectZero * Victim = nullptr;
 
 		DrawDebugLine(World, *StartTrace, *AxisEnd, FColor::Green, false, .1f); //center line for reference	
 
 		//for loop for radius of circle and nested for loop for roll
-		for (int i = 1; i <= CircleCount; i++)
+		for(int i = 1; i <= CircleCount; i++)
 		{
 			Rotation->Pitch = MaxConeAngle / i;
 			FVector * SpreadVector = new FVector(Range, MaxConeAngle / i, 0.f);
 			*SpreadVector = Muzzle->GetComponentRotation().RotateVector(*SpreadVector);
 			*SpreadEnd = *StartTrace + *SpreadVector;
 			DrawDebugLine(World, *StartTrace, *SpreadEnd, FColor::Yellow, false, .1f);
-			for (int j = 0; j < RollCount; j++)
+			for(int j = 0; j < RollCount; j++)
 			{
 				SpreadVector = new FVector(Range, MaxConeAngle / i, 0.f);
 				*SpreadVector = SpreadVector->RotateAngleAxis(360 / RollCount * j, FVector(1.f, 0.f, 0.f));
@@ -77,17 +79,24 @@ void AShotgun::Shoot()
 				TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
 
 				// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
-				if (GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *SpreadEnd, ECC_Pawn, *TraceParams) && HitResult && HitResult->GetActor())
+				if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *SpreadEnd, ECC_Pawn, *TraceParams) && HitResult && HitResult->GetActor())
 				{
 					// Calculate the end of the trace (the actor's hitbox)
 					//AxisEnd = new FVector(*StartTrace + (HitResult->Distance * ForwardVector));
 
 					// Get the victim and attempt to cast to SubjectZero
-					ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
-					if (Victim && Shooter->HasAuthority())
+					if(!Victim)
 					{
-						count++;
-						DealDamage(Victim);
+						Victim = Cast<ASubjectZero>(HitResult->GetActor());
+					}
+
+					if(HitResult->GetActor())
+					{
+						if(Shooter->HasAuthority())
+						{
+							count++;
+							TotalDamage += Damage;
+						}
 					}
 				}
 				delete HitResult;
@@ -100,19 +109,16 @@ void AShotgun::Shoot()
 		TimeSinceLastShot = TimeSinceLastShot - Cooldown;
 		delete StartTrace;
 		delete AxisEnd;
+		if(Victim)
+		{
+			DealDamage(Victim, TotalDamage);
+		}
 	}
 }
 
-void AShotgun::DealDamage(ASubjectZero * Victim)
+void AShotgun::DealDamage(ASubjectZero * Victim, float TotalDamage)
 {
-	bool Killed = Victim->ReceiveDamage(Damage);
-	Shooter->AddDamageDealt(Damage);
-
-	if (Killed)
-	{
-		Shooter->AddKill();
-		Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString());
-	}
+	Super::DealDamage(Victim, TotalDamage);
 }
 
 void AShotgun::DrawLaser(FVector * Begin, FVector * End, float Duration)

@@ -75,7 +75,7 @@ void ARailgun::Shoot()
 			ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
 			if(Victim)
 			{
-				DealDamage(Victim);
+				DealDamage(Victim, Damage);
 			}
 		}
 
@@ -89,9 +89,9 @@ void ARailgun::Shoot()
 	delete EndTrace;
 }
 
-void ARailgun::DealDamage(ASubjectZero * Victim)
+void ARailgun::DealDamage(ASubjectZero * Victim, float TotalDamage)
 {
-	Super::DealDamage(Victim);
+	Super::DealDamage(Victim, TotalDamage);
 }
 
 void ARailgun::DrawLaser(FVector * Begin, FVector * End, float Duration)

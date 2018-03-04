@@ -227,6 +227,10 @@ void ASubjectZero::Equip(int Num)
 	{
 		Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
 	}
+	else if(Num == 2)
+	{
+		Weapon = GetWorld()->SpawnActor<AShotgun>(ShotgunBlueprint);
+	}
 
 	// If this actor is controlled by the local client or the server, attach the weapon to the first person mesh
 	if(IsLocallyControlled() || Role == ROLE_Authority)
@@ -361,24 +365,6 @@ void ASubjectZero::SetPitch(float Set)
 	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
 }
 
-// Getters
-float ASubjectZero::GetSpeed() const { return GetVelocity().Size()/100.f; }
-float ASubjectZero::GetVerticalSpeed() const { return GetVelocity().Z; }
-float ASubjectZero::GetMaxHealth() { return MaxHealth; }
-float ASubjectZero::GetHealth() { return Health; }
-float ASubjectZero::GetMaxArmor() const { return MaxArmor; }
-float ASubjectZero::GetArmor() const { return Armor; }
-float ASubjectZero::GetMaxShield() const { return MaxShield; }
-float ASubjectZero::GetShield() const { return Shield; }
-float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
-float ASubjectZero::GetFuel() const { return Fuel; }
-bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
-bool ASubjectZero::IsSprinting() const { return Sprinting; }
-bool ASubjectZero::IsCrouching() const { return Crouching; }
-int ASubjectZero::GetKills() const { return Kills; }
-float ASubjectZero::GetDamage() const { return DamageDealt; }
-FName ASubjectZero::GetPlayerName() const { return PlayerName; }
-
 void ASubjectZero::SetCrouch(bool Set)
 {
 	Crouching = Set;
@@ -466,7 +452,11 @@ void ASubjectZero::Slot1()
 
 void ASubjectZero::Slot2()
 {
-
+	Equip(2);
+	if(!HasAuthority())
+	{
+		Server_Equip(2);
+	}
 }
 
 void ASubjectZero::Slot3()
@@ -488,6 +478,8 @@ float ASubjectZero::GetFuel() const { return Fuel; }
 bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
 bool ASubjectZero::IsCrouching() const { return Crouching; }
+
+// Getters
 FName ASubjectZero::GetPlayerName() const {
 	FName Name = "Unknown";
 	if(AHumanController * HumanController = Cast<AHumanController>(GetController()))

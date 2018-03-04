@@ -35,7 +35,7 @@ public:
 private:
 	void Shoot() override;
 
-	void DealDamage(ASubjectZero * Victim) override;
+	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
 
 	void DrawLaser(FVector * Begin, FVector * End, float Duration) override;
 

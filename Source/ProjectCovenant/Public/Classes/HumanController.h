@@ -80,9 +80,9 @@ private:
 	void InputCrouchRelease();
 	void InputShootPress();
 	void InputShootRelease();
-	void InputPrimaryWeaponPress();
-	void InputSecondaryWeaponPress();
-	void InputThirdaryWeaponPress();
+	void InputSlot1();
+	void InputSlot2();
+	void InputSlot3();
 	void InputUsePress();
 	void InputScoreboardPress();
 	void InputScoreboardRelease();

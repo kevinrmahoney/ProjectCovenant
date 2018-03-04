@@ -69,8 +69,9 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Right", IE_Released, this, &AHumanController::InputRightRelease);
 		InputComponent->BindAction("Shoot", IE_Pressed, this, &AHumanController::InputShootPress);
 		InputComponent->BindAction("Shoot", IE_Released, this, &AHumanController::InputShootRelease);
-		InputComponent->BindAction("PrimaryWeapon", IE_Pressed, this, &AHumanController::InputPrimaryWeaponPress);
-		InputComponent->BindAction("SecondaryWeapon", IE_Pressed, this, &AHumanController::InputSecondaryWeaponPress);
+		InputComponent->BindAction("Slot 1", IE_Pressed, this, &AHumanController::InputSlot1);
+		InputComponent->BindAction("Slot 2", IE_Pressed, this, &AHumanController::InputSlot2);
+		InputComponent->BindAction("Slot 3", IE_Pressed, this, &AHumanController::InputSlot3);
 		InputComponent->BindAction("Use", IE_Pressed, this, &AHumanController::InputUsePress);
 		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
 		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
@@ -343,7 +344,7 @@ void AHumanController::InputShootRelease()
 		Spectator->SetFire(false);
 	}
 }
-void AHumanController::InputPrimaryWeaponPress()
+void AHumanController::InputSlot1()
 {
 	if(SubjectZero)
 	{
@@ -354,7 +355,7 @@ void AHumanController::InputPrimaryWeaponPress()
 		Spectator->Slot0();
 	}
 }
-void AHumanController::InputSecondaryWeaponPress()
+void AHumanController::InputSlot2()
 {
 	if(SubjectZero)
 	{
@@ -365,7 +366,7 @@ void AHumanController::InputSecondaryWeaponPress()
 		Spectator->Slot1();
 	}
 }
-void AHumanController::InputThirdaryWeaponPress()
+void AHumanController::InputSlot3()
 {
 	if(SubjectZero)
 	{

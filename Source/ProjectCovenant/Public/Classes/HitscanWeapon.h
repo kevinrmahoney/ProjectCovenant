@@ -56,7 +56,7 @@ protected:
 
 	virtual void Shoot();
 
-	virtual void DealDamage(ASubjectZero * Victim);
+	virtual void DealDamage(ASubjectZero * Victim, float TotalDamage);
 
 	virtual void DrawLaser(FVector * Begin, FVector * End, float Duration);
 
