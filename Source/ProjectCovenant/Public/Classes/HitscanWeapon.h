@@ -54,6 +54,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void Shoot();
+
+	virtual void DealDamage(ASubjectZero * Victim, float TotalDamage);
+
+	virtual void DrawLaser(FVector * Begin, FVector * End, float Duration);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -61,11 +67,4 @@ public:
 	void SetTrigger(bool T);
 
 	void SetShooter(ASubjectZero * NewShooter);
-
-private:
-	virtual void Shoot();
-	
-	virtual void DealDamage(ASubjectZero * Victim);
-
-	virtual void DrawLaser(FVector * Begin, FVector * End, float Duration);
 };

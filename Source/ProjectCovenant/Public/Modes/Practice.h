@@ -2,25 +2,18 @@
 
 #pragma once
 
-#include "GameFramework/GameMode.h"
+#include "BaseMode.h"
 #include "Practice.generated.h"
+
+class ASubjectZero;
 
 /**
  * 
  */
 UCLASS()
-class PROJECTCOVENANT_API APractice : public AGameMode
+class PROJECTCOVENANT_API APractice : public ABaseMode
 {
 	GENERATED_BODY()
 
-	APractice(const FObjectInitializer& ObjectInitializer);
-		
-	virtual void StartPlay() override;
-
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Meta = (BluePrintProtected = "true"))
-	TSubclassOf<class UUserWidget> PlayerHUDClass;
-
-	UPROPERTY()
-	class UUserWidget* CurrentWidget;
+	APractice();
 };

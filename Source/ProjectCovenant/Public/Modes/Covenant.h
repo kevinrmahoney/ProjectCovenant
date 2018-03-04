@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include "GameFramework/GameMode.h"
+#include "BaseMode.h"
 #include "Covenant.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTCOVENANT_API ACovenant : public AGameMode
+class PROJECTCOVENANT_API ACovenant : public ABaseMode
 {
 	GENERATED_BODY()
 	

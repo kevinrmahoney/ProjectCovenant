@@ -2,7 +2,10 @@
 
 #include "ProjectCovenant.h"
 #include "Railgun.h"
+#include "BasePlayerState.h"
 #include "SubjectZero.h"
+
+
 
 // Sets default values
 ARailgun::ARailgun()
@@ -70,9 +73,9 @@ void ARailgun::Shoot()
 
 			// Get the victim and attempt to cast to SubjectZero
 			ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
-			if(Victim && Shooter->HasAuthority())
+			if(Victim)
 			{
-				DealDamage(Victim);
+				DealDamage(Victim, Damage);
 			}
 		}
 
@@ -87,16 +90,9 @@ void ARailgun::Shoot()
 	delete EndTrace;
 }
 
-void ARailgun::DealDamage(ASubjectZero * Victim)
+void ARailgun::DealDamage(ASubjectZero * Victim, float TotalDamage)
 {
-	bool Killed = Victim->ReceiveDamage(Damage);
-	Shooter->AddDamageDealt(Damage);
-
-	if(Killed)
-	{
-		Shooter->AddKill();
-		Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString());
-	}
+	Super::DealDamage(Victim, TotalDamage);
 }
 
 void ARailgun::DrawLaser(FVector * Begin, FVector * End, float Duration)
@@ -108,4 +104,5 @@ void ARailgun::DrawLaser(FVector * Begin, FVector * End, float Duration)
 	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, 0.2f), *End, FColor::Red, false, Duration);
 	DrawDebugLine(World, *Begin + FVector(-0.2f, 0.f, 0.f), *End, FColor::Red, false, Duration);
 	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, -0.2f), *End, FColor::Red, false, Duration);
+
 }
