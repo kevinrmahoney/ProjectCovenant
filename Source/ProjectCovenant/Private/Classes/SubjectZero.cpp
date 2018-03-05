@@ -98,7 +98,7 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 
 		// Move the character using the input 
-		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch);
+		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch, AimDownSights);
 	}
 
 	// Add passive fuel if its been long enough
@@ -135,14 +135,15 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, DamageDealt)
 	DOREPLIFETIME(ASubjectZero, Crouching)
 	DOREPLIFETIME(ASubjectZero, IsTriggerPulled)
+	DOREPLIFETIME(ASubjectZero, AimDownSights)
 }
 
-void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
+void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
 {
 	// If the character is autonomous, send the move to the server
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch);
+		Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch, Client_AimDownSights);
 	}
 	// If the character is the authority, take the input from the client and proceed with the move
 	else if(Role == ROLE_Authority)
@@ -154,6 +155,7 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 		JetpackActive = Client_Jetpack;
 		IsTriggerPulled = Client_Shooting;
 		Camera->RelativeRotation.Pitch = Client_Pitch;
+		AimDownSights = Client_AimDownSights;
 	}
 
 	// Jetpack can only be activated if it has enough fuel
@@ -183,6 +185,11 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 		else
 		{
 			GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
+		}
+
+		if(AimDownSights)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
 		}
 
 		// Jump if commanded
@@ -217,12 +224,12 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 	}
 }
 
-void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
+void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
 {
-	Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch);
+	Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch, Client_AimDownSights);
 }
 
-bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch)
+bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
 {
 	return true;
 }
@@ -247,21 +254,21 @@ void ASubjectZero::Equip(int Num)
 		Weapon = GetWorld()->SpawnActor<AShotgun>(ShotgunBlueprint);
 	}
 
-	// If this actor is controlled by the local client or the server, attach the weapon to the first person mesh
-	if(IsLocallyControlled() || Role == ROLE_Authority)
-	{
-		// Attach the weapon to the actor's third person mesh if the actor is not controlled by the local player, but another player
-		Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-	// If this actor is controlled by a remote client or server, attach to the third person mesh
-	else
-	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-	}
-
-	// Make who is considered the shooter to be this character
 	if(Weapon)
 	{
+		// If this actor is controlled by the local client or the server, attach the weapon to the first person mesh
+		if(IsLocallyControlled() || Role == ROLE_Authority)
+		{
+			// Attach the weapon to the actor's third person mesh if the actor is not controlled by the local player, but another player
+			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+		}
+		// If this actor is controlled by a remote client or server, attach to the third person mesh
+		else
+		{
+			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+		}
+
+		// Make who is considered the shooter to be this character
 		Weapon->SetShooter(this);
 	}
 }
