@@ -100,3 +100,13 @@ void ARailgun::DrawLaser(FVector * Begin, FVector * End, float Duration)
 	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, -0.2f), *End, FColor::Red, false, Duration);
 
 }
+
+FVector ARailgun::GetAimDownSightsLocation()
+{
+	return HipfireLocation;
+}
+
+FRotator ARailgun::GetAimDownSightsRotation()
+{
+	return HipfireRotation;
+}

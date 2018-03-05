@@ -69,6 +69,14 @@ private:
 	UPROPERTY(Replicated)
 	bool IsTriggerPulled = false;
 
+	UPROPERTY(Replicated)
+	bool AimDownSights = false;
+
+	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);
+	FVector HipfireLocation = FVector(-15.419446f, 10.841988f, -152.856400f);
+	//FRotator HipfireRotation = FRotator(0.f, 0.f, 0.f);
+	//FVector HipfireLocation = FVector(0.f, 0.f, 0.f);
+
 	// constants
 	float NormalAirControl = 0.3f;
 	float JumpSpeed = 500.f;
@@ -194,5 +202,6 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsCrouching() const;
 
-
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool IsAimingDownSights() const;
 };

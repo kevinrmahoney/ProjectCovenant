@@ -46,8 +46,8 @@ void ASubjectZero::BeginPlay()
 	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
 	GetCharacterMovement()->GetPhysicsVolume()->TerminalVelocity = 10000.f;
 
-	//auto Shotgun = NewObject<AShotgun>(this);
-	//GetWorld()->SpawnActor()
+	FirstPersonMesh->SetRelativeLocation(HipfireLocation);
+	FirstPersonMesh->SetRelativeRotation(HipfireRotation);
 }
 
 // Called every frame
@@ -106,6 +106,20 @@ void ASubjectZero::Tick(float DeltaTime)
 	if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
 	{
 		Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 0.5f * DeltaTime));
+	}
+
+	if(Weapon)
+	{
+		if(AimDownSights)
+		{
+			FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
+			FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
+		}
+		else
+		{
+			FirstPersonMesh->SetRelativeLocation(HipfireLocation);
+			FirstPersonMesh->SetRelativeRotation(HipfireRotation);
+		}
 	}
 }
 
@@ -433,7 +447,7 @@ void ASubjectZero::SetFire(bool Set)
 
 void ASubjectZero::SetSecondaryFire(bool Set)
 {
-
+	AimDownSights = Set;
 }
 
 void ASubjectZero::SetUse(bool Set)
@@ -489,6 +503,7 @@ float ASubjectZero::GetFuel() const { return Fuel; }
 bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
 bool ASubjectZero::IsCrouching() const { return Crouching; }
+bool ASubjectZero::IsAimingDownSights() const { return AimDownSights; }
 
 // Getters
 FName ASubjectZero::GetPlayerName() const {

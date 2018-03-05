@@ -17,6 +17,12 @@ class PROJECTCOVENANT_API ARailgun : public AHitscanWeapon
 public:
 	ARailgun();
 
+	//(X=-14.290447,Y=-0.018228,Z=-143.514786)
+	FVector HipfireLocation = FVector(-14.290447f, -0.018228f, -143.514786f);
+	//(Pitch=2.812467,Yaw=-19.000458,Roll=0.000000)
+	FRotator HipfireRotation = FRotator(2.812467f, -19.000458f, 0.000000f);
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -31,6 +37,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayShootSound();
+
+	virtual FVector GetAimDownSightsLocation() override;
+
+	virtual FRotator GetAimDownSightsRotation() override;
 
 protected:
 	void Shoot() override;

@@ -117,3 +117,13 @@ void AHitscanWeapon::DrawLaser(FVector * Begin, FVector * End, float Duration)
 	DrawDebugLine(World, *Begin + FVector(-0.2f, 0.f, 0.f), *End, FColor::Green, false, Duration);
 	DrawDebugLine(World, *Begin + FVector(0.f, 0.f, -0.2f), *End, FColor::Green, false, Duration);
 }
+
+FVector AHitscanWeapon::GetAimDownSightsLocation()
+{
+	return HipfireLocation;
+}
+
+FRotator AHitscanWeapon::GetAimDownSightsRotation()
+{
+	return HipfireRotation;
+}

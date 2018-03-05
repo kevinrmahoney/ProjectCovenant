@@ -127,4 +127,12 @@ void AShotgun::DrawLaser(FVector * Begin, FVector * End, float Duration)
 	}
 }
 
+FVector AShotgun::GetAimDownSightsLocation()
+{
+	return HipfireLocation;
+}
 
+FRotator AShotgun::GetAimDownSightsRotation()
+{
+	return HipfireRotation;
+}
