@@ -20,6 +20,8 @@ public:
 
 	ADeathmatch();
 
+	void Tick(float DeltaTime) override;
+
 	void KillPlayer(AHumanController * Controller) override;
 
 	void SpawnPlayer(AHumanController * Controller) override;
@@ -27,6 +29,10 @@ public:
 private:
 	void PostLogin(APlayerController * NewPlayer) override;
 
-	int KillsToWin = 1;
+	int KillsToWin = 30;
+
+	float TimeLimit = 600.f;
+
+	float TimeLeft;
 
 };

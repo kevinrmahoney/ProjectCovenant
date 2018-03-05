@@ -16,12 +16,11 @@ ARailgun::ARailgun()
 void ARailgun::BeginPlay()
 {
 	Super::BeginPlay();
-	Damage = 50.f;
+	Damage = 75.f;
 	Range = 20000.f;
-	Cooldown = 2.f;
+	Cooldown = 2.25f;
 	Falloff = 1.f;
 	Ammo = 100.f;
-	TimeSinceLastShot = Cooldown;
 }
 
 // Called every frame

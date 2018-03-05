@@ -36,7 +36,7 @@ void AHitscanWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	TimeSinceLastShot = TimeSinceLastShot + DeltaTime;
+	TimeSinceLastShot = FMath::Min(TimeSinceLastShot + DeltaTime, Cooldown);
 
 	if(Trigger)
 	{
@@ -100,52 +100,10 @@ void AHitscanWeapon::Shoot()
 
 void AHitscanWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 {
-	// Only execute the following code on the server
-	if(HasAuthority())
+	ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode());
+	if(Mode)
 	{
-		// Deal damage to the victim, returns if the player was killed by the damage
-		bool Killed = Victim->ReceiveDamage(TotalDamage);
-
-		// Log the damage and if the player was killed by it
-		Logger::Log(Shooter->GetPlayerName().ToString() + " has dealt " + FString::SanitizeFloat(TotalDamage) + " to " + Victim->GetPlayerName().ToString() + " using " + GetName());
-		if(Killed) Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString() + " using " + GetName());
-
-		// Obtain the player states for the shooter and the victim
-		ABasePlayerState * ShooterPlayerState = Cast<ABasePlayerState>(Shooter->PlayerState);
-		ABasePlayerState * VictimPlayerState = Cast<ABasePlayerState>(Victim->PlayerState);
-
-		// If the player state is successfully obtained, add the damage that was dealt to the player state, and if killed, add the kill
-		if(ShooterPlayerState)
-		{
-			ShooterPlayerState->AddDamageDealt(TotalDamage);
-			if(Killed) ShooterPlayerState->AddKill(1);
-		}
-		else
-		{
-			Logger::Error("Could not cast or obtain shooter's PlayerState");
-		}
-
-		// If the player state is successfully obtained, add the damage that was dealt to the player state, and if killed, add the kill
-		if(VictimPlayerState)
-		{
-			VictimPlayerState->AddDamageTaken(TotalDamage);
-			if(Killed) VictimPlayerState->AddDeath(1);
-		}
-		else
-		{
-			Logger::Error("Could not cast or obtain victim's PlayerState");
-		}
-
-		if(Killed)
-		{
-			if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
-			{
-				if(AHumanController * HumanController = Cast<AHumanController>(Victim->GetController()))
-				{
-					Mode->KillPlayer(HumanController);
-				}
-			}
-		}
+		Mode->DealDamage(Shooter, Victim, TotalDamage, this);
 	}
 }
 

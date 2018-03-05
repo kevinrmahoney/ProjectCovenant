@@ -16,9 +16,20 @@ class PROJECTCOVENANT_API ABaseState : public AGameState
 
 public:
 	ABaseState();
-	
+
 	void BeginPlay() override;
 
 	void Tick(float DeltaTime) override;
+
+	UPROPERTY(Replicated)
+	float TimeLeft = 3600.f;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	float GetTimeLeft();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void GameOver();
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void GameOverScreen();
 };
