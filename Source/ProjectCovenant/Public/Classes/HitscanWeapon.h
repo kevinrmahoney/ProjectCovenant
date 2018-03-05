@@ -19,7 +19,7 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float Damage = 5.f;
+	float Damage = 10.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Range = 20000.f;
@@ -33,8 +33,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Ammo = 100.f;
 
+	UPROPERTY(Replicated)
 	bool Trigger = false;
+
 	float TimeSinceLastShot = Cooldown;
+
+	float Duration = 0.08f;
 
 public:
 	UPROPERTY()
@@ -63,7 +67,7 @@ protected:
 
 	virtual void DealDamage(ASubjectZero * Victim, float TotalDamage);
 
-	virtual void DrawLaser(FVector * Begin, FVector * End, float Duration);
+	virtual void DrawLaser();
 
 public:	
 	// Called every frame

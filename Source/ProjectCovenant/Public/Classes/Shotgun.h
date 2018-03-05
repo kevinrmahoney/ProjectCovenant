@@ -47,7 +47,7 @@ private:
 
 	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
 
-	void DrawLaser(FVector * Begin, FVector * End, float Duration) override;
+	void DrawLaser() override;
 
 	float MaxConeAngle = 200.f;
 

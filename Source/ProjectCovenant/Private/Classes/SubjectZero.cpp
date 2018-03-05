@@ -64,10 +64,11 @@ void ASubjectZero::Tick(float DeltaTime)
 	if(IsLocallyControlled() )
 	{
 		// Turn off the jetpack if the character has hit the ground
-		if(Grounded)
+		if(Grounded || AimDownSights)
 		{
 			JetpackActive = false;
 		}
+
 
 		// Process left/right movement
 		if(Left && !Right)
