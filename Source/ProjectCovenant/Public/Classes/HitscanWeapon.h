@@ -19,7 +19,7 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float Damage = 5.f;
+	float Damage = 10.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Range = 20000.f;
@@ -33,12 +33,21 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Ammo = 100.f;
 
+	UPROPERTY(Replicated)
 	bool Trigger = false;
+
 	float TimeSinceLastShot = Cooldown;
+
+	float Duration = 0.08f;
 
 public:
 	UPROPERTY()
 	ASubjectZero * Shooter = nullptr;
+
+	//(X = -4.133434, Y = -0.131399, Z = -150.845200)
+	FVector HipfireLocation = FVector(-4.133434f, -0.131399f, -150.845200f);
+	//(Pitch = 2.812467, Yaw = -19.000458, Roll = 0.000000)
+	FRotator HipfireRotation = FRotator(2.812467f, -19.000458f, 0.000000f);
 
 protected:
 	UPROPERTY()
@@ -58,7 +67,7 @@ protected:
 
 	virtual void DealDamage(ASubjectZero * Victim, float TotalDamage);
 
-	virtual void DrawLaser(FVector * Begin, FVector * End, float Duration);
+	virtual void DrawLaser();
 
 public:	
 	// Called every frame
@@ -67,4 +76,8 @@ public:
 	void SetTrigger(bool T);
 
 	void SetShooter(ASubjectZero * NewShooter);
+
+	virtual FVector GetAimDownSightsLocation();
+
+	virtual FRotator GetAimDownSightsRotation();
 };

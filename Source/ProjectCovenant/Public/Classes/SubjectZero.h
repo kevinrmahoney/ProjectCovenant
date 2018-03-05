@@ -69,6 +69,14 @@ private:
 	UPROPERTY(Replicated)
 	bool IsTriggerPulled = false;
 
+	UPROPERTY(Replicated)
+	bool AimDownSights = false;
+
+	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);
+	FVector HipfireLocation = FVector(-15.419446f, 10.841988f, -152.856400f);
+	//FRotator HipfireRotation = FRotator(0.f, 0.f, 0.f);
+	//FVector HipfireLocation = FVector(0.f, 0.f, 0.f);
+
 	// constants
 	float NormalAirControl = 0.3f;
 	float JumpSpeed = 500.f;
@@ -77,6 +85,7 @@ private:
 	float StandingRunSpeed = 400.f;
 	float CrouchingSprintSpeed = 300.f;
 	float CrouchingRunSpeed = 200.f;
+	float AimDownSightsSpeed = 200.f;
 	float JetpackAcceleration = 120000.f;
 	float GroundAcceleration = 5000.f;
 	float AirResistanceConstant = 0.008f;
@@ -102,10 +111,10 @@ public:
 	UCameraComponent* Camera;
 
 private:
-	void Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch);
+	void Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool AimDownSights);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch);
+	void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights);
 
 	void JetpackBurst();
 
@@ -194,5 +203,6 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsCrouching() const;
 
-
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool IsAimingDownSights() const;
 };

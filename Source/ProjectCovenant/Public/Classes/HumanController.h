@@ -80,6 +80,8 @@ private:
 	void InputCrouchRelease();
 	void InputShootPress();
 	void InputShootRelease();
+	void InputSecondaryFirePress();
+	void InputSecondaryFireRelease();
 	void InputSlot1();
 	void InputSlot2();
 	void InputSlot3();

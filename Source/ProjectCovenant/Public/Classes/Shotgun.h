@@ -17,6 +17,12 @@ class PROJECTCOVENANT_API AShotgun : public AHitscanWeapon
 public: 
 	AShotgun();
 
+	//(X=0.429121,Y=-2.596338,Z=-145.296036)
+	FVector HipfireLocation = FVector(0.429121f, -2.596338f, -145.296036f);
+	//(Pitch=2.812467,Yaw=-19.000458,Roll=0.000000)
+	FRotator HipfireRotation = FRotator(2.812467f, -19.000458f, 0.000000f);
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -30,14 +36,18 @@ public:
 	void SetShooter(ASubjectZero * NewShooter);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void PlayShootSound();
+	void PlayShootSound();
+
+	virtual FVector GetAimDownSightsLocation() override;
+
+	virtual FRotator GetAimDownSightsRotation() override;
 
 private:
 	void Shoot() override;
 
 	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
 
-	void DrawLaser(FVector * Begin, FVector * End, float Duration) override;
+	void DrawLaser() override;
 
 	float MaxConeAngle = 200.f;
 

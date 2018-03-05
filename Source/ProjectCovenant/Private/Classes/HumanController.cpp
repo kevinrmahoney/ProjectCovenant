@@ -67,8 +67,10 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Left", IE_Released, this, &AHumanController::InputLeftRelease);
 		InputComponent->BindAction("Right", IE_Pressed, this, &AHumanController::InputRightPress);
 		InputComponent->BindAction("Right", IE_Released, this, &AHumanController::InputRightRelease);
-		InputComponent->BindAction("Shoot", IE_Pressed, this, &AHumanController::InputShootPress);
-		InputComponent->BindAction("Shoot", IE_Released, this, &AHumanController::InputShootRelease);
+		InputComponent->BindAction("Fire", IE_Pressed, this, &AHumanController::InputShootPress);
+		InputComponent->BindAction("Fire", IE_Released, this, &AHumanController::InputShootRelease);
+		InputComponent->BindAction("SecondaryFire", IE_Pressed, this, &AHumanController::InputSecondaryFirePress);
+		InputComponent->BindAction("SecondaryFire", IE_Released, this, &AHumanController::InputSecondaryFireRelease);
 		InputComponent->BindAction("Slot 1", IE_Pressed, this, &AHumanController::InputSlot1);
 		InputComponent->BindAction("Slot 2", IE_Pressed, this, &AHumanController::InputSlot2);
 		InputComponent->BindAction("Slot 3", IE_Pressed, this, &AHumanController::InputSlot3);
@@ -342,6 +344,28 @@ void AHumanController::InputShootRelease()
 	else if(Spectator)
 	{
 		Spectator->SetFire(false);
+	}
+}
+void AHumanController::InputSecondaryFirePress()
+{
+	if(SubjectZero)
+	{
+		SubjectZero->SetSecondaryFire(true);
+	}
+	else if(Spectator)
+	{
+		Spectator->SetSecondaryFire(true);
+	}
+}
+void AHumanController::InputSecondaryFireRelease()
+{
+	if(SubjectZero)
+	{
+		SubjectZero->SetSecondaryFire(false);
+	}
+	else if(Spectator)
+	{
+		Spectator->SetSecondaryFire(false);
 	}
 }
 void AHumanController::InputSlot1()
