@@ -37,9 +37,6 @@ public:
 	UPROPERTY(Replicated)
 	int CurrentPing = 0.f;
 
-	UPROPERTY(Replicated)
-	float TimeStart = 0.f; 
-
 public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FString GetName() const;

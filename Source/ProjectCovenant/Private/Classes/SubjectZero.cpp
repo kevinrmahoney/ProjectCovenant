@@ -242,7 +242,6 @@ void ASubjectZero::Equip(int Num)
 	// If this actor is controlled by a remote client or server, attach to the third person mesh
 	else
 	{
-		Logger::Chat("HELLO");
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 	}
 
@@ -444,8 +443,9 @@ void ASubjectZero::SetUse(bool Set)
 
 void ASubjectZero::Slot0()
 {
+
 	Equip(0);
-	if(!HasAuthority())
+	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Equip(0);
 	}
@@ -454,7 +454,7 @@ void ASubjectZero::Slot0()
 void ASubjectZero::Slot1()
 {
 	Equip(1);
-	if(!HasAuthority())
+	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Equip(1);
 	}
@@ -464,7 +464,7 @@ void ASubjectZero::Slot1()
 void ASubjectZero::Slot2()
 {
 	Equip(2);
-	if(!HasAuthority())
+	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Equip(2);
 	}

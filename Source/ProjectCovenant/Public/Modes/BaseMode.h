@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "HumanController.h"
+#include "HitscanWeapon.h"
 #include "BaseMode.generated.h"
 
 class ASubjectZero;
@@ -27,6 +28,8 @@ public:
 	TArray<ASubjectZero*> Characters;
 
 	virtual void SpawnPlayer(AHumanController * Controller);
+
+	virtual void DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AHitscanWeapon * Weapon);
 
 	virtual void KillPlayer(AHumanController * Controller);
 

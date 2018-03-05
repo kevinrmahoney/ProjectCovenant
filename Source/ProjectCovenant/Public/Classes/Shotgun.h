@@ -45,4 +45,6 @@ private:
 	float RollCount = 8.f;
 
 	float CircleCount = 2.f;
+
+	TArray<FVector> Spread;
 };
