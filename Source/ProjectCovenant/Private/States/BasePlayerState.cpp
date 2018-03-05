@@ -9,7 +9,7 @@ ABasePlayerState::ABasePlayerState()
 	if(HasAuthority())
 	{
 		Logger::Log("PlayerState: BasePlayerState" + GetName());
-		TimeStart = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+		//TimeStart = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 	}
 }
 

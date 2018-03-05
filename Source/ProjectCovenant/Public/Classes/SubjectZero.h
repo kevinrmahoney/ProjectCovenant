@@ -35,6 +35,9 @@ private:
 	UPROPERTY()
 	AHitscanWeapon * Weapon;
 
+	UPROPERTY()
+	TArray<AHitscanWeapon*> Weapons;
+
 	FVector Velocity;
 
 	bool Grounded = false;

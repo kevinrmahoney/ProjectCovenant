@@ -27,4 +27,6 @@ public:
 private:
 	void PostLogin(APlayerController * NewPlayer) override;
 
+	int KillsToWin = 1;
+
 };

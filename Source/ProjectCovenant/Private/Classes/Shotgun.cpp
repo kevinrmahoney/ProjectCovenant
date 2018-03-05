@@ -24,22 +24,17 @@ void AShotgun::BeginPlay()
 
 void AShotgun::Tick(float DeltaTime) 
 {
-	TimeSinceLastShot = FMath::Min(TimeSinceLastShot + DeltaTime, Cooldown);
-
-	if (Trigger)
-	{
-		Shoot();
-	}
+	Super::Tick(DeltaTime);
 }
 
 void AShotgun::SetShooter(ASubjectZero * NewShooter)
 {
-	Shooter = NewShooter;
+	Super::SetShooter(NewShooter);
 }
 
 void AShotgun::SetTrigger(bool T)
 {
-	Trigger = T;
+	Super::SetTrigger(T);
 }
 
 void AShotgun::Shoot()

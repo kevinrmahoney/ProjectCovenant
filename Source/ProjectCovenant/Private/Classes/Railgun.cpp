@@ -27,22 +27,17 @@ void ARailgun::BeginPlay()
 // Called every frame
 void ARailgun::Tick(float DeltaTime)
 {
-	TimeSinceLastShot = FMath::Min(TimeSinceLastShot + DeltaTime, Cooldown);
-
-	if(Trigger)
-	{
-		Shoot();
-	}
+	Super::Tick(DeltaTime);
 }
 
 void ARailgun::SetShooter(ASubjectZero * NewShooter)
 {
-	Shooter = NewShooter;
+	Super::SetShooter(NewShooter);
 }
 
 void ARailgun::SetTrigger(bool T)
 {
-	Trigger = T;
+	Super::SetTrigger(T);
 }
 
 void ARailgun::Shoot()

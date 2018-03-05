@@ -46,7 +46,8 @@ void ASubjectZero::BeginPlay()
 	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
 	GetCharacterMovement()->GetPhysicsVolume()->TerminalVelocity = 10000.f;
 
-	//Equip(0);
+	//auto Shotgun = NewObject<AShotgun>(this);
+	//GetWorld()->SpawnActor()
 }
 
 // Called every frame
@@ -241,6 +242,7 @@ void ASubjectZero::Equip(int Num)
 	// If this actor is controlled by a remote client or server, attach to the third person mesh
 	else
 	{
+		Logger::Chat("HELLO");
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 	}
 
