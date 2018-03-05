@@ -21,7 +21,6 @@ void AShotgun::BeginPlay()
 	//TODO lower ammo count, but don't disable shooting with negative ammo yet
 	Ammo = 100.f; //not yet implemented 
 	Duration = 0.25;
-
 	Spread.Add(FVector(Range, 0.f, 0.f));
 	for(int i = 1; i <= CircleCount; i++)
 	{
