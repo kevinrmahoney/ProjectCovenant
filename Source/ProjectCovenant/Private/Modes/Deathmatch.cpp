@@ -39,7 +39,6 @@ void ADeathmatch::Tick(float DeltaTime)
 				Winner = PlayerState;
 			}
 		}
-		Logger::Chat(Winner->GetName() + " has won!");
 		
 		TimeLeft = TimeLimit;
 		if(State)
@@ -58,7 +57,11 @@ void ADeathmatch::KillPlayer(AHumanController * Controller)
 		ABasePlayerState * PlayerState = Cast<ABasePlayerState>(SomeState);
 		if(PlayerState && PlayerState->GetKills() >= KillsToWin)
 		{
-			Logger::Chat(PlayerState->GetName() + " has won!");
+			ABaseState * State = Cast<ABaseState>(GameState);
+			if(State)
+			{
+				State->GameOver();
+			}
 		}
 	}
 }

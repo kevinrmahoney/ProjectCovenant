@@ -123,7 +123,7 @@ void AShotgun::DrawLaser(FVector * Begin, FVector * End, float Duration)
 	for(FVector V : Spread)
 	{
 		EndPoint = StartPoint + FVector(Muzzle->GetComponentRotation().RotateVector(V));
-		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, .1f);
+		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Orange, false, .1f);
 	}
 }
 

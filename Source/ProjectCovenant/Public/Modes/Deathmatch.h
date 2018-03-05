@@ -31,7 +31,7 @@ private:
 
 	int KillsToWin = 30;
 
-	float TimeLimit = 20.f;
+	float TimeLimit = 600.f;
 
 	float TimeLeft;
 
