@@ -44,7 +44,7 @@ void ARailgun::Shoot()
 {
 	bool DoDamage = false;
 	// See if cooldown has passed (while loop prevents shots from being buffered if frame rate is horrendous)
-	if(TimeSinceLastShot >= Cooldown)
+	while(TimeSinceLastShot >= Cooldown)
 	{
 		TimeSinceLastShot = TimeSinceLastShot - Cooldown;
 		DoDamage = true;

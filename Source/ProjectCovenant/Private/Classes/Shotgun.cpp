@@ -63,6 +63,7 @@ void AShotgun::Shoot()
 
 	if(DoDamage)
 	{
+
 		DrawLaser();
 		//PlayShootSound();
 

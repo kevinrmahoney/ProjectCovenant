@@ -466,29 +466,41 @@ void ASubjectZero::SetUse(bool Set)
 void ASubjectZero::Slot0()
 {
 
-	Equip(0);
+	//Equip(0);
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Equip(0);
+	}
+	else if(Role == ROLE_Authority)
+	{
+		Equip(0);
 	}
 }
 
 void ASubjectZero::Slot1()
 {
-	Equip(1);
+	//Equip(1);
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Equip(1);
+	}
+	else if(Role == ROLE_Authority)
+	{
+		Equip(1);
 	}
 }
 
 
 void ASubjectZero::Slot2()
 {
-	Equip(2);
+	//Equip(2);
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Equip(2);
+	}
+	else if(Role == ROLE_Authority)
+	{
+		Equip(2);
 	}
 }
 
