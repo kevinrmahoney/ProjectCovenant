@@ -57,19 +57,10 @@ private:
 	UPROPERTY(Replicated)
 	float Fuel = 1000.f;
 
-	UPROPERTY(Replicated)
-	int Kills = 0;
-
-	UPROPERTY(Replicated)
-	float DamageDealt = 0.f;
-
-	UPROPERTY(Replicated)
 	bool Crouching = false;
 
-	UPROPERTY(Replicated)
 	bool IsTriggerPulled = false;
 
-	UPROPERTY(Replicated)
 	bool AimDownSights = false;
 
 	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);
@@ -86,7 +77,7 @@ private:
 	float CrouchingSprintSpeed = 300.f;
 	float CrouchingRunSpeed = 200.f;
 	float AimDownSightsSpeed = 200.f;
-	float JetpackAcceleration = 120000.f;
+	float JetpackAcceleration = 1200.f;
 	float GroundAcceleration = 5000.f;
 	float AirResistanceConstant = 0.008f;
 	float FuelUsage = 100.f;

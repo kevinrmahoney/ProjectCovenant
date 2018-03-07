@@ -60,67 +60,21 @@ void ASubjectZero::Tick(float DeltaTime)
 	Grounded = !GetCharacterMovement()->IsFalling();
 	Velocity = GetVelocity();
 
-	// If the character is locally controlled, process the input coming from the controller
-	if(IsLocallyControlled() )
+	if(Grounded || AimDownSights)
 	{
-		// Turn off the jetpack if the character has hit the ground
-		if(Grounded || AimDownSights)
-		{
-			JetpackActive = false;
-		}
+		JetpackActive = false;
+	}
 
-
-		// Process left/right movement
-		if(Left && !Right)
-		{
-			Movement.Y = -1.f;
-		}
-		else if(Right && !Left)
-		{
-			Movement.Y = 1.f;
-		}
-		else
-		{
-			Movement.Y = 0.f;
-		}
-
-		// Process forward/backward movement
-		if(Backward && !Forward)
-		{
-			Movement.X = -1.f;
-		}
-		else if(Forward && !Backward)
-		{
-			Movement.X = 1.f;
-		}
-		else
-		{
-			Movement.X = 0.f;
-		}
-
-		// Move the character using the input 
-		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch, AimDownSights);
+	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
+	{
+		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
 	}
 
 	// Add passive fuel if its been long enough
 	TimeSinceJetpack += DeltaTime;
 	if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
 	{
-		Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 0.5f * DeltaTime));
-	}
-
-	if(Weapon)
-	{
-		if(AimDownSights)
-		{
-			FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
-			FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
-		}
-		else
-		{
-			FirstPersonMesh->SetRelativeLocation(HipfireLocation);
-			FirstPersonMesh->SetRelativeRotation(HipfireRotation);
-		}
+		Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 1.5f * DeltaTime));
 	}
 }
 
@@ -132,41 +86,13 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Armor)
 	DOREPLIFETIME(ASubjectZero, Shield)
 	DOREPLIFETIME(ASubjectZero, Fuel)
-	DOREPLIFETIME(ASubjectZero, Kills)
-	DOREPLIFETIME(ASubjectZero, DamageDealt)
-	DOREPLIFETIME(ASubjectZero, Crouching)
-	DOREPLIFETIME(ASubjectZero, IsTriggerPulled)
-	DOREPLIFETIME(ASubjectZero, AimDownSights)
 }
 
 void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
 {
-	// If the character is autonomous, send the move to the server
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch, Client_AimDownSights);
-	}
-	// If the character is the authority, take the input from the client and proceed with the move
-	else if(Role == ROLE_Authority)
-	{
-		Movement = Client_Movement;
-		Jumping = Client_Jump;
-		Sprinting = Client_Sprinting;
-		Crouching = Client_Crouching;
-		JetpackActive = Client_Jetpack;
-		IsTriggerPulled = Client_Shooting;
-		Camera->RelativeRotation.Pitch = Client_Pitch;
-		AimDownSights = Client_AimDownSights;
-	}
-
-	// Jetpack can only be activated if it has enough fuel
-	JetpackActive = JetpackActive && Fuel > 0.f;
-
-	// Set the trigger as pulled or not pulled
-	if(Weapon)
-	{
-		Weapon->SetTrigger(IsTriggerPulled);
-	}
+	// Update if the character is grounded and its velocity
+	Grounded = !GetCharacterMovement()->IsFalling();
+	Velocity = GetVelocity();
 
 	if(Grounded)
 	{
@@ -194,19 +120,24 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 		}
 
 		// Jump if commanded
-		if(Jumping)Jump();
+		if(Controller)
+		{
+			// Move the character on the ground
+			FRotator Rotation = Controller->GetControlRotation();
+			Rotation.Pitch = 0;
 
-		// Move the character on the ground
-		FRotator Rotation = Controller->GetControlRotation();
-		Rotation.Pitch = 0;
-
-		Movement.Z = 0.f;
-		AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+			Movement.Z = 0.f;
+			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+		}
+		if(Jumping)
+		{
+			Jump();
+		}
 	}
 	else
 	{
-		// Activated the jetpack 
-		if(JetpackActive)
+		// Jetpack can only be activated if it has enough fuel
+		if(JetpackActive && Fuel > 0.f)
 		{
 			JetpackBurst();
 		}
@@ -219,15 +150,37 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 			Movement.Z = 0.f;
 			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
 		}
-
 		// Apply the force of the air if midair
 		ApplyAirResistance();
+	}
+
+	// Set the trigger as pulled or not pulled
+	if(Weapon)
+	{
+		Weapon->SetTrigger(IsTriggerPulled);
+		if(AimDownSights)
+		{
+			FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
+			FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
+		}
+		else
+		{
+			FirstPersonMesh->SetRelativeLocation(HipfireLocation);
+			FirstPersonMesh->SetRelativeRotation(HipfireRotation);
+		}
 	}
 }
 
 void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
 {
-	Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch, Client_AimDownSights);
+	Movement = Client_Movement;
+	Jumping = Client_Jump;
+	Sprinting = Client_Sprinting;
+	Crouching = Client_Crouching;
+	JetpackActive = Client_Jetpack;
+	IsTriggerPulled = Client_Shooting;
+	Camera->RelativeRotation.Pitch = Client_Pitch;
+	AimDownSights = Client_AimDownSights;
 }
 
 bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
@@ -297,8 +250,7 @@ void ASubjectZero::JetpackBurst()
 		FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, Jumping ? JetpackAcceleration : 0.f);
 		Force = Force * (Sprinting ? 2.f : 1.f);
 
-		GetCharacterMovement()->AddForce(Force);
-
+		GetCharacterMovement()->Velocity += Force * Time;
 
 		float FuelUsed = FuelUsage * ((Movement.X != 0.f ? 1.f : 0.f) + (Movement.Y != 0.f ? 1.f : 0.f) + (Jumping ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
 		if(FuelUsed > 0.f) TimeSinceJetpack = 0.f;
@@ -412,50 +364,138 @@ void ASubjectZero::SetCrouch(bool Set)
 		Camera->AddRelativeLocation(FVector(0.f, 0, StandingHeight - CrouchingHeight));
 		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
 	}
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetSprint(bool Set)
 {
 	Sprinting = Set;
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetJump(bool Set)
 {
-	if(!Grounded && !Jumping && Set)
-	{
-		JetpackActive = Fuel > 0.f;
-	}
 	Jumping = Set;
+	if(!Grounded && Jumping)
+	{
+		JetpackActive = true;
+	}
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetMoveLeft(bool Set)
 {
 	Left = Set;
+	// Process left/right movement
+	if(Left && !Right)
+	{
+		Movement.Y = -1.f;
+	}
+	else if(Right && !Left)
+	{
+		Movement.Y = 1.f;
+	}
+	else
+	{
+		Movement.Y = 0.f;
+	}
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetMoveRight(bool Set)
 {
 	Right = Set;
+	// Process left/right movement
+	if(Left && !Right)
+	{
+		Movement.Y = -1.f;
+	}
+	else if(Right && !Left)
+	{
+		Movement.Y = 1.f;
+	}
+	else
+	{
+		Movement.Y = 0.f;
+	}
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetMoveForward(bool Set)
 {
 	Forward = Set;
+	// Process forward/backward movement
+	if(Backward && !Forward)
+	{
+		Movement.X = -1.f;
+	}
+	else if(Forward && !Backward)
+	{
+		Movement.X = 1.f;
+	}
+	else
+	{
+		Movement.X = 0.f;
+	}
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetMoveBackward(bool Set)
 {
 	Backward = Set;
+	// Process forward/backward movement
+	if(Backward && !Forward)
+	{
+		Movement.X = -1.f;
+	}
+	else if(Forward && !Backward)
+	{
+		Movement.X = 1.f;
+	}
+	else
+	{
+		Movement.X = 0.f;
+	}
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetFire(bool Set)
 {
 	IsTriggerPulled = Set;
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetSecondaryFire(bool Set)
 {
 	AimDownSights = Set;
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetUse(bool Set)
@@ -465,42 +505,29 @@ void ASubjectZero::SetUse(bool Set)
 
 void ASubjectZero::Slot0()
 {
-
-	//Equip(0);
+	Equip(0);
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Equip(0);
-	}
-	else if(Role == ROLE_Authority)
-	{
-		Equip(0);
 	}
 }
 
 void ASubjectZero::Slot1()
 {
-	//Equip(1);
+	Equip(1);
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Equip(1);
-	}
-	else if(Role == ROLE_Authority)
-	{
-		Equip(1);
 	}
 }
 
 
 void ASubjectZero::Slot2()
 {
-	//Equip(2);
+	Equip(2);
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Equip(2);
-	}
-	else if(Role == ROLE_Authority)
-	{
-		Equip(2);
 	}
 }
 
