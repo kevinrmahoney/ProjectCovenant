@@ -57,19 +57,10 @@ private:
 	UPROPERTY(Replicated)
 	float Fuel = 1000.f;
 
-	UPROPERTY(Replicated)
-	int Kills = 0;
-
-	UPROPERTY(Replicated)
-	float DamageDealt = 0.f;
-
-	UPROPERTY(Replicated)
 	bool Crouching = false;
 
-	UPROPERTY(Replicated)
 	bool IsTriggerPulled = false;
 
-	UPROPERTY(Replicated)
 	bool AimDownSights = false;
 
 	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);

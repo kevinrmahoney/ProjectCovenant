@@ -61,14 +61,12 @@ void ASubjectZero::Tick(float DeltaTime)
 	Velocity = GetVelocity();
 
 	// If the character is locally controlled, process the input coming from the controller
-	if(IsLocallyControlled() )
+	if(IsLocallyControlled())
 	{
-		// Turn off the jetpack if the character has hit the ground
 		if(Grounded || AimDownSights)
 		{
 			JetpackActive = false;
 		}
-
 
 		// Process left/right movement
 		if(Left && !Right)
@@ -97,30 +95,14 @@ void ASubjectZero::Tick(float DeltaTime)
 		{
 			Movement.X = 0.f;
 		}
-
-		// Move the character using the input 
-		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Camera->RelativeRotation.Pitch, AimDownSights);
+		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
 	}
 
 	// Add passive fuel if its been long enough
 	TimeSinceJetpack += DeltaTime;
 	if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
 	{
-		Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 0.5f * DeltaTime));
-	}
-
-	if(Weapon)
-	{
-		if(AimDownSights)
-		{
-			FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
-			FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
-		}
-		else
-		{
-			FirstPersonMesh->SetRelativeLocation(HipfireLocation);
-			FirstPersonMesh->SetRelativeRotation(HipfireRotation);
-		}
+		Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 1.5f * DeltaTime));
 	}
 }
 
@@ -132,40 +114,33 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Armor)
 	DOREPLIFETIME(ASubjectZero, Shield)
 	DOREPLIFETIME(ASubjectZero, Fuel)
-	DOREPLIFETIME(ASubjectZero, Kills)
-	DOREPLIFETIME(ASubjectZero, DamageDealt)
-	DOREPLIFETIME(ASubjectZero, Crouching)
-	DOREPLIFETIME(ASubjectZero, IsTriggerPulled)
-	DOREPLIFETIME(ASubjectZero, AimDownSights)
 }
 
 void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
 {
-	// If the character is autonomous, send the move to the server
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch, Client_AimDownSights);
-	}
-	// If the character is the authority, take the input from the client and proceed with the move
-	else if(Role == ROLE_Authority)
-	{
-		Movement = Client_Movement;
-		Jumping = Client_Jump;
-		Sprinting = Client_Sprinting;
-		Crouching = Client_Crouching;
-		JetpackActive = Client_Jetpack;
-		IsTriggerPulled = Client_Shooting;
-		Camera->RelativeRotation.Pitch = Client_Pitch;
-		AimDownSights = Client_AimDownSights;
-	}
+	// Update if the character is grounded and its velocity
+	Grounded = !GetCharacterMovement()->IsFalling();
+	Velocity = GetVelocity();
 
-	// Jetpack can only be activated if it has enough fuel
-	JetpackActive = JetpackActive && Fuel > 0.f;
-
-	// Set the trigger as pulled or not pulled
-	if(Weapon)
+	if(Controller)
 	{
-		Weapon->SetTrigger(IsTriggerPulled);
+		if(Grounded)
+		{
+			// Move the character on the ground
+			FRotator Rotation = Controller->GetControlRotation();
+			Rotation.Pitch = 0;
+
+			Movement.Z = 0.f;
+			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+		}
+		else
+		{
+			FRotator Rotation = Controller->GetControlRotation();
+			Rotation.Pitch = 0;
+
+			Movement.Z = 0.f;
+			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+		}
 	}
 
 	if(Grounded)
@@ -194,14 +169,8 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 		}
 
 		// Jump if commanded
-		if(Jumping)Jump();
+		if(Jumping) Jump();
 
-		// Move the character on the ground
-		FRotator Rotation = Controller->GetControlRotation();
-		Rotation.Pitch = 0;
-
-		Movement.Z = 0.f;
-		AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
 	}
 	else
 	{
@@ -211,23 +180,41 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 			JetpackBurst();
 		}
 		// Strafe in the air
-		else
-		{
-			FRotator Rotation = Controller->GetControlRotation();
-			Rotation.Pitch = 0;
-
-			Movement.Z = 0.f;
-			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-		}
 
 		// Apply the force of the air if midair
 		ApplyAirResistance();
+	}
+
+	// Jetpack can only be activated if it has enough fuel
+	JetpackActive = JetpackActive && Fuel > 0.f;
+
+	// Set the trigger as pulled or not pulled
+	if(Weapon)
+	{
+		Weapon->SetTrigger(IsTriggerPulled);
+		if(AimDownSights)
+		{
+			FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
+			FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
+		}
+		else
+		{
+			FirstPersonMesh->SetRelativeLocation(HipfireLocation);
+			FirstPersonMesh->SetRelativeRotation(HipfireRotation);
+		}
 	}
 }
 
 void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
 {
-	Move(Client_Movement, Client_Jump, Client_Sprinting, Client_Crouching, Client_Jetpack, Client_Shooting, Client_Pitch, Client_AimDownSights);
+	//Movement = Client_Movement;
+	//Jumping = Client_Jump;
+	//Sprinting = Client_Sprinting;
+	//Crouching = Client_Crouching;
+	//JetpackActive = Client_Jetpack;
+	//IsTriggerPulled = Client_Shooting;
+	//Camera->RelativeRotation.Pitch = Client_Pitch;
+	//AimDownSights = Client_AimDownSights;
 }
 
 bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
