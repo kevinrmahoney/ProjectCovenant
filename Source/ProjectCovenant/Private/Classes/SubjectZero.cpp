@@ -61,13 +61,12 @@ void ASubjectZero::Tick(float DeltaTime)
 	Velocity = GetVelocity();
 
 	// If the character is locally controlled, process the input coming from the controller
-	if(Grounded || AimDownSights)
-	{
-		JetpackActive = false;
-	}
-
 	if(IsLocallyControlled())
 	{
+		if(Grounded || AimDownSights)
+		{
+			JetpackActive = false;
+		}
 		// Process left/right movement
 		if(Left && !Right)
 		{
@@ -164,9 +163,10 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 	}
 	else
 	{
-		// Activated the jetpack 
-		if(JetpackActive)
+		// Jetpack can only be activated if it has enough fuel
+		if(JetpackActive && Fuel > 0.f)
 		{
+			Logger::Chat(HasAuthority() ? "On" : "Off");
 			JetpackBurst();
 		}
 		// Strafe in the air
@@ -181,9 +181,6 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 		// Apply the force of the air if midair
 		ApplyAirResistance();
 	}
-
-	// Jetpack can only be activated if it has enough fuel
-	JetpackActive = JetpackActive && Fuel > 0.f;
 
 	// Set the trigger as pulled or not pulled
 	if(Weapon)
@@ -408,11 +405,11 @@ void ASubjectZero::SetSprint(bool Set)
 
 void ASubjectZero::SetJump(bool Set)
 {
-	if(!Grounded && !Jumping && Set)
-	{
-		JetpackActive = Fuel > 0.f;
-	}
 	Jumping = Set;
+	if(!Grounded && Jumping)
+	{
+		JetpackActive = true;
+	}
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
