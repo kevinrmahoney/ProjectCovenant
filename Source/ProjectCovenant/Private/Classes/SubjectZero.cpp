@@ -60,41 +60,11 @@ void ASubjectZero::Tick(float DeltaTime)
 	Grounded = !GetCharacterMovement()->IsFalling();
 	Velocity = GetVelocity();
 
-	// If the character is locally controlled, process the input coming from the controller
-	if(IsLocallyControlled())
+	if(Grounded || AimDownSights)
 	{
-		if(Grounded || AimDownSights)
-		{
-			JetpackActive = false;
-		}
-		// Process left/right movement
-		if(Left && !Right)
-		{
-			Movement.Y = -1.f;
-		}
-		else if(Right && !Left)
-		{
-			Movement.Y = 1.f;
-		}
-		else
-		{
-			Movement.Y = 0.f;
-		}
-
-		// Process forward/backward movement
-		if(Backward && !Forward)
-		{
-			Movement.X = -1.f;
-		}
-		else if(Forward && !Backward)
-		{
-			Movement.X = 1.f;
-		}
-		else
-		{
-			Movement.X = 0.f;
-		}
+		JetpackActive = false;
 	}
+
 	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
 	{
 		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
@@ -159,14 +129,16 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 			Movement.Z = 0.f;
 			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
 		}
-		if(Jumping) Jump();
+		if(Jumping)
+		{
+			Jump();
+		}
 	}
 	else
 	{
 		// Jetpack can only be activated if it has enough fuel
 		if(JetpackActive && Fuel > 0.f)
 		{
-			Logger::Chat(HasAuthority() ? "On" : "Off");
 			JetpackBurst();
 		}
 		// Strafe in the air
@@ -278,7 +250,7 @@ void ASubjectZero::JetpackBurst()
 		FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, Jumping ? JetpackAcceleration : 0.f);
 		Force = Force * (Sprinting ? 2.f : 1.f);
 
-		GetCharacterMovement()->AddForce(Force);
+		GetCharacterMovement()->Velocity += Force * Time;
 
 		float FuelUsed = FuelUsage * ((Movement.X != 0.f ? 1.f : 0.f) + (Movement.Y != 0.f ? 1.f : 0.f) + (Jumping ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
 		if(FuelUsed > 0.f) TimeSinceJetpack = 0.f;
@@ -392,6 +364,10 @@ void ASubjectZero::SetCrouch(bool Set)
 		Camera->AddRelativeLocation(FVector(0.f, 0, StandingHeight - CrouchingHeight));
 		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
 	}
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetSprint(bool Set)
@@ -419,6 +395,19 @@ void ASubjectZero::SetJump(bool Set)
 void ASubjectZero::SetMoveLeft(bool Set)
 {
 	Left = Set;
+	// Process left/right movement
+	if(Left && !Right)
+	{
+		Movement.Y = -1.f;
+	}
+	else if(Right && !Left)
+	{
+		Movement.Y = 1.f;
+	}
+	else
+	{
+		Movement.Y = 0.f;
+	}
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
@@ -428,6 +417,19 @@ void ASubjectZero::SetMoveLeft(bool Set)
 void ASubjectZero::SetMoveRight(bool Set)
 {
 	Right = Set;
+	// Process left/right movement
+	if(Left && !Right)
+	{
+		Movement.Y = -1.f;
+	}
+	else if(Right && !Left)
+	{
+		Movement.Y = 1.f;
+	}
+	else
+	{
+		Movement.Y = 0.f;
+	}
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
@@ -437,6 +439,19 @@ void ASubjectZero::SetMoveRight(bool Set)
 void ASubjectZero::SetMoveForward(bool Set)
 {
 	Forward = Set;
+	// Process forward/backward movement
+	if(Backward && !Forward)
+	{
+		Movement.X = -1.f;
+	}
+	else if(Forward && !Backward)
+	{
+		Movement.X = 1.f;
+	}
+	else
+	{
+		Movement.X = 0.f;
+	}
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
@@ -446,6 +461,19 @@ void ASubjectZero::SetMoveForward(bool Set)
 void ASubjectZero::SetMoveBackward(bool Set)
 {
 	Backward = Set;
+	// Process forward/backward movement
+	if(Backward && !Forward)
+	{
+		Movement.X = -1.f;
+	}
+	else if(Forward && !Backward)
+	{
+		Movement.X = 1.f;
+	}
+	else
+	{
+		Movement.X = 0.f;
+	}
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
