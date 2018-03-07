@@ -264,7 +264,7 @@ void ASubjectZero::ApplyAirResistance()
 	float Magnitude = Velocity.Size();
 	FVector Direction = -1.f * Velocity.GetSafeNormal();
 	Force = Direction * (Magnitude * Magnitude) * AirResistanceConstant;
-	GetCharacterMovement()->AddForce(Force);
+	GetCharacterMovement()->Velocity += Force * Time;
 }
 
 bool ASubjectZero::ReceiveDamage(float Dmg)

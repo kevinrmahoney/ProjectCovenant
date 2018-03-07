@@ -79,7 +79,7 @@ private:
 	float AimDownSightsSpeed = 200.f;
 	float JetpackAcceleration = 1200.f;
 	float GroundAcceleration = 5000.f;
-	float AirResistanceConstant = 0.008f;
+	float AirResistanceConstant = 0.00008f;
 	float FuelUsage = 100.f;
 	float MaxHealth = 100.f;
 	float MaxArmor = 100.f;
