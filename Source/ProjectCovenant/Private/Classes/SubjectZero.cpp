@@ -56,6 +56,13 @@ void ASubjectZero::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
+	if(!IsLocallyControlled())
+	{
+		FRotator NewRotation = Camera->RelativeRotation;
+		NewRotation.Pitch = RemoteViewPitch * 360.f / 255.f;
+		Camera->SetRelativeRotation(NewRotation);
+	}
+
 	// Update if the character is grounded and its velocity
 	Grounded = !GetCharacterMovement()->IsFalling();
 	Velocity = GetVelocity();
@@ -64,10 +71,13 @@ void ASubjectZero::Tick(float DeltaTime)
 	{
 		JetpackActive = false;
 	}
-
 	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
 	{
 		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
+	else
+	{
+		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, 0.f, AimDownSights);
 	}
 
 	// Add passive fuel if its been long enough
@@ -78,6 +88,12 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 }
 
+void ASubjectZero::BeginDestroy() 
+{
+	if(Weapon) Weapon->Destroy();
+	Super::BeginDestroy();
+}
+
 void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
 {
 	// The follow variables are replicated from server to the clients
@@ -86,6 +102,10 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Armor)
 	DOREPLIFETIME(ASubjectZero, Shield)
 	DOREPLIFETIME(ASubjectZero, Fuel)
+	DOREPLIFETIME_CONDITION(ASubjectZero, Equipped, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, Crouching, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, AimDownSights, COND_SimulatedOnly)
 }
 
 void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
@@ -158,15 +178,18 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 	if(Weapon)
 	{
 		Weapon->SetTrigger(IsTriggerPulled);
-		if(AimDownSights)
+		if(FirstPersonMesh)
 		{
-			FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
-			FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
-		}
-		else
-		{
-			FirstPersonMesh->SetRelativeLocation(HipfireLocation);
-			FirstPersonMesh->SetRelativeRotation(HipfireRotation);
+			if(AimDownSights)
+			{
+				FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
+				FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
+			}
+			else
+			{
+				FirstPersonMesh->SetRelativeLocation(HipfireLocation);
+				FirstPersonMesh->SetRelativeRotation(HipfireRotation);
+			}
 		}
 	}
 }
@@ -195,6 +218,11 @@ void ASubjectZero::Equip(int Num)
 		Weapon->Destroy();
 	}
 
+	if(HasAuthority())
+	{
+		Equipped = Num;
+	}
+
 	if(Num == 0)
 	{
 		Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
@@ -211,7 +239,7 @@ void ASubjectZero::Equip(int Num)
 	if(Weapon)
 	{
 		// If this actor is controlled by the local client or the server, attach the weapon to the first person mesh
-		if(IsLocallyControlled() || Role == ROLE_Authority)
+		if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
 		{
 			// Attach the weapon to the actor's third person mesh if the actor is not controlled by the local player, but another player
 			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
@@ -230,6 +258,15 @@ void ASubjectZero::Equip(int Num)
 void ASubjectZero::Server_Equip_Implementation(int Num)
 {
 	Equip(Num);
+}
+
+void ASubjectZero::OnRep_Equip()
+{
+	if(Role == ROLE_SimulatedProxy)
+	{
+		Logger::Chat("Replicated " + FString::FromInt(Equipped));
+		Equip(Equipped);
+	}
 }
 
 bool ASubjectZero::Server_Equip_Validate(int Num)

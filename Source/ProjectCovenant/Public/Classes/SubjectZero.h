@@ -32,8 +32,10 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AShotgun> ShotgunBlueprint;
 
-	UPROPERTY()
 	AHitscanWeapon * Weapon;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Equip)
+	int Equipped = -1;
 
 	UPROPERTY()
 	TArray<AHitscanWeapon*> Weapons;
@@ -57,10 +59,13 @@ private:
 	UPROPERTY(Replicated)
 	float Fuel = 1000.f;
 
+	UPROPERTY(Replicated)
 	bool Crouching = false;
 
+	UPROPERTY(Replicated)
 	bool IsTriggerPulled = false;
 
+	UPROPERTY(Replicated)
 	bool AimDownSights = false;
 
 	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);
@@ -116,8 +121,13 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Equip(int Num);
 
+	UFUNCTION()
+	void OnRep_Equip();
+
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void BeginDestroy() override;
 
 public:
 	virtual void Tick(float DeltaTime) override;

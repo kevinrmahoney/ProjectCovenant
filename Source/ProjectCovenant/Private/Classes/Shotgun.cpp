@@ -6,7 +6,6 @@
 
 AShotgun::AShotgun()
 {
-
 }
 
 // Called when the game starts or when spawned
