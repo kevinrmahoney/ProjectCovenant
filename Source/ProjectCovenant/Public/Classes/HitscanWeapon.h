@@ -80,4 +80,7 @@ public:
 	virtual FVector GetAimDownSightsLocation();
 
 	virtual FRotator GetAimDownSightsRotation();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayShootSound();
 };

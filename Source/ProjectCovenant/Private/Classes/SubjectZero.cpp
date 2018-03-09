@@ -56,35 +56,59 @@ void ASubjectZero::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
-	if(!IsLocallyControlled())
+	if(TimeSinceTookDamage < ShieldRechargeTime)
+	{
+		TimeSinceTookDamage = TimeSinceTookDamage + DeltaTime;
+	}
+	else
+	{
+		Shield += 20.f * DeltaTime;
+	}
+
+	// Update damage boost
+	if(DamageMultiplierDuration > 0.f)
+	{
+		DamageMultiplierDuration = DamageMultiplierDuration - DeltaTime;
+		if(DamageMultiplierDuration <= 0.f)
+		{
+			DamageMultiplier = 1.f;
+		}
+	}
+
+	// Update if the character is grounded and its velocity, and update jetpack status
+	if(IsLocallyControlled())
+	{
+		Grounded = !GetCharacterMovement()->IsFalling();
+		Velocity = GetVelocity();
+
+		if(Grounded || AimDownSights)
+		{
+			JetpackActive = false;
+		}
+	}
+	// update simulated all non-locally controlled with new pitch
+	else
 	{
 		FRotator NewRotation = Camera->RelativeRotation;
 		NewRotation.Pitch = RemoteViewPitch * 360.f / 255.f;
 		Camera->SetRelativeRotation(NewRotation);
 	}
 
-	// Update if the character is grounded and its velocity
-	Grounded = !GetCharacterMovement()->IsFalling();
-	Velocity = GetVelocity();
-
-	if(Grounded || AimDownSights)
-	{
-		JetpackActive = false;
-	}
+	// Move characters/update trigger status/aim down sights
 	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
 	{
 		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+		// Add passive fuel if its been long enough
+		TimeSinceJetpack += DeltaTime;
+
+		if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
+		{
+			Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 1.5f * DeltaTime));
+		}
 	}
 	else
 	{
-		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, 0.f, AimDownSights);
-	}
-
-	// Add passive fuel if its been long enough
-	TimeSinceJetpack += DeltaTime;
-	if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
-	{
-		Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 1.5f * DeltaTime));
+		Move(FVector::ZeroVector, false, false, Crouching, false, IsTriggerPulled, 0.f, AimDownSights);
 	}
 }
 
@@ -114,64 +138,70 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 	Grounded = !GetCharacterMovement()->IsFalling();
 	Velocity = GetVelocity();
 
-	if(Grounded)
+	if(IsLocallyControlled() || Role == ROLE_Authority)
 	{
-		// Update movement speeds depending on the character's stance
-		if(Sprinting && !Crouching)
+		if(Grounded)
 		{
-			GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
-		}
-		else if(Sprinting && Crouching)
-		{
-			GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
-		}
-		else if(!Sprinting && Crouching)
-		{
-			GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
+			// Update movement speeds depending on the character's stance
+			if(Sprinting && !Crouching)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
+			}
+			else if(Sprinting && Crouching)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
+			}
+			else if(!Sprinting && Crouching)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
+			}
+			else
+			{
+				GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
+			}
+
+			if(AimDownSights)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
+			}
+
+			// Jump if commanded
+			if(Controller)
+			{
+				// Move the character on the ground
+				FRotator Rotation = Controller->GetControlRotation();
+				Rotation.Pitch = 0;
+
+				Movement.Z = 0.f;
+				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+				if(Jumping)
+				{
+					Jump();
+				}
+			}
 		}
 		else
 		{
-			GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
-		}
+			// Jetpack can only be activated if it has enough fuel
+			if(JetpackActive && Fuel > 0.f)
+			{
+				JetpackBurst();
+			}
+			// Strafe in the air
+			else
+			{
+				if(Controller)
+				{
+					FRotator Rotation = Controller->GetControlRotation();
+					Rotation.Pitch = 0;
 
-		if(AimDownSights)
-		{
-			GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
+					Movement.Z = 0.f;
+					AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+				}
+			}
+			// Apply the force of the air if midair
+			ApplyAirResistance();
 		}
-
-		// Jump if commanded
-		if(Controller)
-		{
-			// Move the character on the ground
-			FRotator Rotation = Controller->GetControlRotation();
-			Rotation.Pitch = 0;
-
-			Movement.Z = 0.f;
-			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-		}
-		if(Jumping)
-		{
-			Jump();
-		}
-	}
-	else
-	{
-		// Jetpack can only be activated if it has enough fuel
-		if(JetpackActive && Fuel > 0.f)
-		{
-			JetpackBurst();
-		}
-		// Strafe in the air
-		else
-		{
-			FRotator Rotation = Controller->GetControlRotation();
-			Rotation.Pitch = 0;
-
-			Movement.Z = 0.f;
-			AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-		}
-		// Apply the force of the air if midair
-		ApplyAirResistance();
 	}
 
 	// Set the trigger as pulled or not pulled
@@ -264,7 +294,6 @@ void ASubjectZero::OnRep_Equip()
 {
 	if(Role == ROLE_SimulatedProxy)
 	{
-		Logger::Chat("Replicated " + FString::FromInt(Equipped));
 		Equip(Equipped);
 	}
 }
@@ -306,6 +335,7 @@ void ASubjectZero::ApplyAirResistance()
 
 bool ASubjectZero::ReceiveDamage(float Dmg)
 {
+	TimeSinceTookDamage = 0.f;
 	if(HasAuthority())
 	{
 		if(Shield != 0.f)
@@ -345,9 +375,7 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			}
 			else
 			{
-				Shield = MaxShield;
-				Armor = MaxArmor;
-				Health = MaxHealth;
+				Health = 0.f;
 				return true;
 			}
 		}
@@ -372,13 +400,33 @@ void ASubjectZero::Kill()
 	Super::Destroy();
 }
 
+void ASubjectZero::Destroyed()
+{
+	if(Weapon) Weapon->Destroy();
+	Super::Destroyed();
+}
+
 void ASubjectZero::SetYaw(float Set)
 {
 	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set);
 }
 
 void ASubjectZero::IncreaseHealth(float amount) {
-	Health += MaxHealth * amount;
+	Health = FMath::Min(Health + MaxHealth * amount, MaxHealth);
+}
+
+void ASubjectZero::IncreaseArmor(float amount) {
+	Armor = FMath::Min(Armor + MaxArmor * amount, MaxArmor);
+}
+
+void ASubjectZero::IncreaseFuel(float amount) {
+	Fuel = FMath::Min(Fuel + MaxFuel * amount, MaxFuel);
+}
+
+void ASubjectZero::DamageBoost(float BoostMultiplier, float BoostDuration)
+{
+	DamageMultiplier = BoostMultiplier;
+	DamageMultiplierDuration = BoostDuration;
 }
 
 void ASubjectZero::SetPitch(float Set)
@@ -574,6 +622,7 @@ void ASubjectZero::Slot3()
 }
 
 // Getters
+float ASubjectZero::GetDamageMultiplier() const { return DamageMultiplier; }
 float ASubjectZero::GetSpeed() const { return GetVelocity().Size()/100.f; }
 float ASubjectZero::GetVerticalSpeed() const { return GetVelocity().Z; }
 float ASubjectZero::GetMaxHealth() { return MaxHealth; }

@@ -33,8 +33,8 @@ void ABaseMode::PostLogin(APlayerController * NewPlayer)
 		}
 		Controller->Possess(NewPawn);
 	}
-	Logger::Log("Welcome " + NewPlayer->GetNetOwningPlayer()->GetName());
-
+	Logger::Chat("Welcome " + NewPlayer->GetNetOwningPlayer()->GetName());
+	Logger::Log(NewPlayer->GetNetOwningPlayer()->GetName() + " has joined the game.");
 }
 
 /* SpawnPlayer() - Spawns a character at a PlayerStart location.
@@ -42,7 +42,7 @@ Spawn location rotates over the course of the game
 */
 void ABaseMode::SpawnPlayer(AHumanController * Controller)
 {
-	Logger::Log("Attempting to spawn...");
+	Logger::Log("Attempting to spawn player " + Controller->GetNetOwningPlayer()->GetName() + " as a SubjectZero");
 	if(HasAuthority())
 	{
 		if(GetWorld())
@@ -51,7 +51,7 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 			Characters.Add(NewPawn);
 			APawn * OldPawn = Controller->GetPawn();
 			Controller->Possess(NewPawn);
-			OldPawn->Destroy();
+			if(OldPawn) OldPawn->Destroy();
 		}
 	}
 	SpawnCount = (SpawnCount + 1) % SpawnPoints.Num();
@@ -77,6 +77,9 @@ void ABaseMode::KillPlayer(AHumanController * Controller)
 
 void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AHitscanWeapon * Weapon)
 {
+	// Multiply raw damage by multiplier
+	Damage = Damage * Shooter->GetDamageMultiplier();
+
 	// Deal damage to the victim, returns if the player was killed by the damage
 	bool Killed = Victim->ReceiveDamage(Damage);
 

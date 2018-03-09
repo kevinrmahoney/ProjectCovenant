@@ -18,9 +18,9 @@ class PROJECTCOVENANT_API AHealthPack : public AActor
 	
 	public:
 		UFUNCTION(BlueprintPure, BlueprintCallable)
-			bool AddHealth(ASubjectZero * player, float HealthBoost);
+		bool AddHealth(ASubjectZero * player);
 
 	public: 
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HealPercentage")
-			float HealthBoost = 0.25f;
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
+		float HealthBoostPercentage = 0.25f;
 };
