@@ -17,10 +17,12 @@ class PROJECTCOVENANT_API ASubjectZero : public ACharacter
 public:
 	ASubjectZero(const FObjectInitializer& ObjectInitializer);
 
-	FVector Movement;
+	FVector Movement = FVector::ZeroVector;
 	bool Jumping = false;
 	bool Sprinting = false;
 	bool JetpackActive = false;
+	float DamageMultiplier = 1.f;
+	float DamageMultiplierDuration = 0.f;
 
 private:
 	UPROPERTY(EditDefaultsOnly)
@@ -44,8 +46,11 @@ private:
 
 	bool Grounded = false;
 
-	float Time;    
+	float Time;
 	float TimeSinceJetpack = 0.f;
+	float TimeSinceTookDamage = 0.f;
+	float ShieldRechargeTime = 5.f;
+	float ShieldRechargeRate = 20.f;
 
 	UPROPERTY(Replicated)
 	float Health = 100.f;
@@ -134,6 +139,8 @@ public:
 
 	bool ReceiveDamage(float Damage);
 
+	virtual void Destroyed() override;
+
 	bool ReceiveDamageOverTime(float DamageAmount, bool Overlapped);
 
 	void AddDamageDealt(float DamageDealt);
@@ -141,6 +148,12 @@ public:
 	void AddKill();
   
 	void IncreaseHealth(float amount);
+
+	void IncreaseArmor(float amount);
+
+	void IncreaseFuel(float amount);
+
+	void DamageBoost(float Multiplier, float Duration);
   
 	void Kill();
 
@@ -190,6 +203,8 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetFuel() const;
+
+	float GetDamageMultiplier() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 

@@ -4,10 +4,10 @@
 #include "HealthPack.h"
 #include "SubjectZero.h"
 
-bool AHealthPack::AddHealth(ASubjectZero * player, float HealthBoost) {
+bool AHealthPack::AddHealth(ASubjectZero * player) {
 	if(HasAuthority())
 	{
-		player->IncreaseHealth(0.25f);
+		player->IncreaseHealth(HealthBoostPercentage);
 	}
 		return true;
 }
