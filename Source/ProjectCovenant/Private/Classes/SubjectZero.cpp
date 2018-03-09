@@ -56,13 +56,16 @@ void ASubjectZero::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
-	if(TimeSinceTookDamage < ShieldRechargeTime)
+	if(HasAuthority())
 	{
-		TimeSinceTookDamage = TimeSinceTookDamage + DeltaTime;
-	}
-	else
-	{
-		Shield += 20.f * DeltaTime;
+		if(TimeSinceTookDamage < ShieldRechargeTime)
+		{
+			TimeSinceTookDamage = TimeSinceTookDamage + DeltaTime;
+		}
+		else if(Shield < MaxShield)
+		{
+			Shield = FMath::Min(Shield + 20.f * DeltaTime, MaxShield);
+		}
 	}
 
 	// Update damage boost
