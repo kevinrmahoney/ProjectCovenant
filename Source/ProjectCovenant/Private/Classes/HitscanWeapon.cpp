@@ -70,11 +70,12 @@ void AHitscanWeapon::Shoot()
 		TimeSinceLastShot = TimeSinceLastShot - Cooldown;
 		DoDamage = true;
 	}
+
+	PlayShootSound();
 	
 	if(DoDamage)
 	{
 		DrawLaser();
-		PlayShootSound();
 		if(HasAuthority())
 		{
 			FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());
