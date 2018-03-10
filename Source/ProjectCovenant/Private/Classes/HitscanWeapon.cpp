@@ -74,6 +74,7 @@ void AHitscanWeapon::Shoot()
 	if(DoDamage)
 	{
 		DrawLaser();
+		PlayShootSound();
 		if(HasAuthority())
 		{
 			FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());

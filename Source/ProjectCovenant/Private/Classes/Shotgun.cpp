@@ -64,7 +64,7 @@ void AShotgun::Shoot()
 	{
 
 		DrawLaser();
-		//PlayShootSound();
+		PlayShootSound();
 
 		if(HasAuthority())
 		{
