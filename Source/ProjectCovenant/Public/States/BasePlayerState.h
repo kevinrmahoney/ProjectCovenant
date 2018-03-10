@@ -38,6 +38,18 @@ public:
 	int CurrentPing = 0.f;
 
 public:
+	UFUNCTION(Client, Reliable)
+	void TookDamage(float Dmg);
+
+	UFUNCTION(Client, Reliable)
+	void DealtDamage(float Dmg);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayHitSound(float Dmg);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayGrunt(float Dmg);
+
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FString GetName() const;
 

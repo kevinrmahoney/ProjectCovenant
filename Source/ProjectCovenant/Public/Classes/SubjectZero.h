@@ -142,10 +142,6 @@ public:
 	virtual void Destroyed() override;
 
 	bool ReceiveDamageOverTime(float DamageAmount, bool Overlapped);
-
-	void AddDamageDealt(float DamageDealt);
-
-	void AddKill();
   
 	void IncreaseHealth(float amount);
 

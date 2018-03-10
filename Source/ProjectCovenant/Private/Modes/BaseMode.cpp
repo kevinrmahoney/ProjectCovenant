@@ -95,6 +95,7 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 	if(ShooterPlayerState)
 	{
 		ShooterPlayerState->AddDamageDealt(Damage);
+		ShooterPlayerState->DealtDamage(Damage);
 		if(Killed) ShooterPlayerState->AddKill(1);
 	}
 	else
@@ -106,6 +107,7 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 	if(VictimPlayerState)
 	{
 		VictimPlayerState->AddDamageTaken(Damage);
+		ShooterPlayerState->TookDamage(Damage);
 		if(Killed) VictimPlayerState->AddDeath(1);
 	}
 	else
