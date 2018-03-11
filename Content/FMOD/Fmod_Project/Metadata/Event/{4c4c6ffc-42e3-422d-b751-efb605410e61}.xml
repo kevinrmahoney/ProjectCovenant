@@ -146,56 +146,9 @@
     <object class="MixerBusEffectChain" id="{5494101f-fd52-4cb2-afd2-93622093212d}">
         <relationship name="effects">
             <destination>{eb2ef264-f6ae-4416-a1cb-3e7a0f409a0f}</destination>
-            <destination>{38f9bd0e-c63b-4012-8ce6-eddd9335bc8d}</destination>
         </relationship>
     </object>
     <object class="MixerBusPanner" id="{f152ebe9-401e-495b-a98d-8b394f8d3715}"/>
     <object class="MixerBusFader" id="{7182c28e-d480-4af7-820a-c3991937d5f0}"/>
     <object class="MixerBusFader" id="{eb2ef264-f6ae-4416-a1cb-3e7a0f409a0f}"/>
-    <object class="PluginEffect" id="{38f9bd0e-c63b-4012-8ce6-eddd9335bc8d}">
-        <relationship name="plugin">
-            <destination>{78e4684f-0d89-4f16-a085-e7f77349a123}</destination>
-        </relationship>
-    </object>
-    <object class="Plugin" id="{78e4684f-0d89-4f16-a085-e7f77349a123}">
-        <property name="identifier">
-            <value>FMOD Distance Filter</value>
-        </property>
-        <relationship name="pluginParameters">
-            <destination>{d8149aa6-9ba9-4c53-9f49-abc9d2ac3fdb}</destination>
-            <destination>{130c0ad2-e799-462e-b0b1-12ea4b7d1fca}</destination>
-            <destination>{b2656553-a41a-4297-a695-f4f39f4ea498}</destination>
-        </relationship>
-    </object>
-    <object class="FloatPluginParameter" id="{d8149aa6-9ba9-4c53-9f49-abc9d2ac3fdb}">
-        <property name="name">
-            <value>Max Dist</value>
-        </property>
-        <property name="curve">
-            <value>LinearPiecewiseCurveStrategy{(0.000000,0.000000)(1.000000,1.000000)(2.000000,5.000000)(3.000000,20.000000)(4.000000,100.000000)(4.500000,500.000000)(5.000000,10000.000000)}</value>
-        </property>
-        <property name="value">
-            <value>20</value>
-        </property>
-    </object>
-    <object class="FloatPluginParameter" id="{130c0ad2-e799-462e-b0b1-12ea4b7d1fca}">
-        <property name="name">
-            <value>Frequency</value>
-        </property>
-        <property name="curve">
-            <value>LinearPiecewiseCurveStrategy{(0.000000,10.000000)(1.000000,100.000000)(2.000000,400.000000)(3.000000,750.000000)(4.000000,1250.000000)(5.000000,2000.000000)(6.000000,3200.000000)(7.000000,5500.000000)(8.000000,10000.000000)(9.000000,18000.000000)(10.000000,22000.000000)}</value>
-        </property>
-        <property name="value">
-            <value>1500</value>
-        </property>
-    </object>
-    <object class="DataPluginParameter" id="{b2656553-a41a-4297-a695-f4f39f4ea498}">
-        <property name="name">
-            <value>3D Attributes</value>
-        </property>
-        <property name="dataType">
-            <value>-2</value>
-        </property>
-        <property name="value"/>
-    </object>
 </objects>

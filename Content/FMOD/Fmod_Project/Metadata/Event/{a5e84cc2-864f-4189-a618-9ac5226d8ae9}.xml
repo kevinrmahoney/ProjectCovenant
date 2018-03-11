@@ -110,7 +110,7 @@
     </object>
     <object class="EventMixerGroup" id="{e6b46c37-f6c2-49ef-9891-d631f3c7183b}">
         <property name="volume">
-            <value>-7</value>
+            <value>-6</value>
         </property>
         <property name="name">
             <value>RailGunShot</value>
@@ -176,10 +176,22 @@
     </object>
     <object class="MixerBusEffectChain" id="{6a917948-4944-4265-8b30-2ca64ce51d44}">
         <relationship name="effects">
+            <destination>{a0fe4727-11e8-4a9e-82b2-e704d630d417}</destination>
             <destination>{dc0751e2-096f-4823-9f26-8faaa8c3718d}</destination>
         </relationship>
     </object>
     <object class="MixerBusPanner" id="{7cb451dd-bdc2-4876-8a81-93c11328dcc7}"/>
     <object class="MixerBusFader" id="{c024128a-da0d-43a0-aeec-898ff3c2c4b3}"/>
+    <object class="ObjectSpatialiserEffect" id="{a0fe4727-11e8-4a9e-82b2-e704d630d417}">
+        <property name="maximumDistance">
+            <value>80</value>
+        </property>
+        <property name="extentMode">
+            <value>1</value>
+        </property>
+        <property name="minimumExtent">
+            <value>204</value>
+        </property>
+    </object>
     <object class="MixerBusFader" id="{dc0751e2-096f-4823-9f26-8faaa8c3718d}"/>
 </objects>
