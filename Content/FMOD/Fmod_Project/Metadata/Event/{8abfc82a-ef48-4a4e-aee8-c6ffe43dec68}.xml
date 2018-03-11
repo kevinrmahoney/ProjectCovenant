@@ -148,7 +148,14 @@
             <destination>{84a25c5d-1624-4549-98a4-165781e53158}</destination>
         </relationship>
     </object>
-    <object class="MixerBusPanner" id="{bab0e7ca-c327-4611-a126-b71d58c3fd76}"/>
+    <object class="MixerBusPanner" id="{bab0e7ca-c327-4611-a126-b71d58c3fd76}">
+        <property name="surroundPanDirection">
+            <value>90</value>
+        </property>
+        <property name="surroundPanExtent">
+            <value>343.200012</value>
+        </property>
+    </object>
     <object class="MixerBusFader" id="{ae264834-ffff-46d2-a78d-7f3a42a422d5}"/>
     <object class="SingleSound" id="{d8e195d8-4088-4373-80e5-0f428e28ef02}">
         <relationship name="audioFile">
@@ -220,10 +227,10 @@
             <value>1</value>
         </property>
         <property name="soundSize">
-            <value>0.849999964</value>
+            <value>7.5</value>
         </property>
         <property name="minimumExtent">
-            <value>180</value>
+            <value>124</value>
         </property>
         <property name="userLFELevel">
             <value>-4</value>
