@@ -133,6 +133,7 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Crouching, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, AimDownSights, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, JetpackUsed, COND_SimulatedOnly)
 }
 
 void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
@@ -140,6 +141,8 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 	// Update if the character is grounded and its velocity
 	Grounded = !GetCharacterMovement()->IsFalling();
 	Velocity = GetVelocity();
+
+	JetpackUsed = false;
 
 	if(IsLocallyControlled() || Role == ROLE_Authority)
 	{
@@ -206,6 +209,8 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 			ApplyAirResistance();
 		}
 	}
+
+	PlayJetpackSound();
 
 	// Set the trigger as pulled or not pulled
 	if(Weapon)
@@ -322,7 +327,11 @@ void ASubjectZero::JetpackBurst()
 		GetCharacterMovement()->Velocity += Force * Time;
 
 		float FuelUsed = FuelUsage * ((Movement.X != 0.f ? 1.f : 0.f) + (Movement.Y != 0.f ? 1.f : 0.f) + (Jumping ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
-		if(FuelUsed > 0.f) TimeSinceJetpack = 0.f;
+		if(FuelUsed > 0.f)
+		{
+			TimeSinceJetpack = 0.f;
+			JetpackUsed = true;
+		}
 		Fuel = FMath::Max(0.f, Fuel - (FuelUsed * Time));
 	}
 }
@@ -636,6 +645,7 @@ float ASubjectZero::GetMaxShield() const { return MaxShield; }
 float ASubjectZero::GetShield() const { return Shield; }
 float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
+bool ASubjectZero::IsJetpackUsed() const { return JetpackUsed; }
 bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
 bool ASubjectZero::IsCrouching() const { return Crouching; }

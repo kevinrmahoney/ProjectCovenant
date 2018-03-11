@@ -39,6 +39,9 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Equip)
 	int Equipped = -1;
 
+	UPROPERTY(Replicated)
+	bool JetpackUsed = false;
+
 	UPROPERTY()
 	TArray<AHitscanWeapon*> Weapons;
 
@@ -200,11 +203,14 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetFuel() const;
 
+	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetDamageMultiplier() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
-
 	FName GetPlayerName() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool IsJetpackUsed() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackActive() const;
@@ -217,4 +223,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsAimingDownSights() const;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayJetpackSound();
 };
