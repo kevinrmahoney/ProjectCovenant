@@ -134,10 +134,20 @@ void AShotgun::DrawLaser()
 
 FVector AShotgun::GetAimDownSightsLocation()
 {
-	return HipfireLocation;
+	return AimDownSightsLocation;
 }
 
 FRotator AShotgun::GetAimDownSightsRotation()
 {
-	return HipfireRotation;
+	return AimDownSightsRotation;
+}
+
+FVector AShotgun::GetHipFireLocation()
+{
+	return HipFireLocation;
+}
+
+FRotator AShotgun::GetHipFireRotation()
+{
+	return HipFireRotation;
 }

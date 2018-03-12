@@ -44,10 +44,15 @@ public:
 	UPROPERTY()
 	ASubjectZero * Shooter = nullptr;
 
-	//(X = -4.133434, Y = -0.131399, Z = -150.845200)
-	FVector HipfireLocation = FVector(-4.133434f, -0.131399f, -150.845200f);
-	//(Pitch = 2.812467, Yaw = -19.000458, Roll = 0.000000)
-	FRotator HipfireRotation = FRotator(2.812467f, -19.000458f, 0.000000f);
+	//(X=-6.456540,Y=-7.700000,Z=-148.210724)
+	FVector AimDownSightsLocation = FVector(-6.456540f,-7.700000f,-148.210724f);
+	//(Pitch=2.500000,Yaw=-11.700012,Roll=0.000000)
+	FRotator AimDownSightsRotation = FRotator(2.500000f,-11.700012f,0.000000f);
+
+	//(X=1.575968,Y=11.798502,Z=-153.145187)
+	FVector HipFireLocation = FVector(1.575968f, 11.798502f, -153.145187f);
+	//(Pitch=3.000000,Yaw=-12.000000,Roll=0.000000)
+	FRotator HipFireRotation = FRotator(3.000000f, -12.000000f, 0.000000f);
 
 protected:
 	UPROPERTY()
@@ -80,6 +85,10 @@ public:
 	virtual FVector GetAimDownSightsLocation();
 
 	virtual FRotator GetAimDownSightsRotation();
+
+	virtual FVector GetHipFireLocation();
+
+	virtual FRotator GetHipFireRotation();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayShootSound();
