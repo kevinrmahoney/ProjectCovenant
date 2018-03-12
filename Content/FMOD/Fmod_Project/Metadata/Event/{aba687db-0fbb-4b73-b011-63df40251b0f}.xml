@@ -92,6 +92,9 @@
         <property name="length">
             <value>1.8461451247165532</value>
         </property>
+        <property name="pitch">
+            <value>2.79999995</value>
+        </property>
         <relationship name="audioFile">
             <destination>{cb1aee46-afc4-4289-8716-2a4dcaa612f0}</destination>
         </relationship>
@@ -122,34 +125,37 @@
     <object class="MixerBusFader" id="{f573b086-cfcd-45fe-a544-439afb2ecd0d}"/>
     <object class="MixerBusEffectChain" id="{09c6e3bc-383f-4c34-a58a-19583ce8ff52}">
         <relationship name="effects">
-            <destination>{33051cc1-d694-45a7-888f-13b6d3cfcb7f}</destination>
             <destination>{55f199e1-33c1-4890-943f-dee9a60f50be}</destination>
-            <destination>{20fc7bef-2d3d-4901-bf59-dd04c2ed8c6b}</destination>
+            <destination>{33051cc1-d694-45a7-888f-13b6d3cfcb7f}</destination>
+            <destination>{776cf22c-da85-4a9c-8f95-b685c7bc77d3}</destination>
         </relationship>
     </object>
     <object class="MixerBusPanner" id="{fcc929c4-fac6-42d7-8d24-ce9ebc4d1804}"/>
     <object class="MixerBusFader" id="{8da24f5b-ea2d-4783-af5a-47c5a6932c61}"/>
-    <object class="MixerBusFader" id="{33051cc1-d694-45a7-888f-13b6d3cfcb7f}"/>
     <object class="ThreeEQEffect" id="{55f199e1-33c1-4890-943f-dee9a60f50be}">
+        <property name="lowGain">
+            <value>1.5</value>
+        </property>
+        <property name="midGain">
+            <value>-1</value>
+        </property>
         <property name="highGain">
-            <value>-2.5999999</value>
+            <value>-1.5</value>
+        </property>
+        <property name="lowCrossover">
+            <value>680</value>
+        </property>
+        <property name="highCrossover">
+            <value>4400</value>
+        </property>
+        <property name="crossoverSlope">
+            <value>0</value>
         </property>
     </object>
-    <object class="SpatialiserEffect" id="{20fc7bef-2d3d-4901-bf59-dd04c2ed8c6b}">
-        <property name="minimumDistance">
-            <value>0.99999994</value>
-        </property>
+    <object class="MixerBusFader" id="{33051cc1-d694-45a7-888f-13b6d3cfcb7f}"/>
+    <object class="SpatialiserEffect" id="{776cf22c-da85-4a9c-8f95-b685c7bc77d3}">
         <property name="maximumDistance">
-            <value>55</value>
-        </property>
-        <property name="extentMode">
-            <value>1</value>
-        </property>
-        <property name="minimumExtent">
-            <value>100</value>
-        </property>
-        <property name="userStereoSeparation">
-            <value>157.117905</value>
+            <value>65</value>
         </property>
     </object>
 </objects>

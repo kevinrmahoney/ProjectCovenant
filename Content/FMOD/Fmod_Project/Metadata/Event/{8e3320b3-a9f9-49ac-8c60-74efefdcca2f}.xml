@@ -5,7 +5,7 @@
             <value>RailGunCharge</value>
         </property>
         <property name="outputFormat">
-            <value>1</value>
+            <value>2</value>
         </property>
         <relationship name="folder">
             <destination>{31c26062-f535-484f-84d8-7cc078d66eb3}</destination>
@@ -150,6 +150,9 @@
         </relationship>
     </object>
     <object class="SingleSound" id="{6a465059-08f4-4556-b362-d1c37b0d84f0}">
+        <property name="volume">
+            <value>5.5</value>
+        </property>
         <relationship name="audioFile">
             <destination>{0f6911b7-afee-4714-a33a-f3e21d74a1c0}</destination>
         </relationship>
@@ -157,9 +160,14 @@
     <object class="MixerBusEffectChain" id="{8b50c61e-6211-41f5-870e-728b8a6cbcd2}">
         <relationship name="effects">
             <destination>{a2163f10-4db9-4e90-8c36-3e2b8e80099d}</destination>
+            <destination>{2cead8d3-9fe2-4eb9-9b77-35955c9c634e}</destination>
         </relationship>
     </object>
-    <object class="MixerBusPanner" id="{b9607795-fd4e-43c8-bc0d-35b7daf7aa0f}"/>
+    <object class="MixerBusPanner" id="{b9607795-fd4e-43c8-bc0d-35b7daf7aa0f}">
+        <property name="surroundPanDirection">
+            <value>-104.141937</value>
+        </property>
+    </object>
     <object class="MixerBusEffectChain" id="{cf807a1e-c062-4e46-bd73-9ad7b4fe0390}">
         <relationship name="effects">
             <destination>{3e642c8a-aceb-4255-aa82-a82cb7513886}</destination>
@@ -168,5 +176,10 @@
     <object class="MixerBusPanner" id="{8113c973-9120-4ded-96c4-55e0ece142be}"/>
     <object class="MixerBusFader" id="{fad6e979-2f78-4da4-97fb-96f14a02220a}"/>
     <object class="MixerBusFader" id="{a2163f10-4db9-4e90-8c36-3e2b8e80099d}"/>
+    <object class="SpatialiserEffect" id="{2cead8d3-9fe2-4eb9-9b77-35955c9c634e}">
+        <property name="maximumDistance">
+            <value>40</value>
+        </property>
+    </object>
     <object class="MixerBusFader" id="{3e642c8a-aceb-4255-aa82-a82cb7513886}"/>
 </objects>

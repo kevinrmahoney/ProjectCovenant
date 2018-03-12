@@ -103,6 +103,9 @@
         <property name="name">
             <value>Audio 1</value>
         </property>
+        <relationship name="automators">
+            <destination>{53f6e95b-093e-4a6b-8006-df52497238ed}</destination>
+        </relationship>
         <relationship name="effectChain">
             <destination>{1882bade-5252-4d9a-a97f-536f0fd1f2d3}</destination>
         </relationship>
@@ -134,12 +137,38 @@
     </object>
     <object class="MixerBusPanner" id="{4cddcded-ea03-4fd6-b327-e61297e47d73}"/>
     <object class="MixerBusFader" id="{eb3c105f-bdd6-4a5f-a5d9-640ceda4d6e8}"/>
+    <object class="Automator" id="{53f6e95b-093e-4a6b-8006-df52497238ed}">
+        <property name="nameOfPropertyBeingAutomated">
+            <value>volume</value>
+        </property>
+    </object>
     <object class="MixerBusEffectChain" id="{1882bade-5252-4d9a-a97f-536f0fd1f2d3}">
         <relationship name="effects">
             <destination>{9972d6b1-a848-4e49-841a-529b2174d650}</destination>
+            <destination>{26cb1963-c90e-4eed-ae60-553d6c307db8}</destination>
         </relationship>
     </object>
     <object class="MixerBusPanner" id="{c5e2ecfa-922c-4643-a919-94c75e551fe5}"/>
     <object class="MixerBusFader" id="{291187ce-674d-4dfd-8f1d-8bf700139807}"/>
     <object class="MixerBusFader" id="{9972d6b1-a848-4e49-841a-529b2174d650}"/>
+    <object class="ThreeEQEffect" id="{26cb1963-c90e-4eed-ae60-553d6c307db8}">
+        <property name="lowGain">
+            <value>3.5</value>
+        </property>
+        <property name="midGain">
+            <value>-4</value>
+        </property>
+        <property name="highGain">
+            <value>-5.5</value>
+        </property>
+        <property name="lowCrossover">
+            <value>640</value>
+        </property>
+        <property name="highCrossover">
+            <value>3600</value>
+        </property>
+        <property name="crossoverSlope">
+            <value>2</value>
+        </property>
+    </object>
 </objects>
