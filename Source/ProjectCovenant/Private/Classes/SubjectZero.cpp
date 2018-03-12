@@ -450,6 +450,10 @@ void ASubjectZero::DamageBoost(float BoostMultiplier, float BoostDuration)
 void ASubjectZero::SetPitch(float Set)
 {
 	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetCrouch(bool Set)
