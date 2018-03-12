@@ -47,6 +47,9 @@ public:
 
 	UUserWidget * PlayerScoreboard;
 
+	UFUNCTION(Exec)
+	void God();
+
 protected:
 	void BeginPlay();
 	void SetupInputComponent() override;
