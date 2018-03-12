@@ -75,15 +75,15 @@ bool UProjectCovenantInstance::Join(FString IPAddress)
 	}
 	else if(IPAddress.Equals("Ben"))
 	{
-		IPAddress = "25.16.234.201";
+		IPAddress = "25.67.187.75";
 	}
 	else if(IPAddress.Equals("Dave"))
 	{
 		IPAddress = "25.16.209.98";
 	}
-	else if(IPAddress.Equals("Matt"))
+	else if(IPAddress.Equals("Mattew"))
 	{
-		IPAddress = "25.80.30.209";
+		IPAddress = "25.57.118.4";
 	}
 	else if(IPAddress.Equals("Yousef"))
 	{

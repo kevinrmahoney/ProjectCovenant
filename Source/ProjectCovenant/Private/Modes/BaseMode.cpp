@@ -117,12 +117,13 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 
 	if(Killed)
 	{
-		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+		if(AHumanController * HumanController = Cast<AHumanController>(Victim->GetController()))
 		{
-			if(AHumanController * HumanController = Cast<AHumanController>(Victim->GetController()))
-			{
-				Mode->KillPlayer(HumanController);
-			}
+			KillPlayer(HumanController);
+		}
+		else
+		{
+			Logger::Log("Could not kill player " + HumanController->GetName());
 		}
 	}
 }

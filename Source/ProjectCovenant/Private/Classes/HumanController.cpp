@@ -80,6 +80,18 @@ void AHumanController::SetupInputComponent()
 	}
 }
 
+void AHumanController::God()
+{
+	if(Role == ROLE_Authority)
+	{
+		Logger::Chat("Server: God mode enabled");
+	}
+	else if(Role == ROLE_AutonomousProxy)
+	{
+		Logger::Chat("Client: God mode enabled");
+	}
+}
+
 void AHumanController::Possess(APawn* aPawn)
 {
 	Super::Possess(aPawn);
