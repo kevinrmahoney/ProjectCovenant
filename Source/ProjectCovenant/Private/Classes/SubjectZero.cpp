@@ -89,13 +89,6 @@ void ASubjectZero::Tick(float DeltaTime)
 			JetpackActive = false;
 		}
 	}
-	// update simulated all non-locally controlled with new pitch
-	else if (Role == ROLE_SimulatedProxy)
-	{
-		FRotator NewRotation = Camera->RelativeRotation;
-		NewRotation.Pitch = RemoteViewPitch * 360.f / 255.f;
-		Camera->SetRelativeRotation(NewRotation);
-	}
 
 	// Move characters/update trigger status/aim down sights
 	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
