@@ -239,6 +239,12 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 				FirstPersonMesh->SetRelativeRotation(Weapon->GetHipFireRotation());
 			}
 		}
+		if(Role == ROLE_SimulatedProxy)
+		{
+			//FRotator NewRotation = Weapon->GetActorRotation();
+			//NewRotation.Roll = -Camera->RelativeRotation.Pitch;
+			//Weapon->SetActorRotation(NewRotation);
+		}
 	}
 }
 
