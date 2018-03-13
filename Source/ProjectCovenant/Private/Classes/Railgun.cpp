@@ -108,10 +108,20 @@ void ARailgun::DrawLaser()
 
 FVector ARailgun::GetAimDownSightsLocation()
 {
-	return HipfireLocation;
+	return AimDownSightsLocation;
 }
 
 FRotator ARailgun::GetAimDownSightsRotation()
 {
-	return HipfireRotation;
+	return AimDownSightsRotation;
+}
+
+FVector ARailgun::GetHipFireLocation()
+{
+	return HipFireLocation;
+}
+
+FRotator ARailgun::GetHipFireRotation()
+{
+	return HipFireRotation;
 }

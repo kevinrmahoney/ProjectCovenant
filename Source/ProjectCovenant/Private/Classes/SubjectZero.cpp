@@ -89,13 +89,6 @@ void ASubjectZero::Tick(float DeltaTime)
 			JetpackActive = false;
 		}
 	}
-	// update simulated all non-locally controlled with new pitch
-	else
-	{
-		FRotator NewRotation = Camera->RelativeRotation;
-		NewRotation.Pitch = RemoteViewPitch * 360.f / 255.f;
-		Camera->SetRelativeRotation(NewRotation);
-	}
 
 	// Move characters/update trigger status/aim down sights
 	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
@@ -211,6 +204,20 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 	}
 
 	PlayJetpackSound();
+	if(Crouching)
+	{
+		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		Camera->SetRelativeLocation(FVector(0.f, 0, CrouchingHeight));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(66.f);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -66.f));
+	}
+	else
+	{
+		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		Camera->SetRelativeLocation(FVector(0.f, 0, StandingHeight));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
+	}
 
 	// Set the trigger as pulled or not pulled
 	if(Weapon)
@@ -225,8 +232,8 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 			}
 			else
 			{
-				FirstPersonMesh->SetRelativeLocation(HipfireLocation);
-				FirstPersonMesh->SetRelativeRotation(HipfireRotation);
+				FirstPersonMesh->SetRelativeLocation(Weapon->GetHipFireLocation());
+				FirstPersonMesh->SetRelativeRotation(Weapon->GetHipFireRotation());
 			}
 		}
 	}
@@ -444,23 +451,15 @@ void ASubjectZero::DamageBoost(float BoostMultiplier, float BoostDuration)
 void ASubjectZero::SetPitch(float Set)
 {
 	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+	}
 }
 
 void ASubjectZero::SetCrouch(bool Set)
 {
 	Crouching = Set;
-	if(Set)
-	{
-		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		Camera->AddRelativeLocation(FVector(0.f, 0, CrouchingHeight - StandingHeight));
-		GetCapsuleComponent()->SetCapsuleHalfHeight(66.f);
-	}
-	else
-	{
-		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		Camera->AddRelativeLocation(FVector(0.f, 0, StandingHeight - CrouchingHeight));
-		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
-	}
 	if(Role == ROLE_AutonomousProxy)
 	{
 		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
