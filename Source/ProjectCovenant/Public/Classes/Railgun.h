@@ -17,11 +17,15 @@ class PROJECTCOVENANT_API ARailgun : public AHitscanWeapon
 public:
 	ARailgun();
 
-	//(X=-14.290447,Y=-0.018228,Z=-143.514786)
-	FVector HipfireLocation = FVector(-14.290447f, -0.018228f, -143.514786f);
-	//(Pitch=2.812467,Yaw=-19.000458,Roll=0.000000)
-	FRotator HipfireRotation = FRotator(2.812467f, -19.000458f, 0.000000f);
+	//(X=-11.357482,Y=-8.996102,Z=-145.574875)
+	FVector AimDownSightsLocation = FVector(-11.357482f,-8.996102f,-145.574875f);
+	//(Pitch=3.000000,Yaw=-11.800000,Roll=0.000000)
+	FRotator AimDownSightsRotation = FRotator(3.000000f,-11.800000f,0.000000f);
 
+	//(X=1.575968,Y=11.798502,Z=-153.145187)
+	FVector HipFireLocation = FVector(1.575968f,11.798502f,-153.145187f);
+	//(Pitch=3.000000,Yaw=-12.000000,Roll=0.000000)
+	FRotator HipFireRotation = FRotator(3.000000f,-12.000000f,0.000000f);
 
 protected:
 	// Called when the game starts or when spawned
@@ -38,10 +42,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayShootSound();
 
-	virtual FVector GetAimDownSightsLocation() override;
-
-	virtual FRotator GetAimDownSightsRotation() override;
-
 protected:
 	void Shoot() override;
 
@@ -49,4 +49,11 @@ protected:
 
 	void DrawLaser() override;
 
+	virtual FVector GetAimDownSightsLocation() override;
+
+	virtual FRotator GetAimDownSightsRotation() override;
+
+	virtual FVector GetHipFireLocation() override;
+
+	virtual FRotator GetHipFireRotation() override;
 };

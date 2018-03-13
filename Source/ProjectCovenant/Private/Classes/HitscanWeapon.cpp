@@ -15,7 +15,7 @@ AHitscanWeapon::AHitscanWeapon()
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
-	
+
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun Mesh"), false);
 	Mesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
 	Mesh->SetVisibility(true);
@@ -131,10 +131,20 @@ void AHitscanWeapon::DrawLaser()
 
 FVector AHitscanWeapon::GetAimDownSightsLocation()
 {
-	return HipfireLocation;
+	return AimDownSightsLocation;
 }
 
 FRotator AHitscanWeapon::GetAimDownSightsRotation()
 {
-	return HipfireRotation;
+	return AimDownSightsRotation;
+}
+
+FVector AHitscanWeapon::GetHipFireLocation()
+{
+	return HipFireLocation;
+}
+
+FRotator AHitscanWeapon::GetHipFireRotation()
+{
+	return HipFireRotation;
 }
