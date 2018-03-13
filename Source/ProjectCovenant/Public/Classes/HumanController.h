@@ -37,6 +37,8 @@ public:
 
 	FName PlayerName = "Subject Zero";
 
+	bool GodMode = false;
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> HUD;
 
@@ -48,7 +50,10 @@ public:
 	UUserWidget * PlayerScoreboard;
 
 	UFUNCTION(Exec)
-	void God();
+	void God(FString Set);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_God(const FString & Set);
 
 protected:
 	void BeginPlay();
