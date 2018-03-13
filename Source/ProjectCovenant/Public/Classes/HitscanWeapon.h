@@ -19,7 +19,7 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float Damage = 10.f;
+	float Damage = 15.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Range = 20000.f;
