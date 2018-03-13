@@ -136,67 +136,65 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 
 	if(IsLocallyControlled() || Role == ROLE_Authority)
 	{
-		if(Grounded)
+		if(Controller)
 		{
-			// Update movement speeds depending on the character's stance
-			if(Sprinting && !Crouching)
+			if(Grounded)
 			{
-				GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
-			}
-			else if(Sprinting && Crouching)
-			{
-				GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
-			}
-			else if(!Sprinting && Crouching)
-			{
-				GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
-			}
-			else
-			{
-				GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
-			}
+				if(Jumping)
+				{
+					Jump();
+				}
+				else
+				{
+					// Update movement speeds depending on the character's stance
+					if(Sprinting && !Crouching)
+					{
+						GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
+					}
+					else if(Sprinting && Crouching)
+					{
+						GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
+					}
+					else if(!Sprinting && Crouching)
+					{
+						GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
+					}
+					else
+					{
+						GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
+					}
 
-			if(AimDownSights)
-			{
-				GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
-			}
-
-			// Jump if commanded
-			if(Controller)
-			{
+					if(AimDownSights)
+					{
+						GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
+					}
+				}
 				// Move the character on the ground
 				FRotator Rotation = Controller->GetControlRotation();
 				Rotation.Pitch = 0;
 
 				Movement.Z = 0.f;
 				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-				if(Jumping)
-				{
-					Jump();
-				}
 			}
-		}
-		else
-		{
-			// Jetpack can only be activated if it has enough fuel
-			if(JetpackActive && Fuel > 0.f)
-			{
-				JetpackBurst();
-			}
-			// Strafe in the air
 			else
 			{
-				if(Controller)
+				// Jetpack can only be activated if it has enough fuel
+				if(JetpackActive && Fuel > 0.f)
+				{
+					JetpackBurst();
+				}
+				// Strafe in the air
+				else
 				{
 					FRotator Rotation = Controller->GetControlRotation();
 					Rotation.Pitch = 0;
 
 					Movement.Z = 0.f;
-					AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+					AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), NormalAirControl);
 				}
+				// Apply the force of the air if midair
+				ApplyAirResistance();
 			}
-			// Apply the force of the air if midair
-			ApplyAirResistance();
 		}
 	}
 
@@ -231,12 +229,6 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 				FirstPersonMesh->SetRelativeLocation(Weapon->GetHipFireLocation());
 				FirstPersonMesh->SetRelativeRotation(Weapon->GetHipFireRotation());
 			}
-		}
-		if(Role == ROLE_SimulatedProxy)
-		{
-			//FRotator NewRotation = Weapon->GetActorRotation();
-			//NewRotation.Roll = -Camera->RelativeRotation.Pitch;
-			//Weapon->SetActorRotation(NewRotation);
 		}
 	}
 }
