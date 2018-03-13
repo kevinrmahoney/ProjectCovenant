@@ -8,6 +8,7 @@
 #include "BasePlayerState.h"
 #include "ScoreboardWidget.h"
 #include "Blueprint/UserWidget.h"
+#include "UnrealNetwork.h"
 #include "Spectator.h"
 
 AHumanController::AHumanController()
@@ -78,6 +79,42 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
 		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
 	}
+}
+
+void AHumanController::God(FString Set = "")
+{
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_God(Set);
+	}
+
+	if(Set.ToLower() == "on")
+	{
+		GodMode = true;
+	}
+	else if(Set.ToLower() == "off")
+	{
+		GodMode = false;
+	}
+	else if(Set == "")
+	{
+		GodMode = !GodMode;
+	}
+	else
+	{
+		Logger::Chat("usage: God [optional:<on|off>,default:toggle,]");
+	}
+	GodMode ? Logger::Chat("God mode enabled") : Logger::Chat("God mode disabled");
+}
+
+void AHumanController::Server_God_Implementation(const FString & Set)
+{
+	God(Set);
+}
+
+bool AHumanController::Server_God_Validate(const FString & Set)
+{
+	return true;
 }
 
 void AHumanController::Possess(APawn* aPawn)
