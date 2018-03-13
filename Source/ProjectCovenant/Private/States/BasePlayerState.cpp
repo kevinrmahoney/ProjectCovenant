@@ -30,13 +30,11 @@ void ABasePlayerState::Tick(float DeltaTime)
 
 void ABasePlayerState::TookDamage_Implementation(float Dmg)
 {
-	Logger::Chat("TookDamage: " + FString::SanitizeFloat(Dmg));
 	PlayGrunt(Dmg);
 }
 
 void ABasePlayerState::DealtDamage_Implementation(float Dmg)
 {
-	Logger::Chat("DealtDamage: " + FString::SanitizeFloat(Dmg));
 	PlayHitSound(Dmg);
 }
 
