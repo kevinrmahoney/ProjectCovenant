@@ -28,6 +28,16 @@ void ABasePlayerState::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ABasePlayerState::TookDamage_Implementation(float Dmg)
+{
+	PlayGrunt(Dmg);
+}
+
+void ABasePlayerState::DealtDamage_Implementation(float Dmg)
+{
+	PlayHitSound(Dmg);
+}
+
 void ABasePlayerState::AddKill(int Kill)
 {
 	Kills += Kill;

@@ -30,11 +30,23 @@ public:
 	UFUNCTION(Exec)
 	void Sensitivity(float Sens);
 
+	UFUNCTION(Exec)
+	void Volume(float Volume);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Event_Volume(float Volume);
+
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool SetSensitivity(float Sens);
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSensitivity();
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool SetVolume(float Volume);
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	float GetVolume();
 
 	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
 	bool Join(FString IPAddress);
@@ -48,12 +60,19 @@ public:
 	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
 	bool Kill();
 
-	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
-	bool Sudoku();
-
 private:
 	virtual void Init();
 
 	UPROPERTY(Config)
 	float cl_sensitivity = 50.f;
+
+	UPROPERTY(Config)
+	float cl_volume = 1.f;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float MinVolume = 0.1f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float MaxVolume = 1.f;
 };

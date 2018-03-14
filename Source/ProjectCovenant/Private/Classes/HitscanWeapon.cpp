@@ -70,6 +70,8 @@ void AHitscanWeapon::Shoot()
 		TimeSinceLastShot = TimeSinceLastShot - Cooldown;
 		DoDamage = true;
 	}
+
+	PlayShootSound();
 	
 	if(DoDamage)
 	{

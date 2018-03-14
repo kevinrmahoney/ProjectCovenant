@@ -110,7 +110,7 @@
     </object>
     <object class="EventMixerGroup" id="{e6b46c37-f6c2-49ef-9891-d631f3c7183b}">
         <property name="volume">
-            <value>-7</value>
+            <value>-6.5</value>
         </property>
         <property name="name">
             <value>RailGunShot</value>
@@ -176,10 +176,34 @@
     </object>
     <object class="MixerBusEffectChain" id="{6a917948-4944-4265-8b30-2ca64ce51d44}">
         <relationship name="effects">
+            <destination>{a10284ab-b072-482e-a2e7-171cd09d020a}</destination>
             <destination>{dc0751e2-096f-4823-9f26-8faaa8c3718d}</destination>
+            <destination>{dde0530e-54ed-4a63-b854-87138e359307}</destination>
         </relationship>
     </object>
     <object class="MixerBusPanner" id="{7cb451dd-bdc2-4876-8a81-93c11328dcc7}"/>
     <object class="MixerBusFader" id="{c024128a-da0d-43a0-aeec-898ff3c2c4b3}"/>
+    <object class="ThreeEQEffect" id="{a10284ab-b072-482e-a2e7-171cd09d020a}">
+        <property name="lowGain">
+            <value>2.39999986</value>
+        </property>
+        <property name="midGain">
+            <value>-3</value>
+        </property>
+        <property name="highGain">
+            <value>4</value>
+        </property>
+        <property name="lowCrossover">
+            <value>320</value>
+        </property>
+        <property name="highCrossover">
+            <value>1000</value>
+        </property>
+    </object>
     <object class="MixerBusFader" id="{dc0751e2-096f-4823-9f26-8faaa8c3718d}"/>
+    <object class="SpatialiserEffect" id="{dde0530e-54ed-4a63-b854-87138e359307}">
+        <property name="maximumDistance">
+            <value>95</value>
+        </property>
+    </object>
 </objects>

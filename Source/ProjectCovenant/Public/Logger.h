@@ -21,6 +21,8 @@ public:
 	static void Log(FString msg);
 	static void Error(FString msg);
 	static void Warning(FString msg);
+	
+	// Sends a message to the standard LogTemp
 	static void Log(float msg);
 	static void Error(float msg);
 	static void Warning(float msg);

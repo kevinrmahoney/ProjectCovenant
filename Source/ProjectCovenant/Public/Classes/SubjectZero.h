@@ -39,6 +39,9 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Equip)
 	int Equipped = -1;
 
+	UPROPERTY(Replicated)
+	bool JetpackUsed = false;
+
 	UPROPERTY()
 	TArray<AHitscanWeapon*> Weapons;
 
@@ -117,6 +120,9 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetPitch(float NewPitch);
+
 	void JetpackBurst();
 
 	void ApplyAirResistance();
@@ -142,10 +148,6 @@ public:
 	virtual void Destroyed() override;
 
 	bool ReceiveDamageOverTime(float DamageAmount, bool Overlapped);
-
-	void AddDamageDealt(float DamageDealt);
-
-	void AddKill();
   
 	void IncreaseHealth(float amount);
 
@@ -204,11 +206,14 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetFuel() const;
 
+	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetDamageMultiplier() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
-
 	FName GetPlayerName() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool IsJetpackUsed() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackActive() const;
@@ -221,4 +226,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsAimingDownSights() const;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayJetpackSound();
 };

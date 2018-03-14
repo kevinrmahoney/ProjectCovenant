@@ -33,7 +33,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Ammo = 100.f;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(VisibleAnywhere, Replicated)
 	bool Trigger = false;
 
 	float TimeSinceLastShot = Cooldown;

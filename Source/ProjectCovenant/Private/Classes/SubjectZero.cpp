@@ -90,6 +90,8 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 	}
 
+	Camera->RelativeRotation.Pitch = RemoteViewPitch * 360.f / 255.f;
+
 	// Move characters/update trigger status/aim down sights
 	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
 	{
@@ -126,6 +128,7 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Crouching, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, AimDownSights, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, JetpackUsed, COND_SimulatedOnly)
 }
 
 void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
@@ -133,6 +136,10 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 	// Update if the character is grounded and its velocity
 	Grounded = !GetCharacterMovement()->IsFalling();
 	Velocity = GetVelocity();
+
+	JetpackUsed = false;
+
+	//Camera->RelativeRotation.Pitch = Client_Pitch;
 
 	if(IsLocallyControlled() || Role == ROLE_Authority)
 	{
@@ -198,6 +205,7 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 		}
 	}
 
+	PlayJetpackSound();
 	if(Crouching)
 	{
 		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
@@ -328,7 +336,11 @@ void ASubjectZero::JetpackBurst()
 		GetCharacterMovement()->Velocity += Force * Time;
 
 		float FuelUsed = FuelUsage * ((Movement.X != 0.f ? 1.f : 0.f) + (Movement.Y != 0.f ? 1.f : 0.f) + (Jumping ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
-		if(FuelUsed > 0.f) TimeSinceJetpack = 0.f;
+		if(FuelUsed > 0.f)
+		{
+			TimeSinceJetpack = 0.f;
+			JetpackUsed = true;
+		}
 		Fuel = FMath::Max(0.f, Fuel - (FuelUsed * Time));
 	}
 }
@@ -441,10 +453,16 @@ void ASubjectZero::DamageBoost(float BoostMultiplier, float BoostDuration)
 void ASubjectZero::SetPitch(float Set)
 {
 	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-	}
+}
+
+void ASubjectZero::Server_SetPitch_Implementation(float NewPitch)
+{
+	Camera->RelativeRotation.Pitch = NewPitch;
+}
+
+bool ASubjectZero::Server_SetPitch_Validate(float NewPitch)
+{
+	return true;
 }
 
 void ASubjectZero::SetCrouch(bool Set)
@@ -634,6 +652,7 @@ float ASubjectZero::GetMaxShield() const { return MaxShield; }
 float ASubjectZero::GetShield() const { return Shield; }
 float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
+bool ASubjectZero::IsJetpackUsed() const { return JetpackUsed; }
 bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
 bool ASubjectZero::IsCrouching() const { return Crouching; }

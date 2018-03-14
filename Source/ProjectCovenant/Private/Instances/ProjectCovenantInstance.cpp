@@ -28,7 +28,13 @@ FName UProjectCovenantInstance::GetProfileName()
 
 void UProjectCovenantInstance::Sensitivity(float Sens)
 {
-	cl_sensitivity = Sens;
+	SetSensitivity(Sens);
+	SaveConfig();
+}
+
+void UProjectCovenantInstance::Volume(float Vol)
+{
+	SetVolume(Vol);
 	SaveConfig();
 }
 
@@ -40,6 +46,19 @@ float UProjectCovenantInstance::GetSensitivity()
 bool UProjectCovenantInstance::SetSensitivity(float Sens)
 {
 	cl_sensitivity = Sens;
+	SaveConfig();
+	return true;
+}
+
+float UProjectCovenantInstance::GetVolume()
+{
+	return cl_volume;
+}
+
+bool UProjectCovenantInstance::SetVolume(float Vol)
+{
+	cl_volume = FMath::Clamp(Vol, MinVolume, MaxVolume);
+	Event_Volume(cl_volume);
 	SaveConfig();
 	return true;
 }
@@ -120,9 +139,4 @@ bool UProjectCovenantInstance::Kill()
 		SubjectZero->ReceiveDamage(9001.f);
 	}
 	return true;
-}
-
-bool UProjectCovenantInstance::Sudoku()
-{
-	return Kill();
 }
