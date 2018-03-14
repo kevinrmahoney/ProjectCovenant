@@ -20,7 +20,7 @@ public:
 	FVector Movement = FVector::ZeroVector;
 	bool Jumping = false;
 	bool Sprinting = false;
-	bool JetpackActive = false;
+	bool TryJetpack = false;
 	float DamageMultiplier = 1.f;
 	float DamageMultiplierDuration = 0.f;
 
@@ -115,18 +115,31 @@ public:
 	UCameraComponent* Camera;
 
 private:
-	void Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool AimDownSights);
+	UFUNCTION()
+	void Update();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights);
+	void ServerUpdate(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights);
+
+	UFUNCTION()
+	void Move();
+
+	UFUNCTION()
+	void Jetpack();
+
+	//UFUNCTION()
+	//void Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool AimDownSights);
+
+	//UFUNCTION(Server, Reliable, WithValidation)
+	//void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetPitch(float NewPitch);
 
-	void JetpackBurst();
-
+	UFUNCTION()
 	void ApplyAirResistance();
 
+	UFUNCTION()
 	void Equip(int Num);
 
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -134,6 +147,8 @@ private:
 
 	UFUNCTION()
 	void OnRep_Equip();
+
+	void CalculateMovement();
 
 protected:
 	virtual void BeginPlay() override;

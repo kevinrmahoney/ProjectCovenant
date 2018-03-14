@@ -56,58 +56,34 @@ void ASubjectZero::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
-	if(HasAuthority())
+	Update();
+	CalculateMovement();
+
+	if(Grounded)
 	{
-		if(TimeSinceTookDamage < ShieldRechargeTime)
+		if(Jumping)
 		{
-			TimeSinceTookDamage = TimeSinceTookDamage + DeltaTime;
+			Jump();
 		}
-		else if(Shield < MaxShield)
+		else
 		{
-			Shield = FMath::Min(Shield + 20.f * DeltaTime, MaxShield);
-		}
-	}
-
-	// Update damage boost
-	if(DamageMultiplierDuration > 0.f)
-	{
-		DamageMultiplierDuration = DamageMultiplierDuration - DeltaTime;
-		if(DamageMultiplierDuration <= 0.f)
-		{
-			DamageMultiplier = 1.f;
-		}
-	}
-
-	// Update if the character is grounded and its velocity, and update jetpack status
-	if(IsLocallyControlled())
-	{
-		Grounded = !GetCharacterMovement()->IsFalling();
-		Velocity = GetVelocity();
-
-		if(Grounded || AimDownSights)
-		{
-			JetpackActive = false;
-		}
-	}
-
-	Camera->RelativeRotation.Pitch = RemoteViewPitch * 360.f / 255.f;
-
-	// Move characters/update trigger status/aim down sights
-	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
-	{
-		Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-		// Add passive fuel if its been long enough
-		TimeSinceJetpack += DeltaTime;
-
-		if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
-		{
-			Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 1.5f * DeltaTime));
+			Move();
 		}
 	}
 	else
 	{
-		Move(FVector::ZeroVector, false, false, Crouching, false, IsTriggerPulled, 0.f, AimDownSights);
+		if(TryJetpack && Fuel > 0.f && Movement != FVector::ZeroVector)
+		{
+			Jetpack();
+		}
+		else
+		{
+			Move();
+		}
+		ApplyAirResistance();
 	}
+
+	//Camera->RelativeRotation.Pitch = RemoteViewPitch * 360.f / 255.f;
 }
 
 void ASubjectZero::BeginDestroy() 
@@ -131,129 +107,114 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME_CONDITION(ASubjectZero, JetpackUsed, COND_SimulatedOnly)
 }
 
-void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
+void ASubjectZero::Move()
 {
-	// Update if the character is grounded and its velocity
-	Grounded = !GetCharacterMovement()->IsFalling();
-	Velocity = GetVelocity();
 
-	JetpackUsed = false;
-
-	//Camera->RelativeRotation.Pitch = Client_Pitch;
-
-	if(IsLocallyControlled() || Role == ROLE_Authority)
+	// Update movement speeds depending on the character's stance
+	if(Sprinting && !Crouching)
 	{
-		if(Controller)
-		{
-			if(Grounded)
-			{
-				if(Jumping)
-				{
-					Jump();
-				}
-				else
-				{
-					// Update movement speeds depending on the character's stance
-					if(Sprinting && !Crouching)
-					{
-						GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
-					}
-					else if(Sprinting && Crouching)
-					{
-						GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
-					}
-					else if(!Sprinting && Crouching)
-					{
-						GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
-					}
-					else
-					{
-						GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
-					}
-
-					if(AimDownSights)
-					{
-						GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
-					}
-				}
-				// Move the character on the ground
-				FRotator Rotation = Controller->GetControlRotation();
-				Rotation.Pitch = 0;
-
-				Movement.Z = 0.f;
-				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-			}
-			else
-			{
-				// Jetpack can only be activated if it has enough fuel
-				if(JetpackActive && Fuel > 0.f)
-				{
-					JetpackBurst();
-				}
-				// Strafe in the air
-				else
-				{
-					FRotator Rotation = Controller->GetControlRotation();
-					Rotation.Pitch = 0;
-
-					Movement.Z = 0.f;
-					AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), NormalAirControl);
-				}
-				// Apply the force of the air if midair
-				ApplyAirResistance();
-			}
-		}
+		GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
 	}
-
-	PlayJetpackSound();
-	if(Crouching)
+	else if(Sprinting && Crouching)
 	{
-		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		Camera->SetRelativeLocation(FVector(0.f, 0, CrouchingHeight));
-		GetCapsuleComponent()->SetCapsuleHalfHeight(66.f);
-		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -66.f));
+		GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
+	}
+	else if(!Sprinting && Crouching)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
 	}
 	else
 	{
-		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		Camera->SetRelativeLocation(FVector(0.f, 0, StandingHeight));
-		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
-		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
+		GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
 	}
 
-	// Set the trigger as pulled or not pulled
-	if(Weapon)
+	if(AimDownSights)
 	{
-		Weapon->SetTrigger(IsTriggerPulled);
-		if(FirstPersonMesh)
+		GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
+	}
+
+	// Only move the character if you are locally controlling it (AddMovementInput takes care of networking)
+	if(IsLocallyControlled())
+	{
+		// Move the character on the ground
+		FVector GroundMove = Movement;
+		FRotator Rotation = Controller->GetControlRotation();
+		Rotation.Pitch = 0;
+		GroundMove.Z = 0.f;
+
+		if(Grounded)
 		{
-			if(AimDownSights)
+			AddMovementInput(Rotation.RotateVector(GroundMove.GetSafeNormal()), 1.f);
+		}
+		else
+		{
+			AddMovementInput(Rotation.RotateVector(GroundMove.GetSafeNormal()), NormalAirControl);
+		}
+	}
+}
+
+void ASubjectZero::Update()
+{
+	Grounded = !GetCharacterMovement()->IsFalling();
+	Velocity = GetVelocity();
+
+	if(Role == ROLE_AutonomousProxy)
+	{
+		ServerUpdate(Forward, Backward, Left, Right, Sprinting, Crouching, TryJetpack, IsTriggerPulled, AimDownSights);
+	}
+
+	TryJetpack = TryJetpack && !Grounded && !AimDownSights;
+
+	if(Role == ROLE_Authority)
+	{
+		// Update time-sensitive states
+		if(HasAuthority())
+		{
+			// Shield recharge
+			if(TimeSinceTookDamage < ShieldRechargeTime)
 			{
-				FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
-				FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
+				TimeSinceTookDamage = TimeSinceTookDamage + Time;
 			}
-			else
+			else if(Shield < MaxShield)
 			{
-				FirstPersonMesh->SetRelativeLocation(Weapon->GetHipFireLocation());
-				FirstPersonMesh->SetRelativeRotation(Weapon->GetHipFireRotation());
+				Shield = FMath::Min(Shield + 20.f * Time, MaxShield);
+			}
+
+			// Damage boost
+			if(DamageMultiplierDuration > 0.f)
+			{
+				DamageMultiplierDuration = DamageMultiplierDuration - Time;
+				if(DamageMultiplierDuration <= 0.f)
+				{
+					DamageMultiplier = 1.f;
+				}
+			}
+
+			// Jetpack
+			TimeSinceJetpack += Time;
+			if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
+			{
+				Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 1.5f * Time));
 			}
 		}
 	}
 }
 
-void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
+void ASubjectZero::ServerUpdate_Implementation(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights)
 {
-	Movement = Client_Movement;
-	Jumping = Client_Jump;
-	Sprinting = Client_Sprinting;
-	Crouching = Client_Crouching;
-	JetpackActive = Client_Jetpack;
-	IsTriggerPulled = Client_Shooting;
-	Camera->RelativeRotation.Pitch = Client_Pitch;
-	AimDownSights = Client_AimDownSights;
+	Forward = NewForward;
+	Backward = NewBackward;
+	Left = NewLeft;
+	Right = NewRight;
+	Sprinting = NewSprinting;
+	Crouching = NewCrouching;
+	TryJetpack = NewTryJetpack;
+	IsTriggerPulled = NewShooting;
+	AimDownSights = NewAimDownSights;
+	Logger::Chat("Server Updated!");
 }
 
-bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
+bool ASubjectZero::ServerUpdate_Validate(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights)
 {
 	return true;
 }
@@ -320,9 +281,9 @@ bool ASubjectZero::Server_Equip_Validate(int Num)
 	return true;
 }
 
-void ASubjectZero::JetpackBurst()
+void ASubjectZero::Jetpack()
 {
-	if(Controller)
+	if(Fuel > 0.f)
 	{
 		FRotator Rotation = Controller->GetControlRotation();
 		Rotation.Pitch = 0;
@@ -330,28 +291,35 @@ void ASubjectZero::JetpackBurst()
 		FVector RotatedMovement = Rotation.RotateVector(Movement);
 
 		// Create a vector that represents the movement of the character within the world
-		FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, Jumping ? JetpackAcceleration : 0.f);
+		FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
 		Force = Force * (Sprinting ? 2.f : 1.f);
+		Force = Force * Time;
 
-		GetCharacterMovement()->Velocity += Force * Time;
+		GetCharacterMovement()->Velocity += Force;
 
-		float FuelUsed = FuelUsage * ((Movement.X != 0.f ? 1.f : 0.f) + (Movement.Y != 0.f ? 1.f : 0.f) + (Jumping ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
+		float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
 		if(FuelUsed > 0.f)
 		{
 			TimeSinceJetpack = 0.f;
 			JetpackUsed = true;
 		}
-		Fuel = FMath::Max(0.f, Fuel - (FuelUsed * Time));
+
+		if(Role == ROLE_Authority)
+		{
+			Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+		}
 	}
 }
 
 void ASubjectZero::ApplyAirResistance()
 {
-	FVector Force;
-	float Magnitude = Velocity.Size();
-	FVector Direction = -1.f * Velocity.GetSafeNormal();
-	Force = Direction * (Magnitude * Magnitude) * AirResistanceConstant;
-	GetCharacterMovement()->Velocity += Force * Time;
+	if(Controller)
+	{
+		float Magnitude = Velocity.Size();
+		FVector Direction = Velocity.GetSafeNormal();
+		FVector Force = -1.f * Direction * (Magnitude * Magnitude) * AirResistanceConstant * Time;
+		GetCharacterMovement()->Velocity += Force;
+	}
 }
 
 bool ASubjectZero::ReceiveDamage(float Dmg)
@@ -468,138 +436,51 @@ bool ASubjectZero::Server_SetPitch_Validate(float NewPitch)
 void ASubjectZero::SetCrouch(bool Set)
 {
 	Crouching = Set;
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-	}
 }
 
 void ASubjectZero::SetSprint(bool Set)
 {
 	Sprinting = Set;
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-	}
 }
 
 void ASubjectZero::SetJump(bool Set)
 {
 	Jumping = Set;
+	Movement.Z = Jumping;
 	if(!Grounded && Jumping)
 	{
-		JetpackActive = true;
-	}
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
+		TryJetpack = true;
 	}
 }
 
 void ASubjectZero::SetMoveLeft(bool Set)
 {
 	Left = Set;
-	// Process left/right movement
-	if(Left && !Right)
-	{
-		Movement.Y = -1.f;
-	}
-	else if(Right && !Left)
-	{
-		Movement.Y = 1.f;
-	}
-	else
-	{
-		Movement.Y = 0.f;
-	}
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-	}
 }
 
 void ASubjectZero::SetMoveRight(bool Set)
 {
 	Right = Set;
-	// Process left/right movement
-	if(Left && !Right)
-	{
-		Movement.Y = -1.f;
-	}
-	else if(Right && !Left)
-	{
-		Movement.Y = 1.f;
-	}
-	else
-	{
-		Movement.Y = 0.f;
-	}
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-	}
 }
 
 void ASubjectZero::SetMoveForward(bool Set)
 {
 	Forward = Set;
-	// Process forward/backward movement
-	if(Backward && !Forward)
-	{
-		Movement.X = -1.f;
-	}
-	else if(Forward && !Backward)
-	{
-		Movement.X = 1.f;
-	}
-	else
-	{
-		Movement.X = 0.f;
-	}
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-	}
 }
 
 void ASubjectZero::SetMoveBackward(bool Set)
 {
 	Backward = Set;
-	// Process forward/backward movement
-	if(Backward && !Forward)
-	{
-		Movement.X = -1.f;
-	}
-	else if(Forward && !Backward)
-	{
-		Movement.X = 1.f;
-	}
-	else
-	{
-		Movement.X = 0.f;
-	}
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-	}
 }
 
 void ASubjectZero::SetFire(bool Set)
 {
 	IsTriggerPulled = Set;
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-	}
 }
 
 void ASubjectZero::SetSecondaryFire(bool Set)
 {
 	AimDownSights = Set;
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-	}
 }
 
 void ASubjectZero::SetUse(bool Set)
@@ -640,6 +521,39 @@ void ASubjectZero::Slot3()
 
 }
 
+void ASubjectZero::CalculateMovement()
+{
+	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
+	{
+		if(Backward && !Forward)
+		{
+			Movement.X = -1.f;
+		}
+		else if(Forward && !Backward)
+		{
+			Movement.X = 1.f;
+		}
+		else
+		{
+			Movement.X = 0.f;
+		}
+
+		if(Left && !Right)
+		{
+			Movement.Y = -1.f;
+		}
+		else if(Right && !Left)
+		{
+			Movement.Y = 1.f;
+		}
+		else
+		{
+			Movement.Y = 0.f;
+		}
+	}
+	Movement.Z = Jumping;
+}
+
 // Getters
 float ASubjectZero::GetDamageMultiplier() const { return DamageMultiplier; }
 float ASubjectZero::GetSpeed() const { return GetVelocity().Size()/100.f; }
@@ -653,7 +567,7 @@ float ASubjectZero::GetShield() const { return Shield; }
 float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
 bool ASubjectZero::IsJetpackUsed() const { return JetpackUsed; }
-bool ASubjectZero::IsJetpackActive() const { return JetpackActive; }
+bool ASubjectZero::IsJetpackActive() const { return TryJetpack; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
 bool ASubjectZero::IsCrouching() const { return Crouching; }
 bool ASubjectZero::IsAimingDownSights() const { return AimDownSights; }
@@ -670,3 +584,131 @@ FName ASubjectZero::GetPlayerName() const {
 	}
 	return Name;
 }
+
+
+//void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
+//{
+//	// Update if the character is grounded and its velocity
+//	Grounded = !GetCharacterMovement()->IsFalling();
+//	Velocity = GetVelocity();
+//
+//	JetpackUsed = false;
+//
+//	//Camera->RelativeRotation.Pitch = Client_Pitch;
+//
+//	if(IsLocallyControlled() || Role == ROLE_Authority)
+//	{
+//		if(Controller)
+//		{
+//			if(Grounded)
+//			{
+//				if(Jumping)
+//				{
+//					Jump();
+//				}
+//				else
+//				{
+//					// Update movement speeds depending on the character's stance
+//					if(Sprinting && !Crouching)
+//					{
+//						GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
+//					}
+//					else if(Sprinting && Crouching)
+//					{
+//						GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
+//					}
+//					else if(!Sprinting && Crouching)
+//					{
+//						GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
+//					}
+//					else
+//					{
+//						GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
+//					}
+//
+//					if(AimDownSights)
+//					{
+//						GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
+//					}
+//				}
+//				// Move the character on the ground
+//				FRotator Rotation = Controller->GetControlRotation();
+//				Rotation.Pitch = 0;
+//
+//				Movement.Z = 0.f;
+//				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
+//			}
+//			else
+//			{
+//				// Jetpack can only be activated if it has enough fuel
+//				if(TryJetpack && Fuel > 0.f)
+//				{
+//					Jetpack();
+//				}
+//				// Strafe in the air
+//				else
+//				{
+//					FRotator Rotation = Controller->GetControlRotation();
+//					Rotation.Pitch = 0;
+//
+//					Movement.Z = 0.f;
+//					AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), NormalAirControl);
+//				}
+//				// Apply the force of the air if midair
+//				ApplyAirResistance();
+//			}
+//		}
+//	}
+//
+//	PlayJetpackSound();
+//	if(Crouching)
+//	{
+//		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+//		Camera->SetRelativeLocation(FVector(0.f, 0, CrouchingHeight));
+//		GetCapsuleComponent()->SetCapsuleHalfHeight(66.f);
+//		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -66.f));
+//	}
+//	else
+//	{
+//		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+//		Camera->SetRelativeLocation(FVector(0.f, 0, StandingHeight));
+//		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
+//		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
+//	}
+//
+//	// Set the trigger as pulled or not pulled
+//	if(Weapon)
+//	{
+//		Weapon->SetTrigger(IsTriggerPulled);
+//		if(FirstPersonMesh)
+//		{
+//			if(AimDownSights)
+//			{
+//				FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
+//				FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
+//			}
+//			else
+//			{
+//				FirstPersonMesh->SetRelativeLocation(Weapon->GetHipFireLocation());
+//				FirstPersonMesh->SetRelativeRotation(Weapon->GetHipFireRotation());
+//			}
+//		}
+//	}
+//}
+//
+//void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
+//{
+//	Movement = Client_Movement;
+//	Jumping = Client_Jump;
+//	Sprinting = Client_Sprinting;
+//	Crouching = Client_Crouching;
+//	TryJetpack = Client_Jetpack;
+//	IsTriggerPulled = Client_Shooting;
+//	Camera->RelativeRotation.Pitch = Client_Pitch;
+//	AimDownSights = Client_AimDownSights;
+//}
+
+//bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
+//{
+//	return true;
+//}
