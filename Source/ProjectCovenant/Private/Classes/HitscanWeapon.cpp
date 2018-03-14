@@ -50,6 +50,7 @@ void AHitscanWeapon::Tick(float DeltaTime)
 	{
 		Shoot();
 	}
+	PlayShootSound();
 }
 
 void AHitscanWeapon::SetShooter(ASubjectZero * NewShooter)
