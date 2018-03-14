@@ -79,9 +79,16 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 {
 	// Multiply raw damage by multiplier
 	Damage = Damage * Shooter->GetDamageMultiplier();
+	bool Killed = false;
 
 	// Deal damage to the victim, returns if the player was killed by the damage
-	bool Killed = Victim->ReceiveDamage(Damage);
+	if(AHumanController * VictimController = Cast<AHumanController>(Victim->GetController()))
+	{
+		if(VictimController && VictimController->GodMode == false)
+		{
+			Killed = Victim->ReceiveDamage(Damage);
+		}
+	}
 
 	// Log the damage and if the player was killed by it
 	Logger::Log(Shooter->GetPlayerName().ToString() + " has dealt " + FString::SanitizeFloat(Damage) + " to " + Victim->GetPlayerName().ToString() + " using " + Weapon->GetName());
