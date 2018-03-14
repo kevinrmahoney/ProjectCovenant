@@ -119,7 +119,7 @@ private:
 	void Update();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerUpdate(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights);
+	void ServerUpdate(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewJumping, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights);
 
 	UFUNCTION()
 	void Move();

@@ -74,6 +74,7 @@ void ASubjectZero::Tick(float DeltaTime)
 	{
 		if(TryJetpack && Fuel > 0.f && Movement != FVector::ZeroVector)
 		{
+			Movement.Z = Jumping;
 			Jetpack();
 		}
 		else
@@ -158,12 +159,12 @@ void ASubjectZero::Update()
 	Grounded = !GetCharacterMovement()->IsFalling();
 	Velocity = GetVelocity();
 
+	TryJetpack = TryJetpack && !Grounded && !AimDownSights;
+
 	if(Role == ROLE_AutonomousProxy)
 	{
-		ServerUpdate(Forward, Backward, Left, Right, Sprinting, Crouching, TryJetpack, IsTriggerPulled, AimDownSights);
+		ServerUpdate(Forward, Backward, Left, Right, Jumping, Sprinting, Crouching, TryJetpack, IsTriggerPulled, AimDownSights);
 	}
-
-	TryJetpack = TryJetpack && !Grounded && !AimDownSights;
 
 	if(Role == ROLE_Authority)
 	{
@@ -200,21 +201,21 @@ void ASubjectZero::Update()
 	}
 }
 
-void ASubjectZero::ServerUpdate_Implementation(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights)
+void ASubjectZero::ServerUpdate_Implementation(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewJumping, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights)
 {
 	Forward = NewForward;
 	Backward = NewBackward;
 	Left = NewLeft;
 	Right = NewRight;
+	Jumping = NewJumping;
 	Sprinting = NewSprinting;
 	Crouching = NewCrouching;
 	TryJetpack = NewTryJetpack;
 	IsTriggerPulled = NewShooting;
 	AimDownSights = NewAimDownSights;
-	Logger::Chat("Server Updated!");
 }
 
-bool ASubjectZero::ServerUpdate_Validate(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights)
+bool ASubjectZero::ServerUpdate_Validate(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewJumping, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights)
 {
 	return true;
 }
@@ -298,6 +299,7 @@ void ASubjectZero::Jetpack()
 		GetCharacterMovement()->Velocity += Force;
 
 		float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
+		
 		if(FuelUsed > 0.f)
 		{
 			TimeSinceJetpack = 0.f;
@@ -446,7 +448,6 @@ void ASubjectZero::SetSprint(bool Set)
 void ASubjectZero::SetJump(bool Set)
 {
 	Jumping = Set;
-	Movement.Z = Jumping;
 	if(!Grounded && Jumping)
 	{
 		TryJetpack = true;
@@ -550,8 +551,8 @@ void ASubjectZero::CalculateMovement()
 		{
 			Movement.Y = 0.f;
 		}
+		Movement.Z = Jumping ? 1.f : 0.f;
 	}
-	Movement.Z = Jumping;
 }
 
 // Getters
