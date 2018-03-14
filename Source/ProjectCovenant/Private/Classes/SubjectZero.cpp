@@ -90,6 +90,8 @@ void ASubjectZero::Tick(float DeltaTime)
 		}
 	}
 
+	Camera->RelativeRotation.Pitch = RemoteViewPitch * 360.f / 255.f;
+
 	// Move characters/update trigger status/aim down sights
 	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
 	{
@@ -136,6 +138,8 @@ void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_S
 	Velocity = GetVelocity();
 
 	JetpackUsed = false;
+
+	//Camera->RelativeRotation.Pitch = Client_Pitch;
 
 	if(IsLocallyControlled() || Role == ROLE_Authority)
 	{
@@ -451,10 +455,16 @@ void ASubjectZero::DamageBoost(float BoostMultiplier, float BoostDuration)
 void ASubjectZero::SetPitch(float Set)
 {
 	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Move(Movement, Jumping, Sprinting, Crouching, JetpackActive, IsTriggerPulled, Controller->GetControlRotation().Pitch, AimDownSights);
-	}
+}
+
+void ASubjectZero::Server_SetPitch_Implementation(float NewPitch)
+{
+	Camera->RelativeRotation.Pitch = NewPitch;
+}
+
+bool ASubjectZero::Server_SetPitch_Validate(float NewPitch)
+{
+	return true;
 }
 
 void ASubjectZero::SetCrouch(bool Set)

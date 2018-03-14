@@ -120,6 +120,9 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SetPitch(float NewPitch);
+
 	void JetpackBurst();
 
 	void ApplyAirResistance();
