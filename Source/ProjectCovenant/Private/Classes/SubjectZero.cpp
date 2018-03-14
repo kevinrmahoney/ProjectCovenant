@@ -84,7 +84,40 @@ void ASubjectZero::Tick(float DeltaTime)
 		ApplyAirResistance();
 	}
 
-	//Camera->RelativeRotation.Pitch = RemoteViewPitch * 360.f / 255.f;
+	PlayJetpackSound();
+	if(Crouching)
+	{
+		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		Camera->SetRelativeLocation(FVector(0.f, 0, CrouchingHeight));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(66.f);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -66.f));
+	}
+	else
+	{
+		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		Camera->SetRelativeLocation(FVector(0.f, 0, StandingHeight));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
+	}
+	
+	// Set the trigger as pulled or not pulled
+	if(Weapon)
+	{
+		Weapon->SetTrigger(IsTriggerPulled);
+		if(FirstPersonMesh)
+		{
+			if(AimDownSights)
+			{
+				FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
+				FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
+			}
+			else
+			{
+				FirstPersonMesh->SetRelativeLocation(Weapon->GetHipFireLocation());
+				FirstPersonMesh->SetRelativeRotation(Weapon->GetHipFireRotation());
+			}
+		}
+	}
 }
 
 void ASubjectZero::BeginDestroy() 
@@ -110,7 +143,6 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 
 void ASubjectZero::Move()
 {
-
 	// Update movement speeds depending on the character's stance
 	if(Sprinting && !Crouching)
 	{
@@ -158,46 +190,41 @@ void ASubjectZero::Update()
 {
 	Grounded = !GetCharacterMovement()->IsFalling();
 	Velocity = GetVelocity();
+	JetpackUsed = false;
 
 	TryJetpack = TryJetpack && !Grounded && !AimDownSights;
-
-	if(Role == ROLE_AutonomousProxy)
-	{
-		ServerUpdate(Forward, Backward, Left, Right, Jumping, Sprinting, Crouching, TryJetpack, IsTriggerPulled, AimDownSights);
-	}
 
 	if(Role == ROLE_Authority)
 	{
 		// Update time-sensitive states
-		if(HasAuthority())
+		// Shield recharge
+		if(TimeSinceTookDamage < ShieldRechargeTime)
 		{
-			// Shield recharge
-			if(TimeSinceTookDamage < ShieldRechargeTime)
-			{
-				TimeSinceTookDamage = TimeSinceTookDamage + Time;
-			}
-			else if(Shield < MaxShield)
-			{
-				Shield = FMath::Min(Shield + 20.f * Time, MaxShield);
-			}
+			TimeSinceTookDamage = TimeSinceTookDamage + Time;
+		}
+		else if(Shield < MaxShield)
+		{
+			Shield = FMath::Min(Shield + 20.f * Time, MaxShield);
+		}
 
-			// Damage boost
-			if(DamageMultiplierDuration > 0.f)
+		// Damage boost
+		if(DamageMultiplierDuration > 0.f)
+		{
+			DamageMultiplierDuration = DamageMultiplierDuration - Time;
+			if(DamageMultiplierDuration <= 0.f)
 			{
-				DamageMultiplierDuration = DamageMultiplierDuration - Time;
-				if(DamageMultiplierDuration <= 0.f)
-				{
-					DamageMultiplier = 1.f;
-				}
-			}
-
-			// Jetpack
-			TimeSinceJetpack += Time;
-			if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
-			{
-				Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 1.5f * Time));
+				DamageMultiplier = 1.f;
 			}
 		}
+
+		// Jetpack
+		TimeSinceJetpack += Time;
+		if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
+		{
+			Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 1.5f * Time));
+		}
+
+		Pitch = GetController()->GetControlRotation().Pitch;
 	}
 }
 
@@ -284,38 +311,41 @@ bool ASubjectZero::Server_Equip_Validate(int Num)
 
 void ASubjectZero::Jetpack()
 {
-	if(Fuel > 0.f)
+	if(IsLocallyControlled() || Role == ROLE_Authority)
 	{
-		FRotator Rotation = Controller->GetControlRotation();
-		Rotation.Pitch = 0;
-
-		FVector RotatedMovement = Rotation.RotateVector(Movement);
-
-		// Create a vector that represents the movement of the character within the world
-		FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
-		Force = Force * (Sprinting ? 2.f : 1.f);
-		Force = Force * Time;
-
-		GetCharacterMovement()->Velocity += Force;
-
-		float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
-		
-		if(FuelUsed > 0.f)
+		if(Fuel > 0.f)
 		{
-			TimeSinceJetpack = 0.f;
-			JetpackUsed = true;
-		}
+			FRotator Rotation = Controller->GetControlRotation();
+			Rotation.Pitch = 0;
 
-		if(Role == ROLE_Authority)
-		{
-			Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+			FVector RotatedMovement = Rotation.RotateVector(Movement);
+
+			// Create a vector that represents the movement of the character within the world
+			FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
+			Force = Force * (Sprinting ? 2.f : 1.f);
+			Force = Force * Time;
+
+			GetCharacterMovement()->Velocity += Force;
+
+			float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
+
+			if(FuelUsed > 0.f)
+			{
+				TimeSinceJetpack = 0.f;
+				JetpackUsed = true;
+			}
+
+			if(Role == ROLE_Authority)
+			{
+				Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+			}
 		}
 	}
 }
 
 void ASubjectZero::ApplyAirResistance()
 {
-	if(Controller)
+	if(IsLocallyControlled() || Role == ROLE_Authority)
 	{
 		float Magnitude = Velocity.Size();
 		FVector Direction = Velocity.GetSafeNormal();
@@ -397,11 +427,6 @@ void ASubjectZero::Destroyed()
 	Super::Destroyed();
 }
 
-void ASubjectZero::SetYaw(float Set)
-{
-	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set);
-}
-
 void ASubjectZero::IncreaseHealth(float amount) {
 	Health = FMath::Min(Health + MaxHealth * amount, MaxHealth);
 }
@@ -420,33 +445,87 @@ void ASubjectZero::DamageBoost(float BoostMultiplier, float BoostDuration)
 	DamageMultiplierDuration = BoostDuration;
 }
 
+void ASubjectZero::SetYaw(float Set)
+{
+	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set);
+}
+
+void ASubjectZero::ServerSetYaw_Implementation(float Set)
+{
+
+}
+
+bool ASubjectZero::ServerSetYaw_Validate(float Set)
+{
+	return true;
+}
+
 void ASubjectZero::SetPitch(float Set)
 {
 	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		//ServerSetPitch(Controller->GetControlRotation().Pitch);
+	}
 }
 
-void ASubjectZero::Server_SetPitch_Implementation(float NewPitch)
+void ASubjectZero::ServerSetPitch_Implementation(float NewPitch)
 {
-	Camera->RelativeRotation.Pitch = NewPitch;
+	FRotator NewRotation = Controller->GetControlRotation();
+	NewRotation.Pitch = NewPitch;
+	Controller->SetControlRotation(NewRotation);
+	Pitch = NewPitch;
 }
 
-bool ASubjectZero::Server_SetPitch_Validate(float NewPitch)
+bool ASubjectZero::ServerSetPitch_Validate(float NewPitch)
 {
 	return true;
 }
 
 void ASubjectZero::SetCrouch(bool Set)
 {
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetCrouch(Set);
+	}
 	Crouching = Set;
+}
+
+void ASubjectZero::ServerSetCrouch_Implementation(bool Set)
+{
+	SetCrouch(Set);
+}
+
+bool ASubjectZero::ServerSetCrouch_Validate(bool Set)
+{
+	return true;
 }
 
 void ASubjectZero::SetSprint(bool Set)
 {
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetSprint(Set);
+	}
 	Sprinting = Set;
+}
+
+void ASubjectZero::ServerSetSprint_Implementation(bool Set)
+{
+	SetSprint(Set);
+}
+
+bool ASubjectZero::ServerSetSprint_Validate(bool Set)
+{
+	return true;
 }
 
 void ASubjectZero::SetJump(bool Set)
 {
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetJump(Set);
+	}
 	Jumping = Set;
 	if(!Grounded && Jumping)
 	{
@@ -454,39 +533,143 @@ void ASubjectZero::SetJump(bool Set)
 	}
 }
 
+void ASubjectZero::ServerSetJump_Implementation(bool Set)
+{
+	SetJump(Set);
+}
+
+bool ASubjectZero::ServerSetJump_Validate(bool Set)
+{
+	return true;
+}
+
 void ASubjectZero::SetMoveLeft(bool Set)
 {
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetMoveLeft(Set);
+	}
 	Left = Set;
+}
+
+void ASubjectZero::ServerSetMoveLeft_Implementation(bool Set)
+{
+	SetMoveLeft(Set);
+}
+
+bool ASubjectZero::ServerSetMoveLeft_Validate(bool Set)
+{
+	return true;
 }
 
 void ASubjectZero::SetMoveRight(bool Set)
 {
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetMoveRight(Set);
+	}
 	Right = Set;
+}
+
+void ASubjectZero::ServerSetMoveRight_Implementation(bool Set)
+{
+	SetMoveRight(Set);
+}
+
+bool ASubjectZero::ServerSetMoveRight_Validate(bool Set)
+{
+	return true;
 }
 
 void ASubjectZero::SetMoveForward(bool Set)
 {
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetMoveForward(Set);
+	}
 	Forward = Set;
+}
+
+void ASubjectZero::ServerSetMoveForward_Implementation(bool Set)
+{
+	SetMoveForward(Set);
+}
+
+bool ASubjectZero::ServerSetMoveForward_Validate(bool Set)
+{
+	return true;
 }
 
 void ASubjectZero::SetMoveBackward(bool Set)
 {
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetMoveBackward(Set);
+	}
 	Backward = Set;
+}
+
+void ASubjectZero::ServerSetMoveBackward_Implementation(bool Set)
+{
+	SetMoveBackward(Set);
+}
+
+bool ASubjectZero::ServerSetMoveBackward_Validate(bool Set)
+{
+	return true;
 }
 
 void ASubjectZero::SetFire(bool Set)
 {
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetFire(Set);
+	}
 	IsTriggerPulled = Set;
+}
+
+void ASubjectZero::ServerSetFire_Implementation(bool Set)
+{
+	SetFire(Set);
+}
+
+bool ASubjectZero::ServerSetFire_Validate(bool Set)
+{
+	return true;
 }
 
 void ASubjectZero::SetSecondaryFire(bool Set)
 {
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetSecondaryFire(Set);
+	}
 	AimDownSights = Set;
+}
+
+void ASubjectZero::ServerSetSecondaryFire_Implementation(bool Set)
+{
+	SetSecondaryFire(Set);
+}
+
+bool ASubjectZero::ServerSetSecondaryFire_Validate(bool Set)
+{
+	return true;
 }
 
 void ASubjectZero::SetUse(bool Set)
 {
 
+}
+
+void ASubjectZero::ServerSetUse_Implementation(bool Set)
+{
+	SetUse(Set);
+}
+
+bool ASubjectZero::ServerSetUse_Validate(bool Set)
+{
+	return true;
 }
 
 void ASubjectZero::Slot0()
@@ -567,6 +750,7 @@ float ASubjectZero::GetMaxShield() const { return MaxShield; }
 float ASubjectZero::GetShield() const { return Shield; }
 float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
+float ASubjectZero::GetPitch() const { return Pitch; }
 bool ASubjectZero::IsJetpackUsed() const { return JetpackUsed; }
 bool ASubjectZero::IsJetpackActive() const { return TryJetpack; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
