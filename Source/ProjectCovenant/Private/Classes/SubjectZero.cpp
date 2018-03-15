@@ -134,6 +134,7 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Armor)
 	DOREPLIFETIME(ASubjectZero, Shield)
 	DOREPLIFETIME(ASubjectZero, Fuel)
+	DOREPLIFETIME_CONDITION(ASubjectZero, Pitch, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Equipped, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Crouching, COND_SimulatedOnly)
@@ -194,6 +195,12 @@ void ASubjectZero::Update()
 
 	TryJetpack = TryJetpack && !Grounded && !AimDownSights;
 
+	// Update pitch from controller
+	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
+	{
+		Pitch = GetController()->GetControlRotation().Pitch;
+	}
+
 	if(Role == ROLE_Authority)
 	{
 		// Update time-sensitive states
@@ -224,7 +231,10 @@ void ASubjectZero::Update()
 			Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 1.5f * Time));
 		}
 
-		Pitch = GetController()->GetControlRotation().Pitch;
+		// Update pitch of camera (which is the anchor of equipped weapon)
+		FRotator NewRotation = Camera->RelativeRotation;
+		NewRotation.Pitch = Pitch;
+		Camera->SetRelativeRotation(NewRotation);
 	}
 }
 
