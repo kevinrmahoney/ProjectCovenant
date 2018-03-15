@@ -35,19 +35,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void Update() override;
+
+	virtual void ConstructShotVectors() override;
+
 	void SetTrigger(bool T);
 
 	void SetShooter(ASubjectZero * NewShooter);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayShootSound();
 
 protected:
 	void Shoot() override;
 
 	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
-
-	void DrawLaser() override;
 
 	virtual FVector GetAimDownSightsLocation() override;
 

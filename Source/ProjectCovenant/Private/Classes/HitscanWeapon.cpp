@@ -37,19 +37,39 @@ void AHitscanWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutL
 void AHitscanWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+	ConstructShotVectors();
 }
 
 // Called every frame
 void AHitscanWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	TimeSinceLastShot = FMath::Min(TimeSinceLastShot + DeltaTime, Cooldown);
+	TimeSinceLastShot += DeltaTime;
+	Update();
+}
 
+void AHitscanWeapon::Update()
+{
+	// If the trigger is pulled
 	if(Trigger)
 	{
-		Shoot();
+		// If the cooldown has passed
+		if(TimeSinceLastShot > Cooldown)
+		{
+			// Shoot the weapon
+			Shoot();
+
+			// Subtract the cooldown from the time passed since the last shot.
+			// make sure the outcome does not go above value of Cooldown
+			TimeSinceLastShot = 0.f;
+		}
 	}
-	BeamVisibility(Trigger);
+	DrawVisuals();
+}
+
+void AHitscanWeapon::ConstructShotVectors()
+{
+	ShotVectors.Add(FVector(Range, 0.f, 0.f));
 }
 
 void AHitscanWeapon::SetShooter(ASubjectZero * NewShooter)
@@ -64,23 +84,18 @@ void AHitscanWeapon::SetTrigger(bool T)
 
 void AHitscanWeapon::Shoot()
 {
-	bool DoDamage = false;
-	while(TimeSinceLastShot >= Cooldown)
-	{
-		TimeSinceLastShot = TimeSinceLastShot - Cooldown;
-		DoDamage = true;
-	}
-
+	//DrawDebugVisuals(); TODO: enable with console command
 	PlayShootSound();
 
-	if(DoDamage)
+	if(HasAuthority())
 	{
-		DrawLaser();
-		if(HasAuthority())
+		ASubjectZero * Victim = nullptr;
+
+		//for loop for radius of circle and nested for loop for roll
+		for(FVector Shot : ShotVectors)
 		{
 			FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());
-			FVector ForwardVector = Muzzle->GetForwardVector();
-			FVector * EndTrace = new FVector(*StartTrace + (ForwardVector * Range));
+			FVector * EndTrace = new FVector(*StartTrace + FVector(Muzzle->GetComponentRotation().RotateVector(Shot)));
 			FHitResult* HitResult = new FHitResult();
 			FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
 			TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
@@ -88,15 +103,13 @@ void AHitscanWeapon::Shoot()
 			// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
 			if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *EndTrace, ECC_Pawn, *TraceParams) && HitResult && HitResult->GetActor())
 			{
-				// Calculate the end of the trace (the actor's hitbox)
-				EndTrace = new FVector(*StartTrace + (HitResult->Distance * ForwardVector));
-
 				// Get the victim and attempt to cast to SubjectZero
-				ASubjectZero * Victim = Cast<ASubjectZero>(HitResult->GetActor());
+				Victim = Cast<ASubjectZero>(HitResult->GetActor());
 				if(Victim && Shooter && Shooter->HasAuthority())
 				{
 					DealDamage(Victim, Damage);
 				}
+
 			}
 
 			delete HitResult;
@@ -104,6 +117,20 @@ void AHitscanWeapon::Shoot()
 			delete StartTrace;
 			delete EndTrace;
 		}
+		// TODO: Victim isn't deleted, causes game to crash when you do
+		// This is a potential memory leak?
+		//delete Victim;
+	}
+}
+
+void AHitscanWeapon::DrawDebugVisuals()
+{
+	FVector StartPoint = FVector(Muzzle->GetComponentLocation());
+	FVector EndPoint;
+	for(FVector V : ShotVectors)
+	{
+		EndPoint = StartPoint + FVector(Muzzle->GetComponentRotation().RotateVector(V));
+		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, Cooldown);
 	}
 }
 
@@ -114,11 +141,6 @@ void AHitscanWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 	{
 		Mode->DealDamage(Shooter, Victim, TotalDamage, this);
 	}
-}
-
-void AHitscanWeapon::DrawLaser()
-{
-	
 }
 
 FVector AHitscanWeapon::GetAimDownSightsLocation()

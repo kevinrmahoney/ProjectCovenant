@@ -40,6 +40,8 @@ protected:
 
 	float Duration = 0.02f;
 
+	TArray<FVector> ShotVectors;
+
 public:
 	UPROPERTY()
 	ASubjectZero * Shooter = nullptr;
@@ -72,11 +74,21 @@ protected:
 
 	virtual void DealDamage(ASubjectZero * Victim, float TotalDamage);
 
-	virtual void DrawLaser();
+	virtual void DrawDebugVisuals();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DrawVisuals();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayShootSound();
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void ConstructShotVectors();
+
+	virtual void Update();
 
 	void SetTrigger(bool T);
 
@@ -89,10 +101,4 @@ public:
 	virtual FVector GetHipFireLocation();
 
 	virtual FRotator GetHipFireRotation();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayShootSound();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BeamVisibility(bool On);
 };

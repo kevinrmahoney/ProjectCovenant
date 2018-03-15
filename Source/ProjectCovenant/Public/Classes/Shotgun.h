@@ -35,28 +35,25 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void Update() override;
+
+	virtual void ConstructShotVectors() override;
+
 	void SetTrigger(bool T);
 
 	void SetShooter(ASubjectZero * NewShooter);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayShootSound();
 
 private:
 	void Shoot() override;
 
 	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
 
-	void DrawLaser() override;
-
-	float MaxConeAngle = 200.f;
+	float MaxConeAngle = 1800.f;
 
 	//maybe change to FRotator
 	float RollCount = 8.f;
 
 	float CircleCount = 2.f;
-
-	TArray<FVector> Spread;
 
 	virtual FVector GetAimDownSightsLocation() override;
 
