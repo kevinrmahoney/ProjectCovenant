@@ -43,13 +43,13 @@ void AHitscanWeapon::BeginPlay()
 void AHitscanWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	TimeSinceLastShot = FMath::Min(TimeSinceLastShot + DeltaTime, Cooldown);
 
 	if(Trigger)
 	{
 		Shoot();
 	}
+	BeamVisibility(Trigger);
 }
 
 void AHitscanWeapon::SetShooter(ASubjectZero * NewShooter)
@@ -72,7 +72,7 @@ void AHitscanWeapon::Shoot()
 	}
 
 	PlayShootSound();
-	
+
 	if(DoDamage)
 	{
 		DrawLaser();
@@ -118,17 +118,7 @@ void AHitscanWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 
 void AHitscanWeapon::DrawLaser()
 {
-	UWorld * World = GetWorld();
-
-	FVector StartTrace = FVector(Muzzle->GetComponentLocation());
-	FVector ForwardVector = Muzzle->GetForwardVector();
-	FVector EndTrace = FVector(StartTrace + (ForwardVector * Range));
-
-	DrawDebugLine(World, StartTrace, EndTrace, FColor::Green, false, Duration);
-	DrawDebugLine(World, StartTrace + FVector(0.2f, 0.f, 0.f), EndTrace, FColor::Green, false, Duration);
-	DrawDebugLine(World, StartTrace + FVector(0.f, 0.f, 0.2f), EndTrace, FColor::Green, false, Duration);
-	DrawDebugLine(World, StartTrace + FVector(-0.2f, 0.f, 0.f), EndTrace, FColor::Green, false, Duration);
-	DrawDebugLine(World, StartTrace + FVector(0.f, 0.f, -0.2f), EndTrace, FColor::Green, false, Duration);
+	
 }
 
 FVector AHitscanWeapon::GetAimDownSightsLocation()

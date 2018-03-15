@@ -27,7 +27,13 @@ void ARailgun::BeginPlay()
 // Called every frame
 void ARailgun::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	Super::Super::Tick(DeltaTime);
+	TimeSinceLastShot = FMath::Min(TimeSinceLastShot + DeltaTime, Cooldown);
+
+	if(Trigger)
+	{
+		Shoot();
+	}
 }
 
 void ARailgun::SetShooter(ASubjectZero * NewShooter)
@@ -52,8 +58,10 @@ void ARailgun::Shoot()
 
 	if(DoDamage)
 	{
+		Logger::Chat("HELLO???");
 		PlayShootSound();
-		DrawLaser();
+		BeamVisibility(true);
+
 		if(HasAuthority())
 		{
 			FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());

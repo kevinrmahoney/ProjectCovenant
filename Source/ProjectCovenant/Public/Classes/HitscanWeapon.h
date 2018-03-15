@@ -38,7 +38,7 @@ protected:
 
 	float TimeSinceLastShot = Cooldown;
 
-	float Duration = 0.08f;
+	float Duration = 0.02f;
 
 public:
 	UPROPERTY()
@@ -55,13 +55,13 @@ public:
 	FRotator HipFireRotation = FRotator(3.000000f, -12.000000f, 0.000000f);
 
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent * Root;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent * Mesh;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent * Muzzle;
 
 protected:
@@ -92,4 +92,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayShootSound();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BeamVisibility(bool On);
 };
