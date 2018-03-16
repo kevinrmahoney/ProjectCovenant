@@ -36,6 +36,7 @@ void ABasePlayerState::TookDamage_Implementation(float Dmg)
 void ABasePlayerState::DealtDamage_Implementation(float Dmg)
 {
 	PlayHitSound(Dmg);
+	LastDamageDealt = Dmg;
 }
 
 void ABasePlayerState::AddKill(int Kill)
@@ -59,6 +60,7 @@ FString ABasePlayerState::GetName() const { return Name; }
 int ABasePlayerState::GetKills() const { return Kills; }
 int ABasePlayerState::GetDeaths() const { return Deaths; }
 float ABasePlayerState::GetDamageDealt() const { return DamageDealt; }
+float ABasePlayerState::GetLastDamageDealt() const { return LastDamageDealt; }
 float ABasePlayerState::GetDamageTaken() const { return DamageTaken; }
 void ABasePlayerState::SetName(FString S) 
 { 
