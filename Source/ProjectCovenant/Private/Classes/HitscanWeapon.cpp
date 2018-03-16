@@ -65,6 +65,7 @@ void AHitscanWeapon::Update()
 		}
 	}
 	DrawVisuals();
+	PlayShootSound();
 }
 
 void AHitscanWeapon::ConstructShotVectors()
@@ -85,7 +86,6 @@ void AHitscanWeapon::SetTrigger(bool T)
 void AHitscanWeapon::Shoot()
 {
 	//DrawDebugVisuals(); TODO: enable with console command
-	PlayShootSound();
 
 	if(HasAuthority())
 	{
