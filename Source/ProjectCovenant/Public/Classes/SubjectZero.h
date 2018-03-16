@@ -8,6 +8,7 @@
 class AHitscanWeapon;
 class ARailgun;
 class AShotgun;
+class UInventory;
 
 UCLASS()
 class PROJECTCOVENANT_API ASubjectZero : public ACharacter
@@ -46,6 +47,8 @@ private:
 	TArray<AHitscanWeapon*> Weapons;
 
 	FVector Velocity;
+
+	UInventory * Inventory;
 
 	bool Grounded = false;
 

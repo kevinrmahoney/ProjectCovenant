@@ -53,7 +53,7 @@ private:
 	//maybe change to FRotator
 	float RollCount = 8.f;
 
-	float CircleCount = 2.f;
+	float CircleCount = 3.f;
 
 	virtual FVector GetAimDownSightsLocation() override;
 

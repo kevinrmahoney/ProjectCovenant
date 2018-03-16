@@ -7,6 +7,7 @@
 #include "Railgun.h"
 #include "Shotgun.h"
 #include "Deathmatch.h"
+#include "Inventory.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -48,6 +49,15 @@ void ASubjectZero::BeginPlay()
 
 	FirstPersonMesh->SetRelativeLocation(HipfireLocation);
 	FirstPersonMesh->SetRelativeRotation(HipfireRotation);
+
+	Inventory = NewObject<UInventory>(this);
+	UItem * Weapon1 = NewObject<UItem>(this);
+	UItem * Weapon2 = NewObject<UItem>(this);
+	UItem * Weapon3 = NewObject<UItem>(this);
+	Inventory->AddItem(Weapon1);
+	Inventory->AddItem(Weapon2);
+	Inventory->AddItem(Weapon3);
+	Inventory->PrintList();
 }
 
 // Called every frame
