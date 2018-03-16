@@ -81,6 +81,12 @@ void AHumanController::SetupInputComponent()
 	}
 }
 
+void AHumanController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	//DOREPLIFETIME(AHumanController, Health)
+}
+
 void AHumanController::God(FString Set = "")
 {
 	if(Role == ROLE_AutonomousProxy)

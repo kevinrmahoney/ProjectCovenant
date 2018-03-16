@@ -20,7 +20,7 @@ public:
 	FVector Movement = FVector::ZeroVector;
 	bool Jumping = false;
 	bool Sprinting = false;
-	bool JetpackActive = false;
+	bool TryJetpack = false;
 	float DamageMultiplier = 1.f;
 	float DamageMultiplierDuration = 0.f;
 
@@ -76,10 +76,11 @@ private:
 	UPROPERTY(Replicated)
 	bool AimDownSights = false;
 
+	UPROPERTY(Replicated)
+	float Pitch = 0.f;
+
 	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);
 	FVector HipfireLocation = FVector(-15.419446f, 10.841988f, -152.856400f);
-	//FRotator HipfireRotation = FRotator(0.f, 0.f, 0.f);
-	//FVector HipfireLocation = FVector(0.f, 0.f, 0.f);
 
 	// constants
 	float NormalAirControl = 0.3f;
@@ -115,18 +116,28 @@ public:
 	UCameraComponent* Camera;
 
 private:
-	void Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool AimDownSights);
+	UFUNCTION()
+	void Update();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights);
+	void ServerUpdate(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewJumping, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_SetPitch(float NewPitch);
+	UFUNCTION()
+	void Move();
 
-	void JetpackBurst();
+	UFUNCTION()
+	void Jetpack();
 
+	//UFUNCTION()
+	//void Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool AimDownSights);
+
+	//UFUNCTION(Server, Reliable, WithValidation)
+	//void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights);
+
+	UFUNCTION()
 	void ApplyAirResistance();
 
+	UFUNCTION()
 	void Equip(int Num);
 
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -134,6 +145,8 @@ private:
 
 	UFUNCTION()
 	void OnRep_Equip();
+
+	void CalculateMovement();
 
 protected:
 	virtual void BeginPlay() override;
@@ -159,18 +172,66 @@ public:
   
 	void Kill();
 
+	UFUNCTION()
 	void SetYaw(float Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetYaw(float Set);
+
+	UFUNCTION()
 	void SetPitch(float Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetPitch(float Set);
+
+	UFUNCTION()
 	void SetCrouch(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetCrouch(bool Set);
+
+	UFUNCTION()
 	void SetSprint(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetSprint(bool Set);
+
+	UFUNCTION()
 	void SetJump(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetJump(bool Set);
+
+	UFUNCTION()
 	void SetMoveLeft(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetMoveLeft(bool Set);
+
+	UFUNCTION()
 	void SetMoveRight(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetMoveRight(bool Set);
+
+	UFUNCTION()
 	void SetMoveForward(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetMoveForward(bool Set);
+
+	UFUNCTION()
 	void SetMoveBackward(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetMoveBackward(bool Set);
+
+	UFUNCTION()
 	void SetFire(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetFire(bool Set);
+
+	UFUNCTION()
 	void SetSecondaryFire(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetSecondaryFire(bool Set);
+
+	UFUNCTION()
 	void SetUse(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetUse(bool Set);
+
 	void Slot0();
 	void Slot1();
 	void Slot2();
@@ -211,6 +272,9 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FName GetPlayerName() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	float GetPitch() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackUsed() const;

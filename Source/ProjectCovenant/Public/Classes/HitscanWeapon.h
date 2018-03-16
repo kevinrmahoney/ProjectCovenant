@@ -38,7 +38,9 @@ protected:
 
 	float TimeSinceLastShot = Cooldown;
 
-	float Duration = 0.08f;
+	float Duration = 0.02f;
+
+	TArray<FVector> ShotVectors;
 
 public:
 	UPROPERTY()
@@ -55,13 +57,13 @@ public:
 	FRotator HipFireRotation = FRotator(3.000000f, -12.000000f, 0.000000f);
 
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent * Root;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent * Mesh;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent * Muzzle;
 
 protected:
@@ -72,11 +74,21 @@ protected:
 
 	virtual void DealDamage(ASubjectZero * Victim, float TotalDamage);
 
-	virtual void DrawLaser();
+	virtual void DrawDebugVisuals();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DrawVisuals();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayShootSound();
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void ConstructShotVectors();
+
+	virtual void Update();
 
 	void SetTrigger(bool T);
 
@@ -89,7 +101,4 @@ public:
 	virtual FVector GetHipFireLocation();
 
 	virtual FRotator GetHipFireRotation();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayShootSound();
 };

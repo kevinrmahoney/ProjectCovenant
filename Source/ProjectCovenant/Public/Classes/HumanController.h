@@ -22,6 +22,8 @@ public:
 	AHumanController();
 	void Tick(float DeltaTime) override;
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const override;
+
 	void Possess(APawn* aPawn) override;
 
 	void UnPossess() override;
