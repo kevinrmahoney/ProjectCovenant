@@ -3,6 +3,7 @@
 #include "ProjectCovenant.h"
 #include "Logger.h"
 #include "SubjectZero.h"
+#include "BaseMode.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -75,7 +76,7 @@ bool UProjectCovenantInstance::Join(FString IPAddress)
 	}
 	else if(IPAddress.Equals("Ben"))
 	{
-		IPAddress = "25.67.187.75";
+		IPAddress = "25.68.54.122";
 	}
 	else if(IPAddress.Equals("Dave"))
 	{
@@ -134,9 +135,16 @@ bool UProjectCovenantInstance::Map(FString Map)
 
 bool UProjectCovenantInstance::Kill()
 {
-	if(ASubjectZero * SubjectZero = Cast<ASubjectZero>(GetFirstLocalPlayerController()->AcknowledgedPawn))
+	if(GetFirstLocalPlayerController())
 	{
-		SubjectZero->ReceiveDamage(9001.f);
+		if(ASubjectZero * SubjectZero = Cast<ASubjectZero>(GetFirstLocalPlayerController()->AcknowledgedPawn))
+		{
+			ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode());
+			if(Mode)
+			{
+				Mode->DealDamage(nullptr, SubjectZero, 9000.f, nullptr);
+			}
+		}
 	}
-	return true;
+	return false;
 }

@@ -7,6 +7,11 @@
 #include "Railgun.h"
 #include "Shotgun.h"
 #include "Deathmatch.h"
+#include "Inventory.h"
+#include "ItemWeapon.h"
+#include "ItemWeaponShotgun.h"
+#include "ItemWeaponRailgun.h"
+#include "ItemWeaponLightningGun.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -48,6 +53,14 @@ void ASubjectZero::BeginPlay()
 
 	FirstPersonMesh->SetRelativeLocation(HipfireLocation);
 	FirstPersonMesh->SetRelativeRotation(HipfireRotation);
+
+	Inventory = NewObject<UInventory>(this);
+	UItem * LightningGun = NewObject<UItemWeaponLightningGun>(this);
+	UItem * Railgun = NewObject<UItemWeaponRailgun>(this);
+	UItem * Shotgun = NewObject<UItemWeaponShotgun>(this);
+	Inventory->AddItem(LightningGun);
+	Inventory->AddItem(Railgun);
+	Inventory->AddItem(Shotgun);
 }
 
 // Called every frame
@@ -228,7 +241,7 @@ void ASubjectZero::Update()
 		TimeSinceJetpack += Time;
 		if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
 		{
-			Fuel = FMath::Min(MaxFuel, Fuel + (FuelUsage * 1.5f * Time));
+			Fuel = FMath::Min(MaxFuel, Fuel + (FuelOverTime * Time));
 		}
 
 		// Update pitch of camera (which is the anchor of equipped weapon)
@@ -269,17 +282,18 @@ void ASubjectZero::Equip(int Num)
 		Equipped = Num;
 	}
 
-	if(Num == 0)
+	if(Inventory && Inventory->CheckItem(Num))
 	{
-		Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
+		Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(Inventory->GetItem(Num)->GetActorClass());
+		if(UItemWeapon * WeaponItem = Cast<UItemWeapon>(Inventory->GetItem(Num)))
+		{
+			Weapon->SetItem(WeaponItem);
+		}
 	}
-	else if(Num == 1)
+	else
 	{
-		Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
-	}
-	else if(Num == 2)
-	{
-		Weapon = GetWorld()->SpawnActor<AShotgun>(ShotgunBlueprint);
+		Logger::Log("No weapon in slot " + FString::FromInt(Num));
+		Inventory->PrintList();
 	}
 
 	if(Weapon)
@@ -366,51 +380,82 @@ void ASubjectZero::ApplyAirResistance()
 
 bool ASubjectZero::ReceiveDamage(float Dmg)
 {
+	Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg));
 	TimeSinceTookDamage = 0.f;
 	if(HasAuthority())
 	{
-		if(Shield != 0.f)
+		if(Shield > 0.f)
 		{
 			if(Shield > Dmg)
 			{
 				Shield = Shield - Dmg;
+				Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg) + "LEFT OVER SHIELD");
+				Logger::Log("SubjectZero::Shield" + FString::SanitizeFloat(Shield));
+				Logger::Log("SubjectZero::Armor" + FString::SanitizeFloat(Armor));
+				Logger::Log("SubjectZero::Health" + FString::SanitizeFloat(Health));
 				return false;
 			}
 			else
 			{
 				Dmg = Dmg - Shield;
 				Shield = 0.f;
-				ReceiveDamage(Dmg);
+				return ReceiveDamage(Dmg);
 			}
 		}
-		else if(Armor != 0.f)
+		else if(Armor > 0.f)
 		{
 			if(Armor > Dmg)
 			{
 				Armor = Armor - Dmg;
+				Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg) + "LEFT OVER ARMOR");
+				Logger::Log("SubjectZero::Shield" + FString::SanitizeFloat(Shield));
+				Logger::Log("SubjectZero::Armor" + FString::SanitizeFloat(Armor));
+				Logger::Log("SubjectZero::Health" + FString::SanitizeFloat(Health));
 				return false;
 			}
 			else
 			{
 				Dmg = Dmg - Armor;
 				Armor = 0.f;
-				ReceiveDamage(Dmg);
+				return ReceiveDamage(Dmg);
 			}
 		}
-		else if(Health != 0.f)
+		else if(Health > 0.f)
 		{
 			if(Health > Dmg)
 			{
 				Health = Health - Dmg;
+				Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg) + "LEFT OVER HEALTH");
+				Logger::Log("SubjectZero::Shield" + FString::SanitizeFloat(Shield));
+				Logger::Log("SubjectZero::Armor" + FString::SanitizeFloat(Armor));
+				Logger::Log("SubjectZero::Health" + FString::SanitizeFloat(Health));
 				return false;
 			}
 			else
 			{
 				Health = 0.f;
+				Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg));
+				Logger::Log("SubjectZero::Shield" + FString::SanitizeFloat(Shield));
+				Logger::Log("SubjectZero::Armor" + FString::SanitizeFloat(Armor));
+				Logger::Log("SubjectZero::Health" + FString::SanitizeFloat(Health));
 				return true;
 			}
 		}
+		else
+		{
+			Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg) + "DEAD");
+			Logger::Log("SubjectZero::Shield" + FString::SanitizeFloat(Shield));
+			Logger::Log("SubjectZero::Armor" + FString::SanitizeFloat(Armor));
+			Logger::Log("SubjectZero::Health" + FString::SanitizeFloat(Health));
+			return true;
+		}
 	}
+	else
+	{
+		Logger::Log("NOT AUTHORITY");
+		return false;
+	}
+	Logger::Log("THIS ISNT POSSIBLE");
 	return false;
 }
 
@@ -428,7 +473,7 @@ void ASubjectZero::Kill()
 	{
 		Weapon->Destroy();
 	}
-	Super::Destroy();
+	Destroy();
 }
 
 void ASubjectZero::Destroyed()

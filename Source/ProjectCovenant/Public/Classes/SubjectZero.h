@@ -8,6 +8,7 @@
 class AHitscanWeapon;
 class ARailgun;
 class AShotgun;
+class UInventory;
 
 UCLASS()
 class PROJECTCOVENANT_API ASubjectZero : public ACharacter
@@ -25,15 +26,6 @@ public:
 	float DamageMultiplierDuration = 0.f;
 
 private:
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class AHitscanWeapon> HitscanWeaponBlueprint;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class ARailgun> RailgunBlueprint;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class AShotgun> ShotgunBlueprint;
-
 	AHitscanWeapon * Weapon;
 
 	UPROPERTY(ReplicatedUsing = OnRep_Equip)
@@ -46,6 +38,8 @@ private:
 	TArray<AHitscanWeapon*> Weapons;
 
 	FVector Velocity;
+
+	UInventory * Inventory;
 
 	bool Grounded = false;
 
@@ -91,10 +85,11 @@ private:
 	float CrouchingSprintSpeed = 300.f;
 	float CrouchingRunSpeed = 200.f;
 	float AimDownSightsSpeed = 200.f;
-	float JetpackAcceleration = 1200.f;
+	float JetpackAcceleration = 2000.f;
 	float GroundAcceleration = 5000.f;
-	float AirResistanceConstant = 0.00008f;
-	float FuelUsage = 100.f;
+	float AirResistanceConstant = 0.00004f;
+	float FuelUsage = 50.f;
+	float FuelOverTime = 50.f;
 	float MaxHealth = 100.f;
 	float MaxArmor = 100.f;
 	float MaxShield = 100.f;
