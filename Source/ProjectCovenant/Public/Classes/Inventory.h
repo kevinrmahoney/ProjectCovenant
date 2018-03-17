@@ -27,5 +27,6 @@ public:
 	void PrintList();
 	void AddItem(UItem * Item);
 	void RemoveItem(UItem * Item);
-	
+	UItem * GetItem(int Num);
+	bool CheckItem(int Num);
 };

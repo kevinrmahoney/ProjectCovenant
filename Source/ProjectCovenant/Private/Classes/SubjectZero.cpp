@@ -8,6 +8,9 @@
 #include "Shotgun.h"
 #include "Deathmatch.h"
 #include "Inventory.h"
+#include "ItemWeaponShotgun.h"
+#include "ItemWeaponRailgun.h"
+#include "ItemWeaponLightningGun.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -51,12 +54,12 @@ void ASubjectZero::BeginPlay()
 	FirstPersonMesh->SetRelativeRotation(HipfireRotation);
 
 	Inventory = NewObject<UInventory>(this);
-	UItem * Weapon1 = NewObject<UItem>(this);
-	UItem * Weapon2 = NewObject<UItem>(this);
-	UItem * Weapon3 = NewObject<UItem>(this);
-	Inventory->AddItem(Weapon1);
-	Inventory->AddItem(Weapon2);
-	Inventory->AddItem(Weapon3);
+	UItem * LightningGun = NewObject<UItemWeaponLightningGun>(this);
+	UItem * Railgun = NewObject<UItemWeaponRailgun>(this);
+	UItem * Shotgun = NewObject<UItemWeaponShotgun>(this);
+	Inventory->AddItem(LightningGun);
+	Inventory->AddItem(Railgun);
+	Inventory->AddItem(Shotgun);
 	Inventory->PrintList();
 }
 
@@ -279,18 +282,7 @@ void ASubjectZero::Equip(int Num)
 		Equipped = Num;
 	}
 
-	if(Num == 0)
-	{
-		Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(HitscanWeaponBlueprint);
-	}
-	else if(Num == 1)
-	{
-		Weapon = GetWorld()->SpawnActor<ARailgun>(RailgunBlueprint);
-	}
-	else if(Num == 2)
-	{
-		Weapon = GetWorld()->SpawnActor<AShotgun>(ShotgunBlueprint);
-	}
+	Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(Inventory->GetItem(Num)->GetActorClass());
 
 	if(Weapon)
 	{

@@ -26,15 +26,6 @@ public:
 	float DamageMultiplierDuration = 0.f;
 
 private:
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class AHitscanWeapon> HitscanWeaponBlueprint;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class ARailgun> RailgunBlueprint;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class AShotgun> ShotgunBlueprint;
-
 	AHitscanWeapon * Weapon;
 
 	UPROPERTY(ReplicatedUsing = OnRep_Equip)

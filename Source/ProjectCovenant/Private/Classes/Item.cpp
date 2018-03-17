@@ -4,8 +4,13 @@
 #include "Item.h"
 
 
-UItem::UItem(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UItem::UItem()
 {
+}
+
+TSubclassOf<class AActor> UItem::GetActorClass()
+{
+	return ItemBlueprint;
 }
 
 FString UItem::ToString()

@@ -17,6 +17,23 @@ void UInventory::PrintList()
 	}
 }
 
+bool UInventory::CheckItem(int Num)
+{
+	return Num < Items.Num();
+}
+
+UItem * UInventory::GetItem(int Num)
+{
+	if(Items.Num() > Num)
+	{
+		return Items[Num];
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
 void UInventory::AddItem(UItem * NewItem)
 {
 	Items.Add(NewItem);
@@ -26,3 +43,4 @@ void UInventory::RemoveItem(UItem * Item)
 {
 	Items.Remove(Item);
 }
+

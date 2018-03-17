@@ -44,7 +44,7 @@ void ARailgun::Update()
 
 			// Subtract the cooldown from the time passed since the last shot.
 			// make sure the outcome does not go above value of Cooldown
-			while(TimeSinceLastShot > Cooldown) TimeSinceLastShot -= Cooldown;
+			TimeSinceLastShot = 0.f;
 		}
 	}
 }
