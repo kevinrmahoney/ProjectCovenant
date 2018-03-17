@@ -9,7 +9,7 @@ UItemWeaponLightningGun::UItemWeaponLightningGun()
 
 }
 
-TSubclassOf<class AActor> UItemWeaponLightningGun::GetActorClass()
+int UItemWeaponLightningGun::GetItemID()
 {
-	return ItemBlueprint;
+	return ItemID;
 }

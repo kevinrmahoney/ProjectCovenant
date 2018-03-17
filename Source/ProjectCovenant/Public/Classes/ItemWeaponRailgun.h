@@ -18,9 +18,7 @@ class PROJECTCOVENANT_API UItemWeaponRailgun : public UItemWeapon
 
 public:
 	UItemWeaponRailgun();
-	virtual TSubclassOf<class AActor> GetActorClass() override;
+	int ItemID = 2;
 
-private:
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class ARailgun> ItemBlueprint;
+	virtual int GetItemID() override;
 };

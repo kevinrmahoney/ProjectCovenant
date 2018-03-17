@@ -18,9 +18,7 @@ class PROJECTCOVENANT_API UItemWeaponLightningGun : public UItemWeapon
 
 public:
 	UItemWeaponLightningGun();
-	virtual TSubclassOf<class AActor> GetActorClass() override;
+	int ItemID = 1;
 
-private:
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class AHitscanWeapon> ItemBlueprint;
+	virtual int GetItemID() override;
 };

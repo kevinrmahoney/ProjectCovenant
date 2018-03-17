@@ -6,10 +6,9 @@
 
 UItemWeaponShotgun::UItemWeaponShotgun()
 {
-
 }
 
-TSubclassOf<class AActor> UItemWeaponShotgun::GetActorClass()
+int UItemWeaponShotgun::GetItemID()
 {
-	return ItemBlueprint;
+	return ItemID;
 }

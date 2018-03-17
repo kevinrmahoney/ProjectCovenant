@@ -20,5 +20,3 @@ FString UItemWeapon::ToString()
 {
 	return "Weapon";
 }
-
-

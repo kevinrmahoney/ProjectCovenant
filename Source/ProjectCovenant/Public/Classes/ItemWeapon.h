@@ -15,16 +15,12 @@ class PROJECTCOVENANT_API UItemWeapon : public UItem
 	GENERATED_BODY()
 	
 public:
-	virtual FString ToString() override;
-
-	int LoadedAmmo = 0;
-	float LastShotTimeStamp = 0.f;
-
-public:
 	UItemWeapon();
-
 	void SetLastShotTimeStamp();
 
-private:
+	virtual FString ToString() override;
+	int Count = 0;
+	int LoadedAmmo = 0;
+	float LastShotTimeStamp = 0.f;
 	
 };

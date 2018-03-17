@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "Railgun.h"
 #include "Item.generated.h"
 
 /**
@@ -15,18 +14,16 @@ class PROJECTCOVENANT_API UItem : public UObject
 {
 	GENERATED_BODY()
 
-
-public:
-
-	virtual FString ToString();
-
-	int Count = 0;
-	bool Equipped = false;
-
 public:
 	UItem();
-	virtual TSubclassOf<class AActor> GetActorClass();
 
-private:
+
+public:
+	virtual FString ToString();
+	int Count = 0;
+	bool Equipped = false;
+	int ItemID = 100;
+
+	virtual int GetItemID();
 
 };

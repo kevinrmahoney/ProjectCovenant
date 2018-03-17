@@ -284,10 +284,24 @@ void ASubjectZero::Equip(int Num)
 
 	if(Inventory && Inventory->CheckItem(Num))
 	{
-		Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(Inventory->GetItem(Num)->GetActorClass());
-		if(UItemWeapon * WeaponItem = Cast<UItemWeapon>(Inventory->GetItem(Num)))
+		if(UItemWeapon * ItemWeapon = Cast<UItemWeapon>(Inventory->GetItem(Num)))
 		{
-			Weapon->SetItem(WeaponItem);
+			int ItemID = ItemWeapon->GetItemID();
+
+			Logger::Chat("ITEM ID " + FString::FromInt(ItemID));
+			/*Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
+			if(Weapon)
+			{
+				Weapon->SetItem(ItemWeapon);
+			}
+			else
+			{
+				Logger::Chat("NO WEAPON");
+			}*/
+		}
+		else
+		{
+			Logger::Chat("NO ITEM");
 		}
 	}
 	else
@@ -380,7 +394,6 @@ void ASubjectZero::ApplyAirResistance()
 
 bool ASubjectZero::ReceiveDamage(float Dmg)
 {
-	Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg));
 	TimeSinceTookDamage = 0.f;
 	if(HasAuthority())
 	{
@@ -389,10 +402,6 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			if(Shield > Dmg)
 			{
 				Shield = Shield - Dmg;
-				Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg) + "LEFT OVER SHIELD");
-				Logger::Log("SubjectZero::Shield" + FString::SanitizeFloat(Shield));
-				Logger::Log("SubjectZero::Armor" + FString::SanitizeFloat(Armor));
-				Logger::Log("SubjectZero::Health" + FString::SanitizeFloat(Health));
 				return false;
 			}
 			else
@@ -407,10 +416,6 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			if(Armor > Dmg)
 			{
 				Armor = Armor - Dmg;
-				Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg) + "LEFT OVER ARMOR");
-				Logger::Log("SubjectZero::Shield" + FString::SanitizeFloat(Shield));
-				Logger::Log("SubjectZero::Armor" + FString::SanitizeFloat(Armor));
-				Logger::Log("SubjectZero::Health" + FString::SanitizeFloat(Health));
 				return false;
 			}
 			else
@@ -425,37 +430,23 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			if(Health > Dmg)
 			{
 				Health = Health - Dmg;
-				Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg) + "LEFT OVER HEALTH");
-				Logger::Log("SubjectZero::Shield" + FString::SanitizeFloat(Shield));
-				Logger::Log("SubjectZero::Armor" + FString::SanitizeFloat(Armor));
-				Logger::Log("SubjectZero::Health" + FString::SanitizeFloat(Health));
 				return false;
 			}
 			else
 			{
 				Health = 0.f;
-				Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg));
-				Logger::Log("SubjectZero::Shield" + FString::SanitizeFloat(Shield));
-				Logger::Log("SubjectZero::Armor" + FString::SanitizeFloat(Armor));
-				Logger::Log("SubjectZero::Health" + FString::SanitizeFloat(Health));
 				return true;
 			}
 		}
 		else
 		{
-			Logger::Log("SubjectZero::ReceiveDamage " + FString::SanitizeFloat(Dmg) + "DEAD");
-			Logger::Log("SubjectZero::Shield" + FString::SanitizeFloat(Shield));
-			Logger::Log("SubjectZero::Armor" + FString::SanitizeFloat(Armor));
-			Logger::Log("SubjectZero::Health" + FString::SanitizeFloat(Health));
 			return true;
 		}
 	}
 	else
 	{
-		Logger::Log("NOT AUTHORITY");
 		return false;
 	}
-	Logger::Log("THIS ISNT POSSIBLE");
 	return false;
 }
 
@@ -824,131 +815,3 @@ FName ASubjectZero::GetPlayerName() const {
 	}
 	return Name;
 }
-
-
-//void ASubjectZero::Move(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
-//{
-//	// Update if the character is grounded and its velocity
-//	Grounded = !GetCharacterMovement()->IsFalling();
-//	Velocity = GetVelocity();
-//
-//	JetpackUsed = false;
-//
-//	//Camera->RelativeRotation.Pitch = Client_Pitch;
-//
-//	if(IsLocallyControlled() || Role == ROLE_Authority)
-//	{
-//		if(Controller)
-//		{
-//			if(Grounded)
-//			{
-//				if(Jumping)
-//				{
-//					Jump();
-//				}
-//				else
-//				{
-//					// Update movement speeds depending on the character's stance
-//					if(Sprinting && !Crouching)
-//					{
-//						GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
-//					}
-//					else if(Sprinting && Crouching)
-//					{
-//						GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
-//					}
-//					else if(!Sprinting && Crouching)
-//					{
-//						GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
-//					}
-//					else
-//					{
-//						GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
-//					}
-//
-//					if(AimDownSights)
-//					{
-//						GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
-//					}
-//				}
-//				// Move the character on the ground
-//				FRotator Rotation = Controller->GetControlRotation();
-//				Rotation.Pitch = 0;
-//
-//				Movement.Z = 0.f;
-//				AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), 1.f);
-//			}
-//			else
-//			{
-//				// Jetpack can only be activated if it has enough fuel
-//				if(TryJetpack && Fuel > 0.f)
-//				{
-//					Jetpack();
-//				}
-//				// Strafe in the air
-//				else
-//				{
-//					FRotator Rotation = Controller->GetControlRotation();
-//					Rotation.Pitch = 0;
-//
-//					Movement.Z = 0.f;
-//					AddMovementInput(Rotation.RotateVector(Movement.GetSafeNormal()), NormalAirControl);
-//				}
-//				// Apply the force of the air if midair
-//				ApplyAirResistance();
-//			}
-//		}
-//	}
-//
-//	PlayJetpackSound();
-//	if(Crouching)
-//	{
-//		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-//		Camera->SetRelativeLocation(FVector(0.f, 0, CrouchingHeight));
-//		GetCapsuleComponent()->SetCapsuleHalfHeight(66.f);
-//		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -66.f));
-//	}
-//	else
-//	{
-//		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-//		Camera->SetRelativeLocation(FVector(0.f, 0, StandingHeight));
-//		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
-//		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
-//	}
-//
-//	// Set the trigger as pulled or not pulled
-//	if(Weapon)
-//	{
-//		Weapon->SetTrigger(IsTriggerPulled);
-//		if(FirstPersonMesh)
-//		{
-//			if(AimDownSights)
-//			{
-//				FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
-//				FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
-//			}
-//			else
-//			{
-//				FirstPersonMesh->SetRelativeLocation(Weapon->GetHipFireLocation());
-//				FirstPersonMesh->SetRelativeRotation(Weapon->GetHipFireRotation());
-//			}
-//		}
-//	}
-//}
-//
-//void ASubjectZero::Server_Move_Implementation(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
-//{
-//	Movement = Client_Movement;
-//	Jumping = Client_Jump;
-//	Sprinting = Client_Sprinting;
-//	Crouching = Client_Crouching;
-//	TryJetpack = Client_Jetpack;
-//	IsTriggerPulled = Client_Shooting;
-//	Camera->RelativeRotation.Pitch = Client_Pitch;
-//	AimDownSights = Client_AimDownSights;
-//}
-
-//bool ASubjectZero::Server_Move_Validate(FVector Client_Movement, bool Client_Jump, bool Client_Sprinting, bool Client_Crouching, bool Client_Jetpack, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights)
-//{
-//	return true;
-//}

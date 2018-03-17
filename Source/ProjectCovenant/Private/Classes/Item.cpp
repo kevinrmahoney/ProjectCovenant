@@ -12,3 +12,8 @@ FString UItem::ToString()
 {
 	return "Item";
 }
+
+int UItem::GetItemID()
+{
+	return ItemID;
+}
