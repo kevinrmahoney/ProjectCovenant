@@ -2,6 +2,7 @@
 
 #include "ProjectCovenant.h"
 #include "Shotgun.h"
+#include "ItemWeapon.h"
 #include "SubjectZero.h"
 
 AShotgun::AShotgun()
@@ -43,6 +44,10 @@ void AShotgun::Update()
 			// Subtract the cooldown from the time passed since the last shot.
 			// make sure the outcome does not go above value of Cooldown
 			TimeSinceLastShot = 0.f;
+			if(Item)
+			{
+				Item->SetLastShotTimeStamp();
+			}
 		}
 	}
 }

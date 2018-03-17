@@ -18,6 +18,9 @@ void ABaseMode::BeginPlay()
 
 void ABaseMode::PostLogin(APlayerController * NewPlayer)
 {
+	Logger::Chat("Welcome " + NewPlayer->GetNetOwningPlayer()->GetName());
+	Logger::Log(NewPlayer->GetNetOwningPlayer()->GetName() + " has joined the game.");
+
 	Super::PostLogin(NewPlayer);
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPoints);
 	if(AHumanController * Controller = Cast<AHumanController>(NewPlayer))
@@ -33,8 +36,11 @@ void ABaseMode::PostLogin(APlayerController * NewPlayer)
 		}
 		Controller->Possess(NewPawn);
 	}
-	Logger::Chat("Welcome " + NewPlayer->GetNetOwningPlayer()->GetName());
-	Logger::Log(NewPlayer->GetNetOwningPlayer()->GetName() + " has joined the game.");
+
+	if(SpawnPoints.Num() != 0)
+	{
+		SpawnCount = (SpawnCount + 1) % SpawnPoints.Num();
+	}
 }
 
 /* SpawnPlayer() - Spawns a character at a PlayerStart location.
@@ -43,33 +49,48 @@ Spawn location rotates over the course of the game
 void ABaseMode::SpawnPlayer(AHumanController * Controller)
 {
 	Logger::Log("Attempting to spawn player " + Controller->GetNetOwningPlayer()->GetName() + " as a SubjectZero");
-	if(HasAuthority())
+	if(Controller)
 	{
 		if(GetWorld())
 		{
-			ASubjectZero * NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
+			ASubjectZero * NewPawn;
+			if(SpawnPoints.Num())
+			{
+				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
+			}
+			else
+			{
+				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, FVector::ZeroVector, FRotator::ZeroRotator);
+			}
 			Characters.Add(NewPawn);
 			APawn * OldPawn = Controller->GetPawn();
 			Controller->Possess(NewPawn);
 			if(OldPawn) OldPawn->Destroy();
 		}
 	}
-	SpawnCount = (SpawnCount + 1) % SpawnPoints.Num();
+
+	if(SpawnPoints.Num() != 0)
+	{
+		SpawnCount = (SpawnCount + 1) % SpawnPoints.Num();
+	}
 }
 
 void ABaseMode::KillPlayer(AHumanController * Controller)
 {
-	if(HasAuthority())
+	Logger::Chat("BaseMode: ");
+	if(Controller)
 	{
 		if(GetWorld())
 		{
-			ASpectator * NewPawn = GetWorld()->SpawnActor<ASpectator>(Controller->GetPawn()->GetActorLocation(), Controller->GetPawn()->GetActorRotation());
-			APawn * OldPawn = Controller->GetPawn();
-			Controller->Possess(NewPawn);
-			if(ASubjectZero * SubjectZero = Cast<ASubjectZero>(OldPawn))
+			if(APawn * OldPawn = Controller->AcknowledgedPawn)
 			{
-				Characters.Remove(SubjectZero);
-				SubjectZero->Kill();
+				ASpectator * NewPawn = GetWorld()->SpawnActor<ASpectator>(OldPawn->GetActorLocation(), OldPawn->GetActorRotation());
+				Controller->Possess(NewPawn);
+				if(ASubjectZero * SubjectZero = Cast<ASubjectZero>(OldPawn))
+				{
+					Characters.Remove(SubjectZero);
+					SubjectZero->Kill();
+				}
 			}
 		}
 	}
@@ -78,48 +99,62 @@ void ABaseMode::KillPlayer(AHumanController * Controller)
 void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AHitscanWeapon * Weapon)
 {
 	// Multiply raw damage by multiplier
-	Damage = Damage * Shooter->GetDamageMultiplier();
+	Damage = Shooter ? Shooter->GetDamageMultiplier() * Damage : Damage;
 	bool Killed = false;
 
 	// Deal damage to the victim, returns if the player was killed by the damage
-	if(AHumanController * VictimController = Cast<AHumanController>(Victim->GetController()))
+	if(Victim)
 	{
-		if(VictimController && VictimController->GodMode == false)
+		if(AHumanController * VictimController = Cast<AHumanController>(Victim->GetController()))
 		{
-			Killed = Victim->ReceiveDamage(Damage);
+			if(VictimController && VictimController->GodMode == false)
+			{
+				Killed = Victim->ReceiveDamage(Damage);
+			}
 		}
 	}
 
 	// Log the damage and if the player was killed by it
-	Logger::Log(Shooter->GetPlayerName().ToString() + " has dealt " + FString::SanitizeFloat(Damage) + " to " + Victim->GetPlayerName().ToString() + " using " + Weapon->GetName());
-	if(Killed) Logger::Log(Shooter->GetPlayerName().ToString() + " has killed " + Victim->GetPlayerName().ToString() + " using " + Weapon->GetName());
+	FString ShooterName = Shooter ? Shooter->GetPlayerName().ToString() : "Server";
+	FString VictimName = Victim ? Victim->GetPlayerName().ToString() : "Unknown";
+	FString WeaponName = Weapon ? Weapon->GetName() : "large fluffy pants";
+
+	Logger::Log(ShooterName + " has dealt " + FString::SanitizeFloat(Damage) + " to " + VictimName + " using " + WeaponName);
+	if(Killed) Logger::Log(ShooterName + " has killed " + VictimName + " using " + WeaponName);
+
 
 	// Obtain the player states for the shooter and the victim
-	ABasePlayerState * ShooterPlayerState = Cast<ABasePlayerState>(Shooter->PlayerState);
-	ABasePlayerState * VictimPlayerState = Cast<ABasePlayerState>(Victim->PlayerState);
-
-	// If the player state is successfully obtained, add the damage that was dealt to the player state, and if killed, add the kill
-	if(ShooterPlayerState)
+	if(Shooter)
 	{
-		ShooterPlayerState->AddDamageDealt(Damage);
-		ShooterPlayerState->DealtDamage(Damage);
-		if(Killed) ShooterPlayerState->AddKill(1);
+		ABasePlayerState * ShooterPlayerState = Cast<ABasePlayerState>(Shooter->PlayerState);
+
+		// If the player state is successfully obtained, add the damage that was dealt to the player state, and if killed, add the kill
+		if(ShooterPlayerState)
+		{
+			ShooterPlayerState->AddDamageDealt(Damage);
+			ShooterPlayerState->DealtDamage(Damage);
+			if(Killed) ShooterPlayerState->AddKill(1);
+		}
 	}
 	else
 	{
 		Logger::Error("Could not cast or obtain shooter's PlayerState");
 	}
 
-	// If the player state is successfully obtained, add the damage that was dealt to the player state, and if killed, add the kill
-	if(VictimPlayerState)
+	if(Victim)
 	{
-		VictimPlayerState->AddDamageTaken(Damage);
-		VictimPlayerState->TookDamage(Damage);
-		if(Killed) VictimPlayerState->AddDeath(1);
-	}
-	else
-	{
-		Logger::Error("Could not cast or obtain victim's PlayerState");
+		ABasePlayerState * VictimPlayerState = Cast<ABasePlayerState>(Victim->PlayerState);
+		// If the player state is successfully obtained, add the damage that was dealt to the player state, and if killed, add the kill
+		if(VictimPlayerState)
+		{
+			VictimPlayerState->AddDamageTaken(Damage);
+			VictimPlayerState->TookDamage(Damage);
+			if(Killed) VictimPlayerState->AddDeath(1);
+		}
+		else
+		{
+			Logger::Error("Could not cast or obtain victim's PlayerState");
+		}
 	}
 
 	if(Killed)

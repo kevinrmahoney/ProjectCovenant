@@ -3,6 +3,7 @@
 #include "ProjectCovenant.h"
 #include "Railgun.h"
 #include "BasePlayerState.h"
+#include "ItemWeapon.h"
 #include "SubjectZero.h"
 
 
@@ -45,6 +46,10 @@ void ARailgun::Update()
 			// Subtract the cooldown from the time passed since the last shot.
 			// make sure the outcome does not go above value of Cooldown
 			TimeSinceLastShot = 0.f;
+			if(Item)
+			{
+				Item->SetLastShotTimeStamp();
+			}
 		}
 	}
 }

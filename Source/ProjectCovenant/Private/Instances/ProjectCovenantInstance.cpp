@@ -3,6 +3,7 @@
 #include "ProjectCovenant.h"
 #include "Logger.h"
 #include "SubjectZero.h"
+#include "BaseMode.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -134,9 +135,16 @@ bool UProjectCovenantInstance::Map(FString Map)
 
 bool UProjectCovenantInstance::Kill()
 {
-	if(ASubjectZero * SubjectZero = Cast<ASubjectZero>(GetFirstLocalPlayerController()->AcknowledgedPawn))
+	if(GetFirstLocalPlayerController())
 	{
-		SubjectZero->ReceiveDamage(9001.f);
+		if(ASubjectZero * SubjectZero = Cast<ASubjectZero>(GetFirstLocalPlayerController()->AcknowledgedPawn))
+		{
+			ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode());
+			if(Mode)
+			{
+				Mode->DealDamage(nullptr, SubjectZero, 9000.f, nullptr);
+			}
+		}
 	}
-	return true;
+	return false;
 }

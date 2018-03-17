@@ -21,6 +21,7 @@ ADeathmatch::ADeathmatch()
 
 void ADeathmatch::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
 	ABaseState * State = Cast<ABaseState>(GameState);
 	if(State)
 	{
@@ -35,6 +36,10 @@ void ADeathmatch::Tick(float DeltaTime)
 		{
 			ABasePlayerState * PlayerState = Cast<ABasePlayerState>(SomeState);
 			if(!Winner || PlayerState->GetKills() > Winner->GetKills())
+			{
+				Winner = PlayerState;
+			}
+			else if(Winner && PlayerState->GetDamageDealt() > Winner->GetDamageDealt())
 			{
 				Winner = PlayerState;
 			}

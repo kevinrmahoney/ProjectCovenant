@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "HitscanWeapon.generated.h"
 
+class UItemWeapon;
 class ASubjectZero;
 
 UCLASS()
@@ -41,6 +42,8 @@ protected:
 	float Duration = 0.02f;
 
 	TArray<FVector> ShotVectors;
+
+	UItemWeapon * Item;
 
 public:
 	UPROPERTY()
@@ -89,6 +92,8 @@ public:
 	virtual void ConstructShotVectors();
 
 	virtual void Update();
+
+	virtual void SetItem(UItemWeapon * NewItem);
 
 	void SetTrigger(bool T);
 

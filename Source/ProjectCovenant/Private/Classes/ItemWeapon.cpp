@@ -13,6 +13,11 @@ TSubclassOf<class AActor> UItemWeapon::GetActorClass()
 	return ItemBlueprint;
 }
 
+void UItemWeapon::SetLastShotTimeStamp()
+{
+	LastShotTimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+}
+
 FString UItemWeapon::ToString()
 {
 	return "Weapon";

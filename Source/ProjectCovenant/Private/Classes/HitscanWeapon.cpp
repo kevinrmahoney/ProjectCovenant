@@ -6,6 +6,7 @@
 #include "SubjectZero.h"
 #include "HumanController.h"
 #include "UnrealNetwork.h"
+#include "ItemWeapon.h"
 #include "BaseMode.h"
 
 // Sets default values
@@ -48,6 +49,12 @@ void AHitscanWeapon::Tick(float DeltaTime)
 	Update();
 }
 
+void AHitscanWeapon::SetItem(UItemWeapon * NewItem)
+{
+	Item = NewItem;
+	TimeSinceLastShot = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp;
+}
+
 void AHitscanWeapon::Update()
 {
 	// If the trigger is pulled
@@ -62,6 +69,11 @@ void AHitscanWeapon::Update()
 			// Subtract the cooldown from the time passed since the last shot.
 			// make sure the outcome does not go above value of Cooldown
 			TimeSinceLastShot = 0.f;
+			//Item->LastShotTimeStamp = 0.f;
+			if(Item)
+			{
+				Item->SetLastShotTimeStamp();
+			}
 		}
 	}
 	DrawVisuals();

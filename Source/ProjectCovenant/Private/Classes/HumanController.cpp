@@ -19,24 +19,17 @@ AHumanController::AHumanController()
 void AHumanController::BeginPlay()
 {
 	Super::BeginPlay();
-	if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
-	{
-		UGameInstance * Instance = GetGameInstance();
 
-		if(Instance)
-		{
-			GameInstance = Cast<UProjectCovenantInstance>(Instance);
-			if(GameInstance)
-			{
-				PlayerName = GameInstance->GetProfileName();
-				Server_Set_Name(PlayerName);
-
-			}
-		}
-	}
 	if(IsLocalController())
 	{
 		InitializeHUD();
+		UGameInstance * Instance = GetGameInstance();
+		GameInstance = Cast<UProjectCovenantInstance>(Instance);
+		if(GameInstance)
+		{
+			PlayerName = GameInstance->GetProfileName();
+			Server_Set_Name(PlayerName);
+		}
 	}
 }
 

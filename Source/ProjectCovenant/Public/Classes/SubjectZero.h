@@ -85,10 +85,11 @@ private:
 	float CrouchingSprintSpeed = 300.f;
 	float CrouchingRunSpeed = 200.f;
 	float AimDownSightsSpeed = 200.f;
-	float JetpackAcceleration = 1200.f;
+	float JetpackAcceleration = 2000.f;
 	float GroundAcceleration = 5000.f;
-	float AirResistanceConstant = 0.00008f;
-	float FuelUsage = 100.f;
+	float AirResistanceConstant = 0.00004f;
+	float FuelUsage = 50.f;
+	float FuelOverTime = 50.f;
 	float MaxHealth = 100.f;
 	float MaxArmor = 100.f;
 	float MaxShield = 100.f;
