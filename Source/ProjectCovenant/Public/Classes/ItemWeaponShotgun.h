@@ -21,6 +21,6 @@ public:
 	virtual TSubclassOf<class AActor> GetActorClass() override;
 
 private:
-	const TCHAR * BlueprintReference = TEXT("Blueprint'/Game/Blueprints/Weapons/Shotgun_BP.Shotgun_BP'");
+	const TCHAR * BlueprintReference = TEXT("Class'/Game/Blueprints/Weapons/Shotgun_BP.Shotgun_BP'");
 	TSubclassOf<class AShotgun> ItemBlueprint;
 };

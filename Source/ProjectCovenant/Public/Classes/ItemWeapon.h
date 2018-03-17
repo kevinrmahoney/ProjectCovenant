@@ -27,7 +27,7 @@ public:
 	void SetLastShotTimeStamp();
 
 private:
-	FName BlueprintReference = TEXT("Blueprint'/Game/Blueprints/Weapons/Railgun_BP.Railgun_BP'");
+	FName BlueprintReference = TEXT("Class'/Game/Blueprints/Weapons/Railgun_BP.Railgun_BP'");
 	TSubclassOf<class AActor> ItemBlueprint;
 	
 };
