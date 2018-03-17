@@ -8,14 +8,12 @@ UItemWeapon::UItemWeapon()
 
 }
 
-TSubclassOf<class AActor> UItemWeapon::GetActorClass()
-{
-	return ItemBlueprint;
-}
-
 void UItemWeapon::SetLastShotTimeStamp()
 {
-	LastShotTimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+	if(GetWorld())
+	{
+		LastShotTimeStamp = GetWorld()->GetRealTimeSeconds();
+	}
 }
 
 FString UItemWeapon::ToString()

@@ -28,6 +28,5 @@ public:
 	virtual TSubclassOf<class AActor> GetActorClass();
 
 private:
-	FName BlueprintReference = TEXT("Blueprint'/Game/Blueprints/Weapons/Railgun_BP.Railgun_BP'");
-	TSubclassOf<class AActor> ItemBlueprint;
+
 };

@@ -22,12 +22,9 @@ public:
 
 public:
 	UItemWeapon();
-	virtual TSubclassOf<class AActor> GetActorClass() override;
 
 	void SetLastShotTimeStamp();
 
 private:
-	FName BlueprintReference = TEXT("Class'/Game/Blueprints/Weapons/Railgun_BP.Railgun_BP'");
-	TSubclassOf<class AActor> ItemBlueprint;
 	
 };

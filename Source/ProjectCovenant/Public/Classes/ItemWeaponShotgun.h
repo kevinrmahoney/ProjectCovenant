@@ -11,7 +11,7 @@ class AShotgun;
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class PROJECTCOVENANT_API UItemWeaponShotgun : public UItemWeapon
 {
 	GENERATED_BODY()
@@ -21,6 +21,6 @@ public:
 	virtual TSubclassOf<class AActor> GetActorClass() override;
 
 private:
-	const TCHAR * BlueprintReference = TEXT("Class'/Game/Blueprints/Weapons/Shotgun_BP.Shotgun_BP'");
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AShotgun> ItemBlueprint;
 };

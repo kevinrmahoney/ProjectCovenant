@@ -8,11 +8,6 @@ UItem::UItem()
 {
 }
 
-TSubclassOf<class AActor> UItem::GetActorClass()
-{
-	return ItemBlueprint;
-}
-
 FString UItem::ToString()
 {
 	return "Item";
