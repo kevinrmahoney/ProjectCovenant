@@ -16,7 +16,9 @@ class PROJECTCOVENANT_API UItemWeapon : public UItem
 	
 public:
 	UItemWeapon();
-	void SetLastShotTimeStamp();
+
+	UFUNCTION()
+	void SetLastShotTimeStamp(UWorld * World);
 
 	virtual FString ToString() override;
 	int Count = 0;

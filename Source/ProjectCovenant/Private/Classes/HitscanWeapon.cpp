@@ -72,7 +72,7 @@ void AHitscanWeapon::Update()
 			//Item->LastShotTimeStamp = 0.f;
 			if(Item)
 			{
-				Item->SetLastShotTimeStamp();
+				Item->SetLastShotTimeStamp(GetWorld());
 			}
 			else
 			{

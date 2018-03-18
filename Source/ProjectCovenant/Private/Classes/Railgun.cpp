@@ -48,7 +48,7 @@ void ARailgun::Update()
 			TimeSinceLastShot = 0.f;
 			if(Item)
 			{
-				Item->SetLastShotTimeStamp();
+				Item->SetLastShotTimeStamp(GetWorld());
 			}
 			else
 			{
