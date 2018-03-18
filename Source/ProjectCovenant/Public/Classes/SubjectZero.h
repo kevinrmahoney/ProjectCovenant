@@ -288,4 +288,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayJetpackSound();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	TSubclassOf<class AActor> GetActorFromItemID(int ItemID);
 };
