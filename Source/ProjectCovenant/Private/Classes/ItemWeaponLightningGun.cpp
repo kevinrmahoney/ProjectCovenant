@@ -6,19 +6,9 @@
 
 UItemWeaponLightningGun::UItemWeaponLightningGun()
 {
-	static ConstructorHelpers::FObjectFinder<UBlueprint> Blueprint(BlueprintReference);
-	if(Blueprint.Object)
-	{
-		ItemBlueprint = (UClass*)Blueprint.Object->GeneratedClass;
-	}
-	else
-	{
-		FString BP_Name = *BlueprintReference + "";
-		Logger::Error("ERROR: Could not find blueprint class (" + BP_Name + ") for cpp class " + GetClass()->GetName());
-	}
 }
 
-TSubclassOf<class AActor> UItemWeaponLightningGun::GetActorClass()
+FName UItemWeaponLightningGun::GetItemID()
 {
-	return ItemBlueprint;
+	return ItemID;
 }

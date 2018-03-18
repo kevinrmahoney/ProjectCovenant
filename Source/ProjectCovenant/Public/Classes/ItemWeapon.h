@@ -15,19 +15,14 @@ class PROJECTCOVENANT_API UItemWeapon : public UItem
 	GENERATED_BODY()
 	
 public:
-	virtual FString ToString() override;
+	UItemWeapon();
 
+	UFUNCTION()
+	void SetLastShotTimeStamp(UWorld * World);
+
+	virtual FString ToString() override;
+	int Count = 0;
 	int LoadedAmmo = 0;
 	float LastShotTimeStamp = 0.f;
-
-public:
-	UItemWeapon();
-	virtual TSubclassOf<class AActor> GetActorClass() override;
-
-	void SetLastShotTimeStamp();
-
-private:
-	FName BlueprintReference = TEXT("Class'/Game/Blueprints/Weapons/Railgun_BP.Railgun_BP'");
-	TSubclassOf<class AActor> ItemBlueprint;
 	
 };

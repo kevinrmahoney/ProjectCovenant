@@ -39,6 +39,7 @@ private:
 
 	FVector Velocity;
 
+	UPROPERTY()
 	UInventory * Inventory;
 
 	bool Grounded = false;
@@ -122,12 +123,6 @@ private:
 
 	UFUNCTION()
 	void Jetpack();
-
-	//UFUNCTION()
-	//void Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool AimDownSights);
-
-	//UFUNCTION(Server, Reliable, WithValidation)
-	//void Server_Move(FVector Client_Movement, bool Client_Jumping, bool Client_Sprinting, bool Client_Crouching, bool Client_JetpackActive, bool Client_Shooting, float Client_Pitch, bool Client_AimDownSights);
 
 	UFUNCTION()
 	void ApplyAirResistance();
@@ -288,4 +283,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayJetpackSound();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	TSubclassOf<class AActor> GetActorFromItemID(FName ItemID);
 };

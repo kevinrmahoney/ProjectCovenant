@@ -11,10 +11,14 @@ UInventory::UInventory(const FObjectInitializer& ObjectInitializer) : Super(Obje
 
 void UInventory::PrintList()
 {
+	Logger::Log("Array Size : " + FString::FromInt(Items.Num()));
+	Logger::Log("Inventory contains: ");
+	Logger::Log("=========================");
 	for(int i = 0; i < Items.Num(); i++)
 	{
-		Logger::Chat(Items[i]->ToString());
+		Logger::Log(Items[i]->GetClass()->GetName());
 	}
+	Logger::Log("=========================");
 }
 
 bool UInventory::CheckItem(int Num)

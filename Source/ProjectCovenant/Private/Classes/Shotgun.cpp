@@ -22,6 +22,7 @@ void AShotgun::BeginPlay()
 	//TODO lower ammo count, but don't disable shooting with negative ammo yet
 	Ammo = 100.f; //not yet implemented 
 	Duration = 0.25;
+	TimeSinceLastShot = Cooldown;
 	ShotVectors.Add(FVector(Range, 0.f, 0.f));
 }
 
@@ -46,7 +47,7 @@ void AShotgun::Update()
 			TimeSinceLastShot = 0.f;
 			if(Item)
 			{
-				Item->SetLastShotTimeStamp();
+				Item->SetLastShotTimeStamp(GetWorld());
 			}
 		}
 	}
@@ -64,6 +65,7 @@ void AShotgun::ConstructShotVectors()
 			ShotVectors.Add(SpreadVector);
 		}
 	}
+	Logger::Log("Constructed shot vectors: " + FString::FromInt(ShotVectors.Num()));
 }
 
 void AShotgun::SetShooter(ASubjectZero * NewShooter)

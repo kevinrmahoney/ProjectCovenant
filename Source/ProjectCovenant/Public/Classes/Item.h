@@ -3,9 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "UObject/NoExportTypes.h"
-#include "Railgun.h"
 #include "Item.generated.h"
+
+USTRUCT(BlueprintType)
+struct FItemStruct : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AActor> ActorClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ItemID;
+};
 
 /**
  * 
@@ -15,19 +31,16 @@ class PROJECTCOVENANT_API UItem : public UObject
 {
 	GENERATED_BODY()
 
-
-public:
-
-	virtual FString ToString();
-
-	int Count = 0;
-	bool Equipped = false;
-
 public:
 	UItem();
-	virtual TSubclassOf<class AActor> GetActorClass();
 
-private:
-	FName BlueprintReference = TEXT("Blueprint'/Game/Blueprints/Weapons/Railgun_BP.Railgun_BP'");
-	TSubclassOf<class AActor> ItemBlueprint;
+
+public:
+	virtual FString ToString();
+	int Count = 0;
+	bool Equipped = false;
+	FName ItemID = TEXT("-1");
+
+	virtual FName GetItemID();
+
 };

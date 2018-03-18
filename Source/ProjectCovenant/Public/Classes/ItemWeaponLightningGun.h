@@ -11,16 +11,14 @@ class AHitscanWeapon;
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class PROJECTCOVENANT_API UItemWeaponLightningGun : public UItemWeapon
 {
 	GENERATED_BODY()
 
 public:
 	UItemWeaponLightningGun();
-	virtual TSubclassOf<class AActor> GetActorClass() override;
+	FName ItemID = TEXT("1");
 
-private:
-	const TCHAR * BlueprintReference = TEXT("Class'/Game/Blueprints/Weapons/HitscanWeapon_BP.HitscanWeapon_BP'");
-	TSubclassOf<AHitscanWeapon> ItemBlueprint;
+	virtual FName GetItemID() override;
 };

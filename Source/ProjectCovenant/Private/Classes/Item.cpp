@@ -8,12 +8,12 @@ UItem::UItem()
 {
 }
 
-TSubclassOf<class AActor> UItem::GetActorClass()
-{
-	return ItemBlueprint;
-}
-
 FString UItem::ToString()
 {
 	return "Item";
+}
+
+FName UItem::GetItemID()
+{
+	return ItemID;
 }
