@@ -65,6 +65,7 @@ void AShotgun::ConstructShotVectors()
 			ShotVectors.Add(SpreadVector);
 		}
 	}
+	Logger::Log("Constructed shot vectors: " + FString::FromInt(ShotVectors.Num()));
 }
 
 void AShotgun::SetShooter(ASubjectZero * NewShooter)

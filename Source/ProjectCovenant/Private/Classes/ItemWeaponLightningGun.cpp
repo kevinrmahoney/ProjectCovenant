@@ -6,10 +6,9 @@
 
 UItemWeaponLightningGun::UItemWeaponLightningGun()
 {
-
 }
 
-int UItemWeaponLightningGun::GetItemID()
+FName UItemWeaponLightningGun::GetItemID()
 {
 	return ItemID;
 }

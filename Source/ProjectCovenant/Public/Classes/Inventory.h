@@ -21,6 +21,7 @@ public:
 	UInventory(const FObjectInitializer& ObjectInitializer);
 
 private:
+	UPROPERTY()
 	TArray<UItem*> Items;
 	
 public:

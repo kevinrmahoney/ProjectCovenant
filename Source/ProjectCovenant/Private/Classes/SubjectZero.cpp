@@ -286,22 +286,31 @@ void ASubjectZero::Equip(int Num)
 	{
 		if(UItemWeapon * ItemWeapon = Cast<UItemWeapon>(Inventory->GetItem(Num)))
 		{
-			int ItemID = ItemWeapon->GetItemID();
+			FName ItemID = ItemWeapon->GetItemID();
 
-			Logger::Chat("ITEM ID " + FString::FromInt(ItemID));
-			/*Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
-			if(Weapon)
+			if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(ItemID))
 			{
-				Weapon->SetItem(ItemWeapon);
+				if(GetWorld())
+				{
+					Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
+					if(Weapon)
+					{
+						Weapon->SetItem(ItemWeapon);
+					}
+					else
+					{
+						Logger::Log("Weapon was not successfully spawned");
+					}
+				}
 			}
 			else
 			{
-				Logger::Chat("NO WEAPON");
-			}*/
+				Logger::Log("Could not get actor class from item id " + ItemID.ToString());
+			}
 		}
 		else
 		{
-			Logger::Chat("NO ITEM");
+			Logger::Log("Could not find or cast Item to ItemWeapon ");
 		}
 	}
 	else

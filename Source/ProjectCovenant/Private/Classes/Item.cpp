@@ -13,7 +13,7 @@ FString UItem::ToString()
 	return "Item";
 }
 
-int UItem::GetItemID()
+FName UItem::GetItemID()
 {
 	return ItemID;
 }

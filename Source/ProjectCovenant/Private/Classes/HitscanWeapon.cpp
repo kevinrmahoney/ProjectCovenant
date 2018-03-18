@@ -74,6 +74,10 @@ void AHitscanWeapon::Update()
 			{
 				Item->SetLastShotTimeStamp();
 			}
+			else
+			{
+				Logger::Log("Could not find Item when attempting to set last shot time stamp");
+			}
 		}
 	}
 	DrawVisuals();

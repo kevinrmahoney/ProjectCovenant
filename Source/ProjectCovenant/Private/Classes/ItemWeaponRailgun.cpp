@@ -6,10 +6,9 @@
 
 UItemWeaponRailgun::UItemWeaponRailgun()
 {
-
 }
 
-int UItemWeaponRailgun::GetItemID()
+FName UItemWeaponRailgun::GetItemID()
 {
 	return ItemID;
 }

@@ -39,8 +39,8 @@ public:
 	virtual FString ToString();
 	int Count = 0;
 	bool Equipped = false;
-	int ItemID = 100;
+	FName ItemID = TEXT("-1");
 
-	virtual int GetItemID();
+	virtual FName GetItemID();
 
 };

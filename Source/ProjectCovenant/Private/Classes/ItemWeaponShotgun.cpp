@@ -8,7 +8,7 @@ UItemWeaponShotgun::UItemWeaponShotgun()
 {
 }
 
-int UItemWeaponShotgun::GetItemID()
+FName UItemWeaponShotgun::GetItemID()
 {
 	return ItemID;
 }

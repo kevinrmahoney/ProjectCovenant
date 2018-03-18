@@ -39,6 +39,7 @@ private:
 
 	FVector Velocity;
 
+	UPROPERTY()
 	UInventory * Inventory;
 
 	bool Grounded = false;
@@ -290,5 +291,5 @@ public:
 	void PlayJetpackSound();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	TSubclassOf<class AActor> GetActorFromItemID(int ItemID);
+	TSubclassOf<class AActor> GetActorFromItemID(FName ItemID);
 };
