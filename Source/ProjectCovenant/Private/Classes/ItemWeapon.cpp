@@ -11,24 +11,18 @@ UItemWeapon::UItemWeapon()
 void UItemWeapon::SetLastShotTimeStamp(UWorld * World)
 {
 	Logger::Log("Setting last shot time stamp...");
-	try
+	if(World)
 	{
-		if(World)
-		{
-			float Timestamp = World->GetRealTimeSeconds();
-			LastShotTimeStamp = Timestamp;
-			Logger::Log("Set last shot time stamp to: " + FString::SanitizeFloat(LastShotTimeStamp));
-		}
-		else
-		{
-			Logger::Log("GetWorld returned null");
-		}
+		float Timestamp = World->GetRealTimeSeconds();
+		LastShotTimeStamp = Timestamp;
+		Logger::Log("Set last shot time stamp to: " + FString::SanitizeFloat(LastShotTimeStamp));
 	}
-	catch(...)
+	else
 	{
-		Logger::Log("An exception occurred attempting to set the time stamp for firing a weapon");
+		Logger::Log("GetWorld returned null");
 	}
 }
+
 
 FString UItemWeapon::ToString()
 {
