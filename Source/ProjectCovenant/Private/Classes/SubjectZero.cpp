@@ -153,7 +153,7 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Shield)
 	DOREPLIFETIME(ASubjectZero, Fuel)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Pitch, COND_SimulatedOnly)
-	DOREPLIFETIME_CONDITION(ASubjectZero, Equipped, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, EquippedItemID, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Crouching, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, AimDownSights, COND_SimulatedOnly)
@@ -256,28 +256,38 @@ void ASubjectZero::Update()
 	}
 }
 
-void ASubjectZero::Equip(int Num)
+//Equips local controller with a weapon, and sends information to the server
+void ASubjectZero::Equip(int Slot)
 {
-	if(Weapon)
+	// Make sure the inventory actually has an item in this slot before equipping it
+	if(Inventory && Inventory->CheckItem(Slot))
 	{
-		Weapon->Destroy();
-	}
+		// Get the item from the inventory
+		UItem * NewItem = Inventory->GetItem(Slot);
 
-	if(HasAuthority())
-	{
-		Equipped = Num;
-	}
-
-	if(IsLocallyControlled())
-	{
-		if(Inventory && Inventory->CheckItem(Num))
+		// Destroy the current weapon before creating a new one
+		if(Weapon)
 		{
-			if(UItemWeapon * ItemWeapon = Cast<UItemWeapon>(Inventory->GetItem(Num)))
-			{
-				FName ItemID = ItemWeapon->GetItemID();
+			Weapon->Destroy();
+		}
 
-				if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(ItemID))
+		// Update replicated variable from the server so simulated proxies are updated with new equipped item
+		if(HasAuthority())
+		{
+			Logger::Log("Updating simulated proxy item id");
+			EquippedItemID = NewItem->GetItemID();
+		}
+
+		// Update the local controller and server copy with the new weapon
+		if(IsLocallyControlled() || HasAuthority())
+		{
+			// Check if the Item is a Weapon (TODO: This should be generalized to "EquippableItem")
+			if(UItemWeapon * ItemWeapon = Cast<UItemWeapon>(Inventory->GetItem(Slot)))
+			{
+				// Get the Actor class that represents the Item
+				if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(NewItem->GetItemID()))
 				{
+					// Spawn the actor in the world, set the item associated with the actor to the item from the inventory
 					if(GetWorld())
 					{
 						Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
@@ -293,7 +303,7 @@ void ASubjectZero::Equip(int Num)
 				}
 				else
 				{
-					Logger::Log("Could not get actor class from item id " + ItemID.ToString());
+					Logger::Log("Could not get actor class from item id " + NewItem->GetItemID().ToString());
 				}
 			}
 			else
@@ -301,25 +311,10 @@ void ASubjectZero::Equip(int Num)
 				Logger::Log("Could not find or cast Item to ItemWeapon ");
 			}
 		}
-		else
-		{
-			Logger::Log("No weapon in slot " + FString::FromInt(Num));
-			Inventory->PrintList();
-		}
 	}
 	else
 	{
-		if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(FName(*(FString::FromInt(Num) + ""))))
-		{
-			if(GetWorld())
-			{
-				Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
-			}
-		}
-		else
-		{
-			Logger::Log("Could not spawn actor on simulated proxy: " + FString::FromInt(Num));
-		}
+		Logger::Error("No item in slot " + FString::FromInt(Slot));
 	}
 
 	if(Weapon)
@@ -329,34 +324,54 @@ void ASubjectZero::Equip(int Num)
 		{
 			// Attach the weapon to the actor's third person mesh if the actor is not controlled by the local player, but another player
 			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-		}
-		// If this actor is controlled by a remote client or server, attach to the third person mesh
-		else
-		{
-			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-		}
 
-		// Make who is considered the shooter to be this character
-		Weapon->SetShooter(this);
+			// Make who is considered the shooter to be this character
+			Weapon->SetShooter(this);
+		}
 	}
 }
 
-void ASubjectZero::Server_Equip_Implementation(int Num)
+void ASubjectZero::Server_Equip_Implementation(int Slot)
 {
-	Equip(Num);
+	Equip(Slot);
+}
+
+
+bool ASubjectZero::Server_Equip_Validate(int Slot)
+{
+	return true;
 }
 
 void ASubjectZero::OnRep_Equip()
 {
-	if(Role == ROLE_SimulatedProxy)
+	Logger::Log("Simulated proxy update weapon");
+	// Destroy the current weapon before creating a new one
+	if(Weapon)
 	{
-		Equip(Equipped);
+		Weapon->Destroy();
 	}
-}
 
-bool ASubjectZero::Server_Equip_Validate(int Num)
-{
-	return true;
+	if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(EquippedItemID))
+	{
+		if(GetWorld())
+		{
+			Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
+
+			if(Weapon)
+			{
+				Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+				Weapon->SetShooter(this);
+			}
+		}
+		else
+		{
+			Logger::Log("WHAT IN THE ACTUAL FUCK");
+		}
+	}
+	else
+	{
+		Logger::Log("Could not spawn actor on simulated proxy: " + EquippedItemID.ToString());
+	}
 }
 
 void ASubjectZero::Jetpack()
@@ -732,29 +747,32 @@ bool ASubjectZero::ServerSetUse_Validate(bool Set)
 
 void ASubjectZero::Slot0()
 {
-	Equip(0);
+	int ID = 0;
+	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(0);
+		Server_Equip(ID);
 	}
 }
 
 void ASubjectZero::Slot1()
 {
-	Equip(1);
+	int ID = 1;
+	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(1);
+		Server_Equip(ID);
 	}
 }
 
 
 void ASubjectZero::Slot2()
 {
-	Equip(2);
+	int ID = 2;
+	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(2);
+		Server_Equip(ID);
 	}
 }
 

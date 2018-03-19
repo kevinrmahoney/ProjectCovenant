@@ -11,20 +11,20 @@ UInventory::UInventory(const FObjectInitializer& ObjectInitializer) : Super(Obje
 
 void UInventory::PrintList()
 {
-	//// check if Items has elements
-	//if(&Items != nullptr)
-	//{
-	//	Logger::Log("Inventory contains: ");
-	//	Logger::Log("=========================");
-	//	for(int i = 0; i < Items.Num(); i++)
-	//	{
-	//		if(Items[i])
-	//		{
-	//			Logger::Log(Items[i]->GetClass()->GetName());
-	//		}
-	//	}
-	//	Logger::Log("=========================");
-	//}
+	// check if Items has elements
+	if(&Items != nullptr)
+	{
+		Logger::Log("Inventory contains: ");
+		Logger::Log("=========================");
+		for(int i = 0; i < Items.Num(); i++)
+		{
+			if(Items[i])
+			{
+				Logger::Log(Items[i]->GetClass()->GetName());
+			}
+		}
+		Logger::Log("=========================");
+	}
 }
 
 bool UInventory::CheckItem(int Num)
@@ -42,6 +42,7 @@ UItem * UInventory::GetItem(int Num)
 	{
 		return nullptr;
 	}
+	PrintList();
 }
 
 void UInventory::AddItem(UItem * NewItem)

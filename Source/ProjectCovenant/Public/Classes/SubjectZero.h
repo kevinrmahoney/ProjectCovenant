@@ -28,8 +28,8 @@ public:
 private:
 	AHitscanWeapon * Weapon;
 
-	UPROPERTY(ReplicatedUsing = OnRep_Equip)
-	int Equipped = -1;
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_Equip)
+	FName EquippedItemID = TEXT("-1");
 
 	UPROPERTY(Replicated)
 	bool JetpackUsed = false;
@@ -125,10 +125,10 @@ private:
 	void ApplyAirResistance();
 
 	UFUNCTION()
-	void Equip(int Num);
+	void Equip(int Slot);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Equip(int Num);
+	void Server_Equip(int Slot);
 
 	UFUNCTION()
 	void OnRep_Equip();

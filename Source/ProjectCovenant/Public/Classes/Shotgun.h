@@ -48,12 +48,12 @@ private:
 
 	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
 
-	float MaxConeAngle = 1800.f;
+	float MaxConeAngle = 1000.f;
 
 	//maybe change to FRotator
 	float RollCount = 8.f;
 
-	float CircleCount = 3.f;
+	float CircleCount = 4.f;
 
 	virtual FVector GetAimDownSightsLocation() override;
 

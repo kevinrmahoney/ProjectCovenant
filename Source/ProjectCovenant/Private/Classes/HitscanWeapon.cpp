@@ -51,8 +51,11 @@ void AHitscanWeapon::Tick(float DeltaTime)
 
 void AHitscanWeapon::SetItem(UItemWeapon * NewItem)
 {
-	Item = NewItem;
-	TimeSinceLastShot = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp;
+	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
+	{
+		Item = NewItem;
+		TimeSinceLastShot = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp;
+	}
 }
 
 void AHitscanWeapon::Update()
@@ -70,7 +73,7 @@ void AHitscanWeapon::Update()
 			// make sure the outcome does not go above value of Cooldown
 			TimeSinceLastShot = 0.f;
 			//Item->LastShotTimeStamp = 0.f;
-			if(Item)
+			if(Item && (Role == ROLE_Authority || Role == ROLE_AutonomousProxy))
 			{
 				Item->SetLastShotTimeStamp(GetWorld());
 			}
