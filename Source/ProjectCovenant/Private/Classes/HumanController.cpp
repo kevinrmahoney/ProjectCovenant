@@ -19,7 +19,7 @@ AHumanController::AHumanController()
 void AHumanController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	Logger::Log("Begin: " + GetName());
 	if(IsLocalController())
 	{
 		InitializeHUD();
@@ -186,24 +186,30 @@ void AHumanController::InitializeHUD()
 
 void AHumanController::InputYaw(float Value) 
 {
-	if(SubjectZero)
+	if(GameInstance)
 	{
-		SubjectZero->SetYaw(Value * GameInstance->GetSensitivity());
-	}
-	if(Spectator)
-	{
-		Spectator->SetYaw(Value * GameInstance->GetSensitivity());
+		if(SubjectZero)
+		{
+			SubjectZero->SetYaw(Value * GameInstance->GetSensitivity());
+		}
+		if(Spectator)
+		{
+			Spectator->SetYaw(Value * GameInstance->GetSensitivity());
+		}
 	}
 }
-void AHumanController::InputPitch(float Value) 
+void AHumanController::InputPitch(float Value)
 {
-	if(SubjectZero)
+	if(GameInstance)
 	{
-		SubjectZero->SetPitch(Value * GameInstance->GetSensitivity());
-	}
-	else if(Spectator)
-	{
-		Spectator->SetPitch(Value * GameInstance->GetSensitivity());
+		if(SubjectZero)
+		{
+			SubjectZero->SetPitch(Value * GameInstance->GetSensitivity());
+		}
+		else if(Spectator)
+		{
+			Spectator->SetPitch(Value * GameInstance->GetSensitivity());
+		}
 	}
 }
 void AHumanController::InputForwardPress() 

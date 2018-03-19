@@ -15,7 +15,7 @@ class PROJECTCOVENANT_API ABasePlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
-	ABasePlayerState();
+	void BeginPlay() override;
 
 	void Tick(float DeltaTime) override;
 	

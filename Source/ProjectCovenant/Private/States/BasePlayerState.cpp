@@ -4,8 +4,9 @@
 #include "UnrealNetwork.h"
 #include "BasePlayerState.h"
 
-ABasePlayerState::ABasePlayerState()
+void ABasePlayerState::BeginPlay()
 {
+	Super::BeginPlay();
 	if(HasAuthority())
 	{
 		Logger::Log("PlayerState: BasePlayerState" + GetName());

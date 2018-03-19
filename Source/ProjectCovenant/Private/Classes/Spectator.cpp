@@ -12,6 +12,8 @@ ASpectator::ASpectator()
 
 void ASpectator::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
 	if(Left && !Right)
 	{
 		Movement.Y = -1.f;
@@ -78,7 +80,7 @@ bool ASpectator::Server_Move_Validate()
 void ASpectator::Spawn()
 {
 	Logger::Log("Trying to Spawn...");
-	if(HasAuthority())
+	if(Role == ROLE_Authority)
 	{
 		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{

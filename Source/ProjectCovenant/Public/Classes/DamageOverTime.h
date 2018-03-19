@@ -22,21 +22,21 @@ class PROJECTCOVENANT_API ADamageOverTime : public ATriggerBox
 		virtual void BeginPlay() override;
 
 		UFUNCTION()
-			virtual void Tick(float DeltaTime) override;
+		virtual void Tick(float DeltaTime) override;
 
 		UFUNCTION(BlueprintCallable)
-			void IncrementCount();
+		void IncrementCount();
 
 		UFUNCTION(BlueprintCallable)
-			void DecrementCount();
+		void DecrementCount();
 
 	public:
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyVariables")
-			bool Overlapped = false;
+		bool Overlapped = false;
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyVariables")
-			float DamageAmount = 1.f;
+		float DamageAmount = 1.f;
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyVariables")
-			int Count = 0;
+		int Count = 0;
 };

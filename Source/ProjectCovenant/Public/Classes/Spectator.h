@@ -45,8 +45,8 @@ class PROJECTCOVENANT_API ASpectator : public ASpectatorPawn
 	void Slot3();
 
 private:
-	FVector Movement;
-	bool Sprinting;
+	FVector Movement = FVector::ZeroVector;
+	bool Sprinting = false;
 
 	bool Left = false;
 	bool Right = false;

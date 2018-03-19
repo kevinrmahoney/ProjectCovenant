@@ -54,13 +54,18 @@ void ASubjectZero::BeginPlay()
 	FirstPersonMesh->SetRelativeLocation(HipfireLocation);
 	FirstPersonMesh->SetRelativeRotation(HipfireRotation);
 
-	Inventory = NewObject<UInventory>(this);
-	UItem * LightningGun = NewObject<UItemWeaponLightningGun>(this);
-	UItem * Railgun = NewObject<UItemWeaponRailgun>(this);
-	UItem * Shotgun = NewObject<UItemWeaponShotgun>(this);
-	Inventory->AddItem(LightningGun);
-	Inventory->AddItem(Railgun);
-	Inventory->AddItem(Shotgun);
+	if(IsLocallyControlled() || Role == ROLE_Authority)
+	{
+		// For some reason you have to add the second argument (naming the UObject) in order to prevent null pointers
+		// https://answers.unrealengine.com/questions/410789/tarray-of-uobjects-getting-garbage-collected.html 
+		Inventory = NewObject<UInventory>(this,"I");
+		UItem * LightningGun = NewObject<UItemWeaponLightningGun>(this, "DONT");
+		UItem * Railgun = NewObject<UItemWeaponRailgun>(this, "GET");
+		UItem * Shotgun = NewObject<UItemWeaponShotgun>(this, "IT");
+		Inventory->AddItem(LightningGun);
+		Inventory->AddItem(Railgun);
+		Inventory->AddItem(Shotgun);
+	}
 }
 
 // Called every frame
@@ -251,25 +256,6 @@ void ASubjectZero::Update()
 	}
 }
 
-void ASubjectZero::ServerUpdate_Implementation(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewJumping, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights)
-{
-	Forward = NewForward;
-	Backward = NewBackward;
-	Left = NewLeft;
-	Right = NewRight;
-	Jumping = NewJumping;
-	Sprinting = NewSprinting;
-	Crouching = NewCrouching;
-	TryJetpack = NewTryJetpack;
-	IsTriggerPulled = NewShooting;
-	AimDownSights = NewAimDownSights;
-}
-
-bool ASubjectZero::ServerUpdate_Validate(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewJumping, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights)
-{
-	return true;
-}
-
 void ASubjectZero::Equip(int Num)
 {
 	if(Weapon)
@@ -282,41 +268,58 @@ void ASubjectZero::Equip(int Num)
 		Equipped = Num;
 	}
 
-	if(Inventory && Inventory->CheckItem(Num))
+	if(IsLocallyControlled())
 	{
-		if(UItemWeapon * ItemWeapon = Cast<UItemWeapon>(Inventory->GetItem(Num)))
+		if(Inventory && Inventory->CheckItem(Num))
 		{
-			FName ItemID = ItemWeapon->GetItemID();
-
-			if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(ItemID))
+			if(UItemWeapon * ItemWeapon = Cast<UItemWeapon>(Inventory->GetItem(Num)))
 			{
-				if(GetWorld())
+				FName ItemID = ItemWeapon->GetItemID();
+
+				if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(ItemID))
 				{
-					Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
-					if(Weapon)
+					if(GetWorld())
 					{
-						Weapon->SetItem(ItemWeapon);
+						Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
+						if(Weapon)
+						{
+							Weapon->SetItem(ItemWeapon);
+						}
+						else
+						{
+							Logger::Log("Weapon was not successfully spawned");
+						}
 					}
-					else
-					{
-						Logger::Log("Weapon was not successfully spawned");
-					}
+				}
+				else
+				{
+					Logger::Log("Could not get actor class from item id " + ItemID.ToString());
 				}
 			}
 			else
 			{
-				Logger::Log("Could not get actor class from item id " + ItemID.ToString());
+				Logger::Log("Could not find or cast Item to ItemWeapon ");
 			}
 		}
 		else
 		{
-			Logger::Log("Could not find or cast Item to ItemWeapon ");
+			Logger::Log("No weapon in slot " + FString::FromInt(Num));
+			Inventory->PrintList();
 		}
 	}
 	else
 	{
-		Logger::Log("No weapon in slot " + FString::FromInt(Num));
-		Inventory->PrintList();
+		if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(FName(*(FString::FromInt(Num) + ""))))
+		{
+			if(GetWorld())
+			{
+				Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
+			}
+		}
+		else
+		{
+			Logger::Log("Could not spawn actor on simulated proxy: " + FString::FromInt(Num));
+		}
 	}
 
 	if(Weapon)

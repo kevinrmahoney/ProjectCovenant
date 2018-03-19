@@ -4,11 +4,6 @@
 #include "UnrealNetwork.h"
 #include "BaseState.h"
 
-ABaseState::ABaseState()
-{
-	SetActorTickEnabled(true);
-}
-
 void ABaseState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -17,7 +12,8 @@ void ABaseState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifet
 
 void ABaseState::BeginPlay()
 {
-	Logger::Log("ABaseState");
+	Super::BeginPlay();
+	Logger::Log("Beginning Play Base State...");
 	TimeLeft = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 }
 

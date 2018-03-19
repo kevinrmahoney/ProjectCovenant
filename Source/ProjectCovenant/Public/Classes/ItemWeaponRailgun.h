@@ -18,7 +18,7 @@ class PROJECTCOVENANT_API UItemWeaponRailgun : public UItemWeapon
 
 public:
 	UItemWeaponRailgun();
-	FName ItemID = TEXT("2");
+	FName ItemID = TEXT("1");
 
 	virtual FName GetItemID() override;
 };

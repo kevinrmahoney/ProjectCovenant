@@ -37,7 +37,7 @@ private:
 	UPROPERTY()
 	TArray<AHitscanWeapon*> Weapons;
 
-	FVector Velocity;
+	FVector Velocity = FVector::ZeroVector;
 
 	UPROPERTY()
 	UInventory * Inventory;
@@ -114,9 +114,6 @@ public:
 private:
 	UFUNCTION()
 	void Update();
-
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerUpdate(bool NewForward, bool NewBackward, bool NewLeft, bool NewRight, bool NewJumping, bool NewSprinting, bool NewCrouching, bool NewTryJetpack, bool NewShooting, bool NewAimDownSights);
 
 	UFUNCTION()
 	void Move();

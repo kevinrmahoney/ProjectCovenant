@@ -19,8 +19,6 @@ class PROJECTCOVENANT_API ABaseMode : public AGameMode
 	GENERATED_BODY()
 
 public:
-	ABaseMode();
-	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ASubjectZero> SubjectZeroBlueprint;
 

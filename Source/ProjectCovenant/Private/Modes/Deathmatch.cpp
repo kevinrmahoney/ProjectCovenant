@@ -6,10 +6,10 @@
 #include "SubjectZero.h"
 #include "BaseState.h"
 #include "BasePlayerState.h"
-//#include "HumanController.h"
 
-ADeathmatch::ADeathmatch()
+void ADeathmatch::BeginPlay()
 {
+	Super::BeginPlay();
 	Logger::Log("Mode: Deathmatch");
 	ABaseState * State = Cast<ABaseState>(GameState);
 	TimeLeft = TimeLimit;
@@ -27,28 +27,28 @@ void ADeathmatch::Tick(float DeltaTime)
 	{
 		TimeLeft = TimeLeft - DeltaTime;
 		State->TimeLeft = TimeLeft;
-	}
 
-	if(TimeLeft < 0.f)
-	{
-		ABasePlayerState * Winner = nullptr;
-		for(auto SomeState : GameState->PlayerArray)
+		if(TimeLeft < 0.f)
 		{
-			ABasePlayerState * PlayerState = Cast<ABasePlayerState>(SomeState);
-			if(!Winner || PlayerState->GetKills() > Winner->GetKills())
+			ABasePlayerState * Winner = nullptr;
+			for(auto SomeState : State->PlayerArray)
 			{
-				Winner = PlayerState;
+				ABasePlayerState * PlayerState = Cast<ABasePlayerState>(SomeState);
+				if(!Winner || PlayerState->GetKills() > Winner->GetKills())
+				{
+					Winner = PlayerState;
+				}
+				else if(Winner && Winner->GetKills() == PlayerState->GetKills() && PlayerState->GetDamageDealt() > Winner->GetDamageDealt())
+				{
+					Winner = PlayerState;
+				}
 			}
-			else if(Winner && PlayerState->GetDamageDealt() > Winner->GetDamageDealt())
-			{
-				Winner = PlayerState;
-			}
-		}
 		
-		TimeLeft = TimeLimit;
-		if(State)
-		{
-			State->GameOver();
+			TimeLeft = TimeLimit;
+			if(State)
+			{
+				State->GameOver();
+			}
 		}
 	}
 }

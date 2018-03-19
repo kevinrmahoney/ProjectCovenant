@@ -28,15 +28,19 @@ public:
 
 	void UnPossess() override;
 
+	UPROPERTY()
 	ASubjectZero * SubjectZero;
 
+	UPROPERTY()
 	ASpectator * Spectator;
 
+	UFUNCTION()
 	ASubjectZero * GetSubjectZero();
 
 	UFUNCTION(BlueprintCallable)
 	FName GetPlayerName() const;
 
+	UPROPERTY()
 	FName PlayerName = "Subject Zero";
 
 	bool GodMode = false;
@@ -47,8 +51,10 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> Scoreboard;
 
+	UPROPERTY()
 	UUserWidget * PlayerHUD;
 
+	UPROPERTY()
 	UUserWidget * PlayerScoreboard;
 
 	UFUNCTION(Exec)
@@ -68,6 +74,7 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Set_Name(const FName NewName);
 
+	UPROPERTY()
 	APawn * PossessedPawn;
 
 	void InitializeHUD();

@@ -7,21 +7,18 @@
 #include "BasePlayerState.h"
 #include "BaseMode.h"
 
-ABaseMode::ABaseMode()
-{
-
-}
-
 void ABaseMode::BeginPlay()
 {
+	Super::BeginPlay();
+	Logger::Log("Begin BaseMode");
 }
 
 void ABaseMode::PostLogin(APlayerController * NewPlayer)
 {
+	Super::PostLogin(NewPlayer);
 	Logger::Chat("Welcome " + NewPlayer->GetNetOwningPlayer()->GetName());
 	Logger::Log(NewPlayer->GetNetOwningPlayer()->GetName() + " has joined the game.");
 
-	Super::PostLogin(NewPlayer);
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPoints);
 	if(AHumanController * Controller = Cast<AHumanController>(NewPlayer))
 	{
@@ -57,15 +54,20 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 			if(SpawnPoints.Num())
 			{
 				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
+				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " at " + NewPawn->GetActorLocation().ToString() + " with rotation " + NewPawn->GetActorRotation().ToString());
 			}
 			else
 			{
 				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, FVector::ZeroVector, FRotator::ZeroRotator);
+				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " at " + NewPawn->GetActorLocation().ToString() + " with rotation " + NewPawn->GetActorRotation().ToString());
 			}
 			Characters.Add(NewPawn);
-			APawn * OldPawn = Controller->GetPawn();
-			Controller->Possess(NewPawn);
-			if(OldPawn) OldPawn->Destroy();
+			if(Controller)
+			{
+				APawn * OldPawn = Controller->GetPawn();
+				Controller->Possess(NewPawn);
+				if(OldPawn) OldPawn->Destroy();
+			}
 		}
 	}
 
@@ -77,7 +79,7 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 
 void ABaseMode::KillPlayer(AHumanController * Controller)
 {
-	Logger::Chat("BaseMode: ");
+	Logger::Chat("Killing player " + Controller->GetName());
 	if(Controller)
 	{
 		if(GetWorld())
@@ -155,17 +157,16 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 		{
 			Logger::Error("Could not cast or obtain victim's PlayerState");
 		}
-	}
-
-	if(Killed)
-	{
-		if(AHumanController * HumanController = Cast<AHumanController>(Victim->GetController()))
+		if(Killed)
 		{
-			KillPlayer(HumanController);
-		}
-		else
-		{
-			Logger::Log("Could not kill player " + HumanController->GetName());
+			if(AHumanController * HumanController = Cast<AHumanController>(Victim->GetController()))
+			{
+				KillPlayer(HumanController);
+			}
+			else
+			{
+				Logger::Log("Could not kill player " + HumanController->GetName());
+			}
 		}
 	}
 }

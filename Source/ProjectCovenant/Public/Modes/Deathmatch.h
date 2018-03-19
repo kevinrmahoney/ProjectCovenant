@@ -17,10 +17,9 @@ class PROJECTCOVENANT_API ADeathmatch : public ABaseMode
 	GENERATED_BODY()
 
 public:
-
-	ADeathmatch();
-
 	void Tick(float DeltaTime) override;
+
+	void BeginPlay() override;
 
 	void KillPlayer(AHumanController * Controller) override;
 
@@ -33,6 +32,6 @@ private:
 
 	float TimeLimit = 600.f;
 
-	float TimeLeft;
+	float TimeLeft = 600.f;
 
 };
