@@ -23,4 +23,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
+protected:
+	USceneComponent * Root;
+
+	UStaticMeshComponent * Mesh;
+
+	UProjectileMovementComponent * ProjectileMovementComponent;
+
+	float MaxDamage = 100.f;
+
+	float FallOff = 0.3;
+
+	float IntialVelocity = 1000.f;
+
 };

@@ -27,16 +27,22 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent * Root;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent * Mesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UProjectileMovementComponent * ProjectileMovementComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float MaxDamage = 100.f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float FallOff = 0.3;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float IntialVelocity = 1000.f;
 	
 };

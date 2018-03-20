@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Projectile.h"
 #include "ProjectileWeapon.generated.h"
 
 class UItemWeapon;
@@ -68,6 +69,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent * Muzzle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	AProjectile * Projectile;
 
 protected:
 	// Called when the game starts or when spawned
