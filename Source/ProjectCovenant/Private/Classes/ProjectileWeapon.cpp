@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ProjectCovenant.h"
-#include "HitscanWeapon.h"
+#include "ProjectileWeapon.h"
 #include "BasePlayerState.h"
 #include "SubjectZero.h"
 #include "HumanController.h"
@@ -10,14 +10,14 @@
 #include "BaseMode.h"
 
 // Sets default values
-AHitscanWeapon::AHitscanWeapon()
+AProjectileWeapon::AProjectileWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
 
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMesh"), false);
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun Mesh"), false);
 	Mesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
 	Mesh->SetVisibility(true);
 	Mesh->SetOnlyOwnerSee(false);
@@ -27,29 +27,29 @@ AHitscanWeapon::AHitscanWeapon()
 	Muzzle->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
-void AHitscanWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+void AProjectileWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
 {
 	// The follow variables are replicated from server to the clients
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AHitscanWeapon, Trigger)
+	DOREPLIFETIME(AProjectileWeapon, Trigger)
 }
 
 // Called when the game starts or when spawned
-void AHitscanWeapon::BeginPlay()
+void AProjectileWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	ConstructShotVectors();
 }
 
 // Called every frame
-void AHitscanWeapon::Tick(float DeltaTime)
+void AProjectileWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	TimeSinceLastShot += DeltaTime;
 	Update();
 }
 
-void AHitscanWeapon::SetItem(UItemWeapon * NewItem)
+void AProjectileWeapon::SetItem(UItemWeapon * NewItem)
 {
 	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
 	{
@@ -58,7 +58,7 @@ void AHitscanWeapon::SetItem(UItemWeapon * NewItem)
 	}
 }
 
-void AHitscanWeapon::Update()
+void AProjectileWeapon::Update()
 {
 	// If the trigger is pulled
 	if(Trigger)
@@ -87,22 +87,22 @@ void AHitscanWeapon::Update()
 	PlayShootSound();
 }
 
-void AHitscanWeapon::ConstructShotVectors()
+void AProjectileWeapon::ConstructShotVectors()
 {
 	ShotVectors.Add(FVector(Range, 0.f, 0.f));
 }
 
-void AHitscanWeapon::SetShooter(ASubjectZero * NewShooter)
+void AProjectileWeapon::SetShooter(ASubjectZero * NewShooter)
 {
 	Shooter = NewShooter;
 }
 
-void AHitscanWeapon::SetTrigger(bool T)
+void AProjectileWeapon::SetTrigger(bool T)
 {
 	Trigger = T;
 }
 
-void AHitscanWeapon::Shoot()
+void AProjectileWeapon::Shoot()
 {
 	//DrawDebugVisuals(); TODO: enable with console command
 
@@ -119,7 +119,7 @@ void AHitscanWeapon::Shoot()
 			FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
 			TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
 
-			// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
+													// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
 			if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *EndTrace, ECC_Pawn, *TraceParams) && HitResult && HitResult->GetActor())
 			{
 				// Get the victim and attempt to cast to SubjectZero
@@ -142,7 +142,7 @@ void AHitscanWeapon::Shoot()
 	}
 }
 
-void AHitscanWeapon::DrawDebugVisuals()
+void AProjectileWeapon::DrawDebugVisuals()
 {
 	FVector StartPoint = FVector(Muzzle->GetComponentLocation());
 	FVector EndPoint;
@@ -153,7 +153,7 @@ void AHitscanWeapon::DrawDebugVisuals()
 	}
 }
 
-void AHitscanWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
+void AProjectileWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 {
 	ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode());
 	if(Mode)
@@ -162,22 +162,22 @@ void AHitscanWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 	}
 }
 
-FVector AHitscanWeapon::GetAimDownSightsLocation()
+FVector AProjectileWeapon::GetAimDownSightsLocation()
 {
 	return AimDownSightsLocation;
 }
 
-FRotator AHitscanWeapon::GetAimDownSightsRotation()
+FRotator AProjectileWeapon::GetAimDownSightsRotation()
 {
 	return AimDownSightsRotation;
 }
 
-FVector AHitscanWeapon::GetHipFireLocation()
+FVector AProjectileWeapon::GetHipFireLocation()
 {
 	return HipFireLocation;
 }
 
-FRotator AHitscanWeapon::GetHipFireRotation()
+FRotator AProjectileWeapon::GetHipFireRotation()
 {
 	return HipFireRotation;
 }

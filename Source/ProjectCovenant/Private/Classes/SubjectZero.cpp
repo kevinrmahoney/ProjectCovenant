@@ -12,6 +12,7 @@
 #include "ItemWeaponShotgun.h"
 #include "ItemWeaponRailgun.h"
 #include "ItemWeaponLightningGun.h"
+#include "ItemWeaponRocketLauncher.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -59,12 +60,14 @@ void ASubjectZero::BeginPlay()
 		// For some reason you have to add the second argument (naming the UObject) in order to prevent null pointers
 		// https://answers.unrealengine.com/questions/410789/tarray-of-uobjects-getting-garbage-collected.html 
 		Inventory = NewObject<UInventory>(this,"I");
-		UItem * LightningGun = NewObject<UItemWeaponLightningGun>(this, "DONT");
-		UItem * Railgun = NewObject<UItemWeaponRailgun>(this, "GET");
-		UItem * Shotgun = NewObject<UItemWeaponShotgun>(this, "IT");
+		UItem * LightningGun = NewObject<UItemWeaponLightningGun>(this, "LightningGun");
+		UItem * Railgun = NewObject<UItemWeaponRailgun>(this, "Railgun");
+		UItem * Shotgun = NewObject<UItemWeaponShotgun>(this, "Shotgun");
+		UItem * RocketLauncher = NewObject<UItemWeaponRocketLauncher>(this, "RocketLauncher");
 		Inventory->AddItem(LightningGun);
 		Inventory->AddItem(Railgun);
 		Inventory->AddItem(Shotgun);
+		Inventory->AddItem(RocketLauncher);
 	}
 }
 

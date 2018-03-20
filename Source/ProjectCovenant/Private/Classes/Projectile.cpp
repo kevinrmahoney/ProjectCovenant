@@ -1,28 +1,26 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ProjectCovenant.h"
-#include "ProjectWeapon.h"
+#include "Projectile.h"
 
 
 // Sets default values
-AProjectWeapon::AProjectWeapon()
+AProjectile::AProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
-void AProjectWeapon::BeginPlay()
+void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
 // Called every frame
-void AProjectWeapon::Tick(float DeltaTime)
+void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
-

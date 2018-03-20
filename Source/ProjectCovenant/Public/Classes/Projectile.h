@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ProjectWeapon.generated.h"
+#include "Projectile.generated.h"
 
 UCLASS()
-class PROJECTCOVENANT_API AProjectWeapon : public AActor
+class PROJECTCOVENANT_API AProjectile : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AProjectWeapon();
+	AProjectile();
 
 protected:
 	// Called when the game starts or when spawned
@@ -22,7 +22,5 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	
 	
 };
