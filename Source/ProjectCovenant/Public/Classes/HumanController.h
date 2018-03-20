@@ -102,6 +102,7 @@ private:
 	void InputSlot1();
 	void InputSlot2();
 	void InputSlot3();
+	void InputSlot4();
 	void InputUsePress();
 	void InputScoreboardPress();
 	void InputScoreboardRelease();

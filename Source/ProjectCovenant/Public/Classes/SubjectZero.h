@@ -5,9 +5,7 @@
 #include "GameFramework/Character.h"
 #include "SubjectZero.generated.h"
 
-class AHitscanWeapon;
-class ARailgun;
-class AShotgun;
+class AWeapon;
 class UInventory;
 
 UCLASS()
@@ -26,16 +24,13 @@ public:
 	float DamageMultiplierDuration = 0.f;
 
 private:
-	AHitscanWeapon * Weapon;
+	AWeapon * Weapon;
 
 	UPROPERTY(Replicated, ReplicatedUsing = OnRep_Equip)
 	FName EquippedItemID = TEXT("-1");
 
 	UPROPERTY(Replicated)
 	bool JetpackUsed = false;
-
-	UPROPERTY()
-	TArray<AHitscanWeapon*> Weapons;
 
 	FVector Velocity = FVector::ZeroVector;
 

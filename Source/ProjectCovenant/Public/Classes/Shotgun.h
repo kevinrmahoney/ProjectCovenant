@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Classes/HitscanWeapon.h"
+#include "Classes/Weapon.h"
 #include "Shotgun.generated.h"
 
 /**
@@ -38,10 +39,6 @@ public:
 	virtual void Update() override;
 
 	virtual void ConstructShotVectors() override;
-
-	void SetTrigger(bool T);
-
-	void SetShooter(ASubjectZero * NewShooter);
 
 private:
 	void Shoot() override;

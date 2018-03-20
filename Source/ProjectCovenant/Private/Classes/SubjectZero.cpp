@@ -3,7 +3,7 @@
 #include "ProjectCovenant.h"
 #include "Classes/SubjectZero.h"
 #include "UnrealNetwork.h"
-#include "HitscanWeapon.h"
+#include "Weapon.h"
 #include "Railgun.h"
 #include "Shotgun.h"
 #include "Deathmatch.h"
@@ -262,6 +262,7 @@ void ASubjectZero::Update()
 //Equips local controller with a weapon, and sends information to the server
 void ASubjectZero::Equip(int Slot)
 {
+	Logger::Log(FString::FromInt(Slot));
 	// Make sure the inventory actually has an item in this slot before equipping it
 	if(Inventory && Inventory->CheckItem(Slot))
 	{
@@ -277,7 +278,6 @@ void ASubjectZero::Equip(int Slot)
 		// Update replicated variable from the server so simulated proxies are updated with new equipped item
 		if(HasAuthority())
 		{
-			Logger::Log("Updating simulated proxy item id");
 			EquippedItemID = NewItem->GetItemID();
 		}
 
@@ -293,7 +293,7 @@ void ASubjectZero::Equip(int Slot)
 					// Spawn the actor in the world, set the item associated with the actor to the item from the inventory
 					if(GetWorld())
 					{
-						Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
+						Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
 						if(Weapon)
 						{
 							Weapon->SetItem(ItemWeapon);
@@ -358,7 +358,7 @@ void ASubjectZero::OnRep_Equip()
 	{
 		if(GetWorld())
 		{
-			Weapon = GetWorld()->SpawnActor<AHitscanWeapon>(ActorClass);
+			Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
 
 			if(Weapon)
 			{
@@ -781,7 +781,12 @@ void ASubjectZero::Slot2()
 
 void ASubjectZero::Slot3()
 {
-
+	int ID = 3;
+	Equip(ID);
+	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Equip(ID);
+	}
 }
 
 void ASubjectZero::CalculateMovement()

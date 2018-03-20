@@ -17,13 +17,13 @@ void ARocketLauncher::BeginPlay()
 	//TODO: adjust values for shotgun
 	Damage = 100.f;
 	Range = 5000.f;
-	Cooldown = 1.f;
-	Falloff = 1.f; //not yet implemented, less damage depending on distance. 1 = 100%
+	Cooldown = 2.f;
+	FallOff = 1.f; //not yet implemented, less damage depending on distance. 1 = 100%
 				   //TODO lower ammo count, but don't disable shooting with negative ammo yet
 	Ammo = 100.f; //not yet implemented 
 	Duration = 0.25;
-	TimeSinceLastShot = Cooldown;
 	ShotVectors.Add(FVector(Range, 0.f, 0.f));
+	TimeSinceLastShot = Cooldown;
 }
 
 void ARocketLauncher::Tick(float DeltaTime)
@@ -58,30 +58,19 @@ void ARocketLauncher::ConstructShotVectors()
 	ShotVectors.Add(FVector(Range, 0.f, 0.f));
 }
 
-void ARocketLauncher::SetShooter(ASubjectZero * NewShooter)
-{
-	Super::SetShooter(NewShooter);
-}
-
-void ARocketLauncher::SetTrigger(bool T)
-{
-	Super::SetTrigger(T);
-}
-
 void ARocketLauncher::Shoot()
 {
 	DrawDebugVisuals();
 	PlayShootSound();
 
-	if(HasAuthority())
+	if(Shooter->HasAuthority())
 	{
 		float TotalDamage = 0.f;
 		int count = 0;
 
 		ASubjectZero * Victim = nullptr;
 
-
-
+		AProjectile * NewProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, Muzzle->GetComponentLocation(), Muzzle->GetComponentRotation());
 		if(Victim)
 		{
 			DealDamage(Victim, TotalDamage);

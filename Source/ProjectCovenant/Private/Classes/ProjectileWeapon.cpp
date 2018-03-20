@@ -13,25 +13,6 @@
 AProjectileWeapon::AProjectileWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	SetRootComponent(Root);
-
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun Mesh"), false);
-	Mesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
-	Mesh->SetVisibility(true);
-	Mesh->SetOnlyOwnerSee(false);
-	Mesh->SetOwnerNoSee(false);
-
-	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"), false);
-	Muzzle->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
-}
-
-void AProjectileWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
-{
-	// The follow variables are replicated from server to the clients
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AProjectileWeapon, Trigger)
 }
 
 // Called when the game starts or when spawned
@@ -47,15 +28,6 @@ void AProjectileWeapon::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	TimeSinceLastShot += DeltaTime;
 	Update();
-}
-
-void AProjectileWeapon::SetItem(UItemWeapon * NewItem)
-{
-	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
-	{
-		Item = NewItem;
-		TimeSinceLastShot = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp;
-	}
 }
 
 void AProjectileWeapon::Update()
@@ -90,16 +62,6 @@ void AProjectileWeapon::Update()
 void AProjectileWeapon::ConstructShotVectors()
 {
 	ShotVectors.Add(FVector(Range, 0.f, 0.f));
-}
-
-void AProjectileWeapon::SetShooter(ASubjectZero * NewShooter)
-{
-	Shooter = NewShooter;
-}
-
-void AProjectileWeapon::SetTrigger(bool T)
-{
-	Trigger = T;
 }
 
 void AProjectileWeapon::Shoot()

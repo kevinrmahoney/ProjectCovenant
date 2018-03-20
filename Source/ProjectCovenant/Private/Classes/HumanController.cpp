@@ -68,6 +68,7 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Slot 1", IE_Pressed, this, &AHumanController::InputSlot1);
 		InputComponent->BindAction("Slot 2", IE_Pressed, this, &AHumanController::InputSlot2);
 		InputComponent->BindAction("Slot 3", IE_Pressed, this, &AHumanController::InputSlot3);
+		InputComponent->BindAction("Slot 4", IE_Pressed, this, &AHumanController::InputSlot4);
 		InputComponent->BindAction("Use", IE_Pressed, this, &AHumanController::InputUsePress);
 		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
 		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
@@ -103,7 +104,6 @@ void AHumanController::God(FString Set = "")
 	{
 		Logger::Chat("usage: God [optional:<on|off>,default:toggle,]");
 	}
-	GodMode ? Logger::Chat("God mode enabled") : Logger::Chat("God mode disabled");
 }
 
 void AHumanController::Server_God_Implementation(const FString & Set)
@@ -441,6 +441,18 @@ void AHumanController::InputSlot3()
 	else if(Spectator)
 	{
 		Spectator->Slot2();
+	}
+}
+
+void AHumanController::InputSlot4()
+{
+	if(SubjectZero)
+	{
+		SubjectZero->Slot3();
+	}
+	else if(Spectator)
+	{
+		Spectator->Slot3();
 	}
 }
 

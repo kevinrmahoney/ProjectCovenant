@@ -21,9 +21,10 @@ void ARailgun::BeginPlay()
 	Damage = 100.f;
 	Range = 20000.f;
 	Cooldown = 2.25f;
-	Falloff = 1.f;
+	FallOff = 1.f;
 	Ammo = 100.f;
 	Duration = 2.f;
+	TimeSinceLastShot = Cooldown;
 }
 
 // Called every frame
@@ -61,16 +62,6 @@ void ARailgun::Update()
 void ARailgun::ConstructShotVectors()
 {
 	ShotVectors.Add(FVector(Range, 0.f, 0.f));
-}
-
-void ARailgun::SetShooter(ASubjectZero * NewShooter)
-{
-	Super::SetShooter(NewShooter);
-}
-
-void ARailgun::SetTrigger(bool T)
-{
-	Super::SetTrigger(T);
 }
 
 void ARailgun::Shoot()

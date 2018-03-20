@@ -39,10 +39,6 @@ public:
 
 	virtual void ConstructShotVectors() override;
 
-	void SetTrigger(bool T);
-
-	void SetShooter(ASubjectZero * NewShooter);
-
 protected:
 	void Shoot() override;
 

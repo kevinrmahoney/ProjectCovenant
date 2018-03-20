@@ -18,7 +18,7 @@ void AShotgun::BeginPlay()
 	Damage = 100.f / (CircleCount * RollCount + 1);
 	Range = 5000.f;
 	Cooldown = 1.f;
-	Falloff = 1.f; //not yet implemented, less damage depending on distance. 1 = 100%
+	FallOff = 1.f; //not yet implemented, less damage depending on distance. 1 = 100%
 	//TODO lower ammo count, but don't disable shooting with negative ammo yet
 	Ammo = 100.f; //not yet implemented 
 	Duration = 0.25;
@@ -65,17 +65,6 @@ void AShotgun::ConstructShotVectors()
 			ShotVectors.Add(SpreadVector);
 		}
 	}
-	Logger::Log("Constructed shot vectors: " + FString::FromInt(ShotVectors.Num()));
-}
-
-void AShotgun::SetShooter(ASubjectZero * NewShooter)
-{
-	Super::SetShooter(NewShooter);
-}
-
-void AShotgun::SetTrigger(bool T)
-{
-	Super::SetTrigger(T);
 }
 
 void AShotgun::Shoot()

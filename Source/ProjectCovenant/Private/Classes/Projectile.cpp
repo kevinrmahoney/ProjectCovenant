@@ -9,6 +9,26 @@ AProjectile::AProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	SetReplicates(true);
+	SetReplicateMovement(true);
+
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(Root);
+
+	CollisionCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"), false);
+	CollisionCapsule->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
+
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RocketMesh"), false);
+	Mesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
+	Mesh->SetVisibility(true);
+	Mesh->SetOnlyOwnerSee(false);
+	Mesh->SetOwnerNoSee(false);
+	Mesh->SetEnableGravity(false);
+
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"), false);
+	ProjectileMovementComponent->InitialSpeed = IntialVelocity;
+	ProjectileMovementComponent->MaxSpeed = IntialVelocity;
 }
 
 // Called when the game starts or when spawned

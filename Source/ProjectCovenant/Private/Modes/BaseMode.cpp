@@ -98,7 +98,7 @@ void ABaseMode::KillPlayer(AHumanController * Controller)
 	}
 }
 
-void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AActor * Weapon)
+void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AWeapon * Weapon)
 {
 	// Multiply raw damage by multiplier
 	Damage = Shooter ? Shooter->GetDamageMultiplier() * Damage : Damage;
