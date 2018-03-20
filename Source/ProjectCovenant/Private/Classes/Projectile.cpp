@@ -13,14 +13,11 @@ AProjectile::AProjectile()
 	SetReplicates(true);
 	SetReplicateMovement(true);
 
-	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	SetRootComponent(Root);
-
 	CollisionCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"), false);
-	CollisionCapsule->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
+	SetRootComponent(CollisionCapsule);
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RocketMesh"), false);
-	Mesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
+	Mesh->AttachToComponent(CollisionCapsule, FAttachmentTransformRules::KeepRelativeTransform);
 	Mesh->SetVisibility(true);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"), false);
