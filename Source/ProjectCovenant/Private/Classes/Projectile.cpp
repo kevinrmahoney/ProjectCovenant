@@ -22,9 +22,6 @@ AProjectile::AProjectile()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RocketMesh"), false);
 	Mesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
 	Mesh->SetVisibility(true);
-	Mesh->SetOnlyOwnerSee(false);
-	Mesh->SetOwnerNoSee(false);
-	Mesh->SetEnableGravity(false);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"), false);
 	ProjectileMovementComponent->InitialSpeed = IntialVelocity;
