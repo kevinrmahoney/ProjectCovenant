@@ -45,4 +45,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float IntialVelocity = 1000.f;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayDestructionSound();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayWhizzingSound();
+
 };
