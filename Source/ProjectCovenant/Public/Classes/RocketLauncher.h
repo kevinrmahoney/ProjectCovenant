@@ -3,25 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Classes/HitscanWeapon.h"
-#include "Classes/Weapon.h"
-#include "Shotgun.generated.h"
+#include "Classes/ProjectileWeapon.h"
+#include "RocketLauncher.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTCOVENANT_API AShotgun : public AHitscanWeapon
+class PROJECTCOVENANT_API ARocketLauncher : public AProjectileWeapon
 {
 	GENERATED_BODY()
 
-public: 
-	AShotgun();
+public:
+	ARocketLauncher();
 
-	//(X=-6.900000,Y=-7.933466,Z=-151.000000)
-	FVector AimDownSightsLocation = FVector(-6.900000f,-7.933466f,-151.000000f);
-	//(Pitch=3.300000,Yaw=-11.800000,Roll=0.000008)
-	FRotator AimDownSightsRotation = FRotator(3.300000f,-11.800000f,0.000000f);
+	//(X=-11.357482,Y=-8.996102,Z=-145.574875)
+	FVector AimDownSightsLocation = FVector(-11.357482f, -8.996102f, -145.574875f);
+	//(Pitch=3.000000,Yaw=-11.800000,Roll=0.000000)
+	FRotator AimDownSightsRotation = FRotator(3.000000f, -11.800000f, 0.000000f);
 
 	//(X=1.575968,Y=11.798502,Z=-153.145187)
 	FVector HipFireLocation = FVector(1.575968f, 11.798502f, -153.145187f);
@@ -40,17 +39,10 @@ public:
 
 	virtual void ConstructShotVectors() override;
 
-private:
+protected:
 	void Shoot() override;
 
 	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
-
-	float MaxConeAngle = 1000.f;
-
-	//maybe change to FRotator
-	float RollCount = 8.f;
-
-	float CircleCount = 4.f;
 
 	virtual FVector GetAimDownSightsLocation() override;
 
@@ -59,4 +51,6 @@ private:
 	virtual FVector GetHipFireLocation() override;
 
 	virtual FRotator GetHipFireRotation() override;
+	
+	
 };

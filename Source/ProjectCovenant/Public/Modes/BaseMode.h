@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "HumanController.h"
-#include "HitscanWeapon.h"
+#include "Weapon.h"
+#include "ProjectileWeapon.h"
 #include "BaseMode.generated.h"
 
 class ASubjectZero;
@@ -27,7 +28,7 @@ public:
 
 	virtual void SpawnPlayer(AHumanController * Controller);
 
-	virtual void DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AHitscanWeapon * Weapon);
+	virtual void DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AWeapon * Weapon);
 
 	virtual void KillPlayer(AHumanController * Controller);
 

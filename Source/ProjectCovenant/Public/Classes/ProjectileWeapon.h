@@ -4,29 +4,35 @@
 
 #include "CoreMinimal.h"
 #include "Classes/Weapon.h"
-#include "HitscanWeapon.generated.h"
+#include "Projectile.h"
+#include "ProjectileWeapon.generated.h"
 
 class UItemWeapon;
 class ASubjectZero;
 
 UCLASS()
-class PROJECTCOVENANT_API AHitscanWeapon : public AWeapon
+class PROJECTCOVENANT_API AProjectileWeapon : public AWeapon
 {
 	GENERATED_BODY()
-	
+
 // Sets default values for this actor's properties
 public:
-	AHitscanWeapon();
+	AProjectileWeapon();
 
+public:
 	//(X=-6.456540,Y=-7.700000,Z=-148.210724)
-	FVector AimDownSightsLocation = FVector(-6.456540f,-7.700000f,-148.210724f);
+	FVector AimDownSightsLocation = FVector(-6.456540f, -7.700000f, -148.210724f);
 	//(Pitch=2.500000,Yaw=-11.700012,Roll=0.000000)
-	FRotator AimDownSightsRotation = FRotator(2.500000f,-11.700012f,0.000000f);
+	FRotator AimDownSightsRotation = FRotator(2.500000f, -11.700012f, 0.000000f);
 
 	//(X=1.575968,Y=11.798502,Z=-153.145187)
 	FVector HipFireLocation = FVector(1.575968f, 11.798502f, -153.145187f);
 	//(Pitch=3.000000,Yaw=-12.000000,Roll=0.000000)
 	FRotator HipFireRotation = FRotator(3.000000f, -12.000000f, 0.000000f);
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AProjectile> Projectile;
 
 protected:
 	// Called when the game starts or when spawned
@@ -44,7 +50,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayShootSound();
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -52,11 +58,11 @@ public:
 
 	virtual void Update() override;
 
-	virtual FVector GetAimDownSightsLocation();
+	virtual FVector GetAimDownSightsLocation() override;
 
-	virtual FRotator GetAimDownSightsRotation();
+	virtual FRotator GetAimDownSightsRotation() override;
 
-	virtual FVector GetHipFireLocation();
+	virtual FVector GetHipFireLocation() override;
 
-	virtual FRotator GetHipFireRotation();
+	virtual FRotator GetHipFireRotation() override;
 };

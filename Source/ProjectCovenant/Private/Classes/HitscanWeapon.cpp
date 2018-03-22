@@ -5,7 +5,6 @@
 #include "BasePlayerState.h"
 #include "SubjectZero.h"
 #include "HumanController.h"
-#include "UnrealNetwork.h"
 #include "ItemWeapon.h"
 #include "BaseMode.h"
 
@@ -13,73 +12,53 @@
 AHitscanWeapon::AHitscanWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	SetRootComponent(Root);
-
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun Mesh"), false);
-	Mesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
-	Mesh->SetVisibility(true);
-	Mesh->SetOnlyOwnerSee(false);
-	Mesh->SetOwnerNoSee(false);
-
-	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"), false);
-	Muzzle->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
-}
-
-void AHitscanWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
-{
-	// The follow variables are replicated from server to the clients
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AHitscanWeapon, Trigger)
 }
 
 // Called when the game starts or when spawned
 void AHitscanWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	ConstructShotVectors();
+
+	Damage = 15.f;
+	Range = 20000.f;
+	Cooldown = 0.1f;
+	FallOff = 1.f;
+	Ammo = 100.f;
+	Trigger = false;
+	Duration = 0.02f;
 }
 
 // Called every frame
 void AHitscanWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	TimeSinceLastShot += DeltaTime;
-	Update();
-}
-
-void AHitscanWeapon::SetItem(UItemWeapon * NewItem)
-{
-	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
-	{
-		Item = NewItem;
-		TimeSinceLastShot = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp;
-	}
 }
 
 void AHitscanWeapon::Update()
 {
-	// If the trigger is pulled
-	if(Trigger)
+	if(TimeSinceLastShot > 0.f)
 	{
-		// If the cooldown has passed
-		if(TimeSinceLastShot > Cooldown)
+		// If the trigger is pulled
+		if(Trigger)
 		{
-			// Shoot the weapon
-			Shoot();
+			// If the cooldown has passed
+			if(TimeSinceLastShot > Cooldown)
+			{
+				// Shoot the weapon
+				Shoot();
 
-			// Subtract the cooldown from the time passed since the last shot.
-			// make sure the outcome does not go above value of Cooldown
-			TimeSinceLastShot = 0.f;
-			//Item->LastShotTimeStamp = 0.f;
-			if(Item && (Role == ROLE_Authority || Role == ROLE_AutonomousProxy))
-			{
-				Item->SetLastShotTimeStamp(GetWorld());
-			}
-			else
-			{
-				Logger::Log("Could not find Item when attempting to set last shot time stamp");
+				// Subtract the cooldown from the time passed since the last shot.
+				// make sure the outcome does not go above value of Cooldown
+				TimeSinceLastShot = 0.f;
+				//Item->LastShotTimeStamp = 0.f;
+				if(Item && (Role == ROLE_Authority || Role == ROLE_AutonomousProxy))
+				{
+					Item->SetLastShotTimeStamp(GetWorld());
+				}
+				else
+				{
+					Logger::Log("Could not find Item when attempting to set last shot time stamp");
+				}
 			}
 		}
 	}
@@ -90,16 +69,6 @@ void AHitscanWeapon::Update()
 void AHitscanWeapon::ConstructShotVectors()
 {
 	ShotVectors.Add(FVector(Range, 0.f, 0.f));
-}
-
-void AHitscanWeapon::SetShooter(ASubjectZero * NewShooter)
-{
-	Shooter = NewShooter;
-}
-
-void AHitscanWeapon::SetTrigger(bool T)
-{
-	Trigger = T;
 }
 
 void AHitscanWeapon::Shoot()
