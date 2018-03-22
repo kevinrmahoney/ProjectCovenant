@@ -49,7 +49,7 @@ void ARocket::Explode(AActor * DirectHitActor)
 				if(HitActor)
 				{
 					FVector ExplosionDirection = (HitActor->GetRootComponent()->GetComponentLocation() - Epicenter);
-					float Scale = Radius = 1.f - (ExplosionDirection.Size() / Radius);
+					float Scale = 1.f - (ExplosionDirection.Size() / Radius);
 
 					ExplosionDirection = ExplosionDirection.GetSafeNormal();
 					ExplosionDirection.Z = ExplosionDirection.Z * 1.5f;

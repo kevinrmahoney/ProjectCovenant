@@ -62,8 +62,9 @@ void AWeapon::SetItem(UItemWeapon * NewItem)
 	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
 	{
 		Item = NewItem;
-		TimeSinceLastShot = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp;
-		TimeSinceLastShot = FMath::Max(TimeSinceLastShot, WeaponSwitchCooldown);
+		TimeSinceLastShot = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, Cooldown);
+		TimeSinceLastShot = TimeSinceLastShot - WeaponSwitchCooldown;
+		Logger::Chat("TWLS " + FString::SanitizeFloat(TimeSinceLastShot));
 	}
 }
 

@@ -36,26 +36,29 @@ void AHitscanWeapon::Tick(float DeltaTime)
 
 void AHitscanWeapon::Update()
 {
-	// If the trigger is pulled
-	if(Trigger)
+	if(TimeSinceLastShot > 0.f)
 	{
-		// If the cooldown has passed
-		if(TimeSinceLastShot > Cooldown)
+		// If the trigger is pulled
+		if(Trigger)
 		{
-			// Shoot the weapon
-			Shoot();
+			// If the cooldown has passed
+			if(TimeSinceLastShot > Cooldown)
+			{
+				// Shoot the weapon
+				Shoot();
 
-			// Subtract the cooldown from the time passed since the last shot.
-			// make sure the outcome does not go above value of Cooldown
-			TimeSinceLastShot = 0.f;
-			//Item->LastShotTimeStamp = 0.f;
-			if(Item && (Role == ROLE_Authority || Role == ROLE_AutonomousProxy))
-			{
-				Item->SetLastShotTimeStamp(GetWorld());
-			}
-			else
-			{
-				Logger::Log("Could not find Item when attempting to set last shot time stamp");
+				// Subtract the cooldown from the time passed since the last shot.
+				// make sure the outcome does not go above value of Cooldown
+				TimeSinceLastShot = 0.f;
+				//Item->LastShotTimeStamp = 0.f;
+				if(Item && (Role == ROLE_Authority || Role == ROLE_AutonomousProxy))
+				{
+					Item->SetLastShotTimeStamp(GetWorld());
+				}
+				else
+				{
+					Logger::Log("Could not find Item when attempting to set last shot time stamp");
+				}
 			}
 		}
 	}

@@ -97,7 +97,6 @@ void ARailgun::Shoot()
 			delete StartTrace;
 			delete EndTrace;
 		}
-		//delete Victim;
 	}
 }
 

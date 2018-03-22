@@ -19,15 +19,6 @@ class PROJECTCOVENANT_API AProjectileWeapon : public AWeapon
 public:
 	AProjectileWeapon();
 
-protected:
-	float TimeSinceLastShot = Cooldown;
-
-	float Duration = 0.02f;
-
-	TArray<FVector> ShotVectors;
-
-	UItemWeapon * Item;
-
 public:
 	//(X=-6.456540,Y=-7.700000,Z=-148.210724)
 	FVector AimDownSightsLocation = FVector(-6.456540f, -7.700000f, -148.210724f);
