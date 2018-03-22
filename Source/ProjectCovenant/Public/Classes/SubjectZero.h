@@ -73,7 +73,7 @@ private:
 	FVector HipfireLocation = FVector(-15.419446f, 10.841988f, -152.856400f);
 
 	// constants
-	float NormalAirControl = 0.3f;
+	float NormalAirControl = 0.5f;
 	float JumpSpeed = 500.f;
 	float JetpackSpeedScale = 1.f;
 	float StandingSprintSpeed = 600.f;
@@ -81,10 +81,10 @@ private:
 	float CrouchingSprintSpeed = 300.f;
 	float CrouchingRunSpeed = 200.f;
 	float AimDownSightsSpeed = 200.f;
-	float JetpackAcceleration = 2000.f;
+	float JetpackAcceleration = 1500.f;
 	float GroundAcceleration = 5000.f;
 	float AirResistanceConstant = 0.00004f;
-	float FuelUsage = 50.f;
+	float FuelUsage = 75.f;
 	float FuelOverTime = 50.f;
 	float MaxHealth = 100.f;
 	float MaxArmor = 100.f;

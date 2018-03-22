@@ -34,6 +34,8 @@ protected:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
+	void Destroyed() override;
+
 private:
 	void Explode(AActor * DirectHitActor);
 

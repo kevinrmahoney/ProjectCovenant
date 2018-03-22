@@ -395,7 +395,7 @@ void ASubjectZero::Jetpack()
 
 			GetCharacterMovement()->Velocity += Force;
 
-			float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f)) * (Sprinting ? 3.f : 1.f);
+			float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f)) * (Sprinting ? 2.f : 1.f);
 
 			if(FuelUsed > 0.f)
 			{

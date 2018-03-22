@@ -64,7 +64,6 @@ void AWeapon::SetItem(UItemWeapon * NewItem)
 		Item = NewItem;
 		TimeSinceLastShot = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, Cooldown);
 		TimeSinceLastShot = TimeSinceLastShot - WeaponSwitchCooldown;
-		Logger::Chat("TWLS " + FString::SanitizeFloat(TimeSinceLastShot));
 	}
 }
 

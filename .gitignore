@@ -49,6 +49,7 @@ Binaries/*
 
 # Builds
 Build/*
+Builds/*
 
 # Don't ignore icon files in Build
 !Build/**/*.ico

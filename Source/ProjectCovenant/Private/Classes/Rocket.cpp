@@ -32,7 +32,6 @@ void ARocket::Tick(float DeltaTime)
 
 void ARocket::Explode(AActor * DirectHitActor)
 {
-	PlayDestructionSound();
 	if(HasAuthority())
 	{
 		TArray<FHitResult> OutHits;
@@ -40,6 +39,7 @@ void ARocket::Explode(AActor * DirectHitActor)
 		FCollisionShape ExplosionSphere = FCollisionShape::MakeSphere(Radius);
 		float ExplosionForce = 1000.f;
 		bool IsHit = GetWorld()->SweepMultiByChannel(OutHits, Epicenter, Epicenter, FQuat::Identity, ECC_WorldStatic, ExplosionSphere);
+
 
 		if(IsHit)
 		{
@@ -52,7 +52,7 @@ void ARocket::Explode(AActor * DirectHitActor)
 					float Scale = 1.f - (ExplosionDirection.Size() / Radius);
 
 					ExplosionDirection = ExplosionDirection.GetSafeNormal();
-					ExplosionDirection.Z = ExplosionDirection.Z * 1.5f;
+					ExplosionDirection.Z = ExplosionDirection.Z * 2.f;
 
 					if(ASubjectZero * Player = Cast<ASubjectZero>(HitActor))
 					{
@@ -116,4 +116,9 @@ void ARocket::SetWeapon(AWeapon * NewWeapon)
 {
 	Weapon = NewWeapon;
 	WeaponHasBeenSet = true;
+}
+
+void ARocket::Destroyed()
+{
+	PlayDestructionSound();
 }
