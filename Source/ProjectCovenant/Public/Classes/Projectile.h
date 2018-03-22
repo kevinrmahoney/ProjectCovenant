@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+class AWeapon;
+
 UCLASS()
 class PROJECTCOVENANT_API AProjectile : public AActor
 {
@@ -22,6 +24,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetWeapon(AWeapon * NewWeapon);
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -35,6 +39,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UCapsuleComponent * CollisionCapsule;
+
+	UPROPERTY()
+	AWeapon * Weapon;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float MaxDamage = 100.f;

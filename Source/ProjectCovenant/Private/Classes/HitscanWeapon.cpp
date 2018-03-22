@@ -26,7 +26,6 @@ void AHitscanWeapon::BeginPlay()
 	Ammo = 100.f;
 	Trigger = false;
 	Duration = 0.02f;
-	TimeSinceLastShot = Cooldown;
 }
 
 // Called every frame

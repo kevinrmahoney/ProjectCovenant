@@ -6,6 +6,8 @@
 #include "Classes/Projectile.h"
 #include "Rocket.generated.h"
 
+class AWeapon;
+
 /**
  * 
  */
@@ -27,10 +29,20 @@ protected:
 	float Radius = 500.f;
 
 	UFUNCTION()
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+
+private:
+	void Explode(AActor * DirectHitActor);
+
+	bool WeaponHasBeenSet = false;
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetWeapon(AWeapon * NewWeapon) override;
 	
 };

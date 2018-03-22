@@ -63,6 +63,7 @@ void AWeapon::SetItem(UItemWeapon * NewItem)
 	{
 		Item = NewItem;
 		TimeSinceLastShot = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp;
+		TimeSinceLastShot = FMath::Max(TimeSinceLastShot, WeaponSwitchCooldown);
 	}
 }
 

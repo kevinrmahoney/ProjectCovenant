@@ -60,7 +60,6 @@ void ARocketLauncher::ConstructShotVectors()
 
 void ARocketLauncher::Shoot()
 {
-	DrawDebugVisuals();
 	PlayShootSound();
 
 	if(Shooter->HasAuthority())
@@ -71,11 +70,15 @@ void ARocketLauncher::Shoot()
 		ASubjectZero * Victim = nullptr;
 
 		AProjectile * NewProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, Muzzle->GetComponentLocation(), Muzzle->GetComponentRotation());
+		if(NewProjectile)
+		{
+			NewProjectile->SetWeapon(this);
+		}
+
 		if(Victim)
 		{
 			DealDamage(Victim, TotalDamage);
 		}
-		//delete Victim;
 	}
 }
 

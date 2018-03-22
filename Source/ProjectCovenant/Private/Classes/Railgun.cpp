@@ -24,7 +24,6 @@ void ARailgun::BeginPlay()
 	FallOff = 1.f;
 	Ammo = 100.f;
 	Duration = 2.f;
-	TimeSinceLastShot = Cooldown;
 }
 
 // Called every frame

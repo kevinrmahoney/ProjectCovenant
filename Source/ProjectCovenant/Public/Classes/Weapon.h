@@ -69,6 +69,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent * Muzzle;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float WeaponSwitchCooldown = 0.5f;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
