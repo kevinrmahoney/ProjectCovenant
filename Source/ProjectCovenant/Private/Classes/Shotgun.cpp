@@ -114,6 +114,7 @@ void AShotgun::Shoot()
 		{
 			DealDamage(Victim, TotalDamage);
 		}
+		RecoilComponent->Recoil();
 	}
 }
 
