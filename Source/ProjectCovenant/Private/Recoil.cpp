@@ -20,6 +20,7 @@ void URecoil::BeginPlay()
 {
 	Super::BeginPlay();
 	SetComponentTickEnabled(false);
+	ReturnDuration = RecoilDuration;
 }
 
 
@@ -29,16 +30,50 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if(IsRecoilling)
 	{
-		if(RecoilDurationRemaining - DeltaTime < 0.f)
+		if(RecoilDurationPassed + DeltaTime > RecoilDuration)
 		{
-			DeltaTime = RecoilDurationRemaining;
+			RecoilDurationPassed = RecoilDuration;
 			IsRecoilling = false;
-			DeltaTime = RecoilDurationRemaining * -1.f + DeltaTime;
-			SetComponentTickEnabled(false);
+			IsReturning = true;
+			DeltaTime = RecoilDuration - RecoilDurationPassed;
 		}
 		else
 		{
-			RecoilDurationRemaining -= DeltaTime;
+			RecoilDurationPassed += DeltaTime;
+		}
+
+		if(Shooter)
+		{
+			AController * Controller = Shooter->GetController();
+			if(Controller)
+			{
+				float AddedPitch = MaxInitialRecoilSpeedPitch * (1 - (RecoilDurationPassed / RecoilDuration)) * (1 - (RecoilDurationPassed / RecoilDuration)) * DeltaTime;
+				float AddedYaw = MaxInitialRecoilSpeedYaw * (1 - (RecoilDurationPassed / RecoilDuration)) * (1 - (RecoilDurationPassed / RecoilDuration)) * DeltaTime;
+				FRotator Rotation = Controller->GetControlRotation();
+				Rotation.Pitch += AddedPitch;
+				Rotation.Yaw += AddedYaw;
+				DeltaPitch += AddedPitch;
+				DeltaYaw += AddedYaw;
+				Controller->SetControlRotation(Rotation);
+			}
+		}
+		else
+		{
+			Logger::Error("Recoil component " + GetName() + " has no weapon");
+		}
+	}
+	else if(IsReturning)
+	{
+		if(ReturnDurationPassed + DeltaTime > ReturnDuration)
+		{
+			ReturnDurationPassed = ReturnDuration;
+			IsReturning = false;
+			SetComponentTickEnabled(false);
+			DeltaTime = ReturnDuration - ReturnDurationPassed;
+		}
+		else
+		{
+			ReturnDurationPassed += DeltaTime;
 		}
 
 		if(Shooter)
@@ -47,8 +82,8 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 			if(Controller)
 			{
 				FRotator Rotation = Controller->GetControlRotation();
-				Rotation.Pitch += MaxRecoilPitch * DeltaTime;
-				Rotation.Yaw += MaxRecoilYaw * DeltaTime;
+				Rotation.Pitch -= (DeltaPitch / ReturnDuration) * DeltaTime;
+				Rotation.Yaw -= (DeltaYaw / ReturnDuration) * DeltaTime;
 				Controller->SetControlRotation(Rotation);
 			}
 		}
@@ -62,8 +97,20 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 void URecoil::Recoil()
 {
 	IsRecoilling = true;
-	RecoilDurationRemaining = RecoilDuration;
+	RecoilDurationPassed = 0.f;
+	ReturnDurationPassed = 0.f;
+	DeltaYaw = 0.f;
+	DeltaPitch = 0.f;
 	SetComponentTickEnabled(true);
+	if( Shooter && Shooter->GetController() )
+	{
+		AController * Controller = Shooter->GetController();
+		if(Controller)
+		{
+			StartPointYaw = Controller->GetControlRotation().Yaw;
+			StartPointPitch = Controller->GetControlRotation().Pitch;
+		}
+	}
 }
 
 void URecoil::SetShooter(ASubjectZero * NewShooter)

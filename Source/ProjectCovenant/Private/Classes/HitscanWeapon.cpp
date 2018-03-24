@@ -46,10 +46,6 @@ void AHitscanWeapon::Update()
 			{
 				// Shoot the weapon
 				Shoot();
-				if(RecoilComponent)
-				{
-					RecoilComponent->Recoil();
-				}
 
 				// Subtract the cooldown from the time passed since the last shot.
 				// make sure the outcome does not go above value of Cooldown
@@ -63,6 +59,10 @@ void AHitscanWeapon::Update()
 				{
 					Logger::Log("Could not find Item when attempting to set last shot time stamp");
 				}
+			}
+			if(RecoilComponent)
+			{
+				RecoilComponent->Recoil();
 			}
 		}
 	}
