@@ -13,6 +13,7 @@
 #include "ItemWeaponRailgun.h"
 #include "ItemWeaponLightningGun.h"
 #include "ItemWeaponRocketLauncher.h"
+#include "ItemWeaponRifle.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -64,10 +65,12 @@ void ASubjectZero::BeginPlay()
 		UItem * Railgun = NewObject<UItemWeaponRailgun>(this, "Railgun");
 		UItem * Shotgun = NewObject<UItemWeaponShotgun>(this, "Shotgun");
 		UItem * RocketLauncher = NewObject<UItemWeaponRocketLauncher>(this, "RocketLauncher");
+		UItem * Rifle = NewObject<UItemWeaponRifle>(this, "Rifle");
 		Inventory->AddItem(LightningGun);
 		Inventory->AddItem(Railgun);
 		Inventory->AddItem(Shotgun);
 		Inventory->AddItem(RocketLauncher);
+		Inventory->AddItem(Rifle);
 	}
 }
 
@@ -784,6 +787,66 @@ void ASubjectZero::Slot3()
 	int ID = 3;
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
+	{
+		Server_Equip(ID);
+	}
+}
+
+void ASubjectZero::Slot4()
+{
+	int ID = 4;
+	Equip(ID);
+	if (Role == ROLE_AutonomousProxy)
+	{
+		Server_Equip(ID);
+	}
+}
+
+void ASubjectZero::Slot5()
+{
+	int ID = 5;
+	Equip(ID);
+	if (Role == ROLE_AutonomousProxy)
+	{
+		Server_Equip(ID);
+	}
+}
+
+void ASubjectZero::Slot6()
+{
+	int ID = 6;
+	Equip(ID);
+	if (Role == ROLE_AutonomousProxy)
+	{
+		Server_Equip(ID);
+	}
+}
+
+void ASubjectZero::Slot7()
+{
+	int ID = 7;
+	Equip(ID);
+	if (Role == ROLE_AutonomousProxy)
+	{
+		Server_Equip(ID);
+	}
+}
+
+void ASubjectZero::Slot8()
+{
+	int ID = 8;
+	Equip(ID);
+	if (Role == ROLE_AutonomousProxy)
+	{
+		Server_Equip(ID);
+	}
+}
+
+void ASubjectZero::Slot9()
+{
+	int ID = 9;
+	Equip(ID);
+	if (Role == ROLE_AutonomousProxy)
 	{
 		Server_Equip(ID);
 	}
