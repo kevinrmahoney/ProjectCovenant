@@ -72,7 +72,10 @@ void AWeapon::SetItem(UItemWeapon * NewItem)
 void AWeapon::SetShooter(ASubjectZero * NewShooter)
 {
 	Shooter = NewShooter;
-	RecoilComponent->SetShooter(Shooter);
+	if(RecoilComponent)
+	{
+		RecoilComponent->SetShooter(Shooter);
+	}
 }
 
 void AWeapon::SetTrigger(bool T)

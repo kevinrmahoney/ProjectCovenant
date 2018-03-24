@@ -28,33 +28,28 @@ public:
 	UFUNCTION()
 	void Recoil();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float MaxRecoilYaw = 3.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxRecoilYaw = 0.f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float MinRecoilYaw = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MinRecoilYaw = 0.f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float MaxRecoilPitch = 3.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxRecoilPitch = 10.f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float MinRecoilPitch = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MinRecoilPitch = 0.f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float StartPointYaw = 0.f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float StartPointPitch = 0.f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float EndPointYaw = 0.f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float EndPointPitch = 0.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float RecoilDuration = 0.2f;
+
 	bool IsRecoilling = false;
-	float RecoilDuration = 1.f;
-	float RecoilDurationRemaining = 1.f;
+	float RecoilDurationRemaining = 0.f;
 		
 	UPROPERTY()
 	ASubjectZero * Shooter;

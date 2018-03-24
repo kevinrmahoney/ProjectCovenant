@@ -44,9 +44,13 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 		if(Shooter)
 		{
 			AController * Controller = Shooter->GetController();
-			FRotator Rotation = Controller->GetControlRotation();
-			Rotation.Pitch += MaxRecoilPitch * DeltaTime;
-			Rotation.Yaw += MaxRecoilYaw * DeltaTime;
+			if(Controller)
+			{
+				FRotator Rotation = Controller->GetControlRotation();
+				Rotation.Pitch += MaxRecoilPitch * DeltaTime;
+				Rotation.Yaw += MaxRecoilYaw * DeltaTime;
+				Controller->SetControlRotation(Rotation);
+			}
 		}
 		else
 		{

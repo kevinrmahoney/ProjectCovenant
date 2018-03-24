@@ -42,6 +42,10 @@ void ARailgun::Update()
 		{
 			// Shoot the weapon
 			Shoot();
+			if(RecoilComponent)
+			{
+				RecoilComponent->Recoil();
+			}
 
 			// Subtract the cooldown from the time passed since the last shot.
 			// make sure the outcome does not go above value of Cooldown
