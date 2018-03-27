@@ -120,5 +120,6 @@ void ARocket::SetWeapon(AWeapon * NewWeapon)
 
 void ARocket::Destroyed()
 {
+	Super::Destroyed();
 	PlayDestructionSound();
 }

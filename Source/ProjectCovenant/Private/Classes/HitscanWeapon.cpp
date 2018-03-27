@@ -60,6 +60,10 @@ void AHitscanWeapon::Update()
 					Logger::Log("Could not find Item when attempting to set last shot time stamp");
 				}
 			}
+			if(RecoilComponent)
+			{
+				RecoilComponent->Recoil();
+			}
 		}
 	}
 	DrawVisuals();

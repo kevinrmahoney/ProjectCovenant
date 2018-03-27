@@ -256,6 +256,9 @@ public:
 	FName GetPlayerName() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
+	AWeapon* GetWeapon() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetPitch() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)

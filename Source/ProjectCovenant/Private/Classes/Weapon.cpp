@@ -23,6 +23,8 @@ AWeapon::AWeapon()
 
 	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"), false);
 	Muzzle->AttachToComponent(GunMesh, FAttachmentTransformRules::KeepRelativeTransform);
+
+	RecoilComponent = CreateDefaultSubobject<URecoil>(TEXT("RecoilComponent"), false);
 }
 
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -70,6 +72,10 @@ void AWeapon::SetItem(UItemWeapon * NewItem)
 void AWeapon::SetShooter(ASubjectZero * NewShooter)
 {
 	Shooter = NewShooter;
+	if(RecoilComponent)
+	{
+		RecoilComponent->SetShooter(Shooter);
+	}
 }
 
 void AWeapon::SetTrigger(bool T)
@@ -109,4 +115,14 @@ FVector AWeapon::GetHipFireLocation()
 FRotator AWeapon::GetHipFireRotation()
 {
 	return HipFireRotation;
+}
+
+void AWeapon::Destroyed()
+{
+	if(RecoilComponent)
+	{
+		RecoilComponent->Deactivate();
+	}
+	//delete RecoilComponent;
+	Super::Destroyed();
 }
