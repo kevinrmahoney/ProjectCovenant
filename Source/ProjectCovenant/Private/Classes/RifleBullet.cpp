@@ -64,6 +64,7 @@ void ARifleBullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 		}
 		else
 		{
+			if (OtherActor) { Logger::Log("Bullet hit " + OtherActor->GetName()); }
 			Explode(OtherActor);
 		}
 	}
