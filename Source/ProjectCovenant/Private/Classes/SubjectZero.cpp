@@ -122,6 +122,7 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 	
 	// Set the trigger as pulled or not pulled
+
 	if(Weapon)
 	{
 		Weapon->SetTrigger(IsTriggerPulled);
@@ -362,13 +363,9 @@ void ASubjectZero::OnRep_Equip()
 
 			if(Weapon)
 			{
-				Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+				Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 				Weapon->SetShooter(this);
 			}
-		}
-		else
-		{
-			Logger::Log("WHAT IN THE ACTUAL FUCK");
 		}
 	}
 	else
@@ -836,6 +833,7 @@ float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
 float ASubjectZero::GetPitch() const { return Pitch; }
 AWeapon* ASubjectZero::GetWeapon() const { return Weapon; }
+UInventory * ASubjectZero::GetInventory() const { return Inventory; }
 bool ASubjectZero::IsJetpackUsed() const { return JetpackUsed; }
 bool ASubjectZero::IsJetpackActive() const { return TryJetpack; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }

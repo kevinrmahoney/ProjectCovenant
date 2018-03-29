@@ -262,6 +262,9 @@ public:
 	float GetPitch() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
+	UInventory * GetInventory() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackUsed() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)

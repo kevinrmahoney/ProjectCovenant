@@ -21,6 +21,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ItemID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D * Thumbnail;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Description;
 };
 
 /**
@@ -41,6 +47,7 @@ public:
 	bool Equipped = false;
 	FName ItemID = TEXT("-1");
 
+	UFUNCTION(BlueprintCallable)
 	virtual FName GetItemID();
 
 };
