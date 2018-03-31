@@ -21,11 +21,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere)
+	float Damage = 10.f;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetWeapon(AWeapon * NewWeapon);
+
+	virtual void SetDamage(float NewDamage);
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

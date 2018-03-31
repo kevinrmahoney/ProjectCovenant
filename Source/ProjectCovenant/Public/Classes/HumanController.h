@@ -99,10 +99,16 @@ private:
 	void InputShootRelease();
 	void InputSecondaryFirePress();
 	void InputSecondaryFireRelease();
+	void InputSlot0();
 	void InputSlot1();
 	void InputSlot2();
 	void InputSlot3();
 	void InputSlot4();
+	void InputSlot5();
+	void InputSlot6();
+	void InputSlot7();
+	void InputSlot8();
+	void InputSlot9();
 	void InputUsePress();
 	void InputScoreboardPress();
 	void InputScoreboardRelease();
