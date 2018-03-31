@@ -42,3 +42,8 @@ void AProjectile::SetWeapon(AWeapon * NewWeapon)
 {
 	Weapon = NewWeapon;
 }
+
+void AProjectile::SetDamage(float NewDamage) 
+{
+	Damage = NewDamage;
+}

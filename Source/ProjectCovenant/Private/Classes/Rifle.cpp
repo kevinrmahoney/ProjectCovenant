@@ -66,6 +66,7 @@ void ARifle::Shoot()
 		if (NewProjectile)
 		{
 			NewProjectile->SetWeapon(this);
+			NewProjectile->SetDamage(Damage);
 		}
 	}
 }
