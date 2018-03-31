@@ -35,7 +35,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Ammo = 100.f;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(BlueprintReadWrite, Replicated)
 	bool Trigger = false;
 
 	float TimeSinceLastShot = 0.f;
