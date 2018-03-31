@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Recoil.h"
 #include "Weapon.generated.h"
 
 class UItemWeapon;
@@ -70,6 +71,9 @@ protected:
 	USceneComponent * Muzzle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	URecoil * RecoilComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float WeaponSwitchCooldown = 0.5f;
 
 protected:
@@ -87,6 +91,8 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayShootSound();
+
+	void Destroyed() override;
 
 public:
 	// Called every frame

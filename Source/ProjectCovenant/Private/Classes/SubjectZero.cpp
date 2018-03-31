@@ -898,6 +898,7 @@ float ASubjectZero::GetShield() const { return Shield; }
 float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
 float ASubjectZero::GetPitch() const { return Pitch; }
+AWeapon* ASubjectZero::GetWeapon() const { return Weapon; }
 bool ASubjectZero::IsJetpackUsed() const { return JetpackUsed; }
 bool ASubjectZero::IsJetpackActive() const { return TryJetpack; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }

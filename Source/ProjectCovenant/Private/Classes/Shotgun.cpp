@@ -40,6 +40,10 @@ void AShotgun::Update()
 		{
 			// Shoot the weapon
 			Shoot();
+			if(RecoilComponent)
+			{
+				RecoilComponent->Recoil();
+			}
 
 			// Subtract the cooldown from the time passed since the last shot.
 			// make sure the outcome does not go above value of Cooldown
@@ -114,6 +118,7 @@ void AShotgun::Shoot()
 		{
 			DealDamage(Victim, TotalDamage);
 		}
+		RecoilComponent->Recoil();
 	}
 }
 
