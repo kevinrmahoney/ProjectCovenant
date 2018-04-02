@@ -14,6 +14,7 @@
 #include "ItemWeaponLightningGun.h"
 #include "ItemWeaponRocketLauncher.h"
 #include "ItemWeaponRifle.h"
+#include "ItemWeaponSniper.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -66,11 +67,13 @@ void ASubjectZero::BeginPlay()
 		UItem * Shotgun = NewObject<UItemWeaponShotgun>(this, "Shotgun");
 		UItem * RocketLauncher = NewObject<UItemWeaponRocketLauncher>(this, "RocketLauncher");
 		UItem * Rifle = NewObject<UItemWeaponRifle>(this, "Rifle");
+		UItem * Sniper = NewObject<UItemWeaponSniper>(this, "Sniper");
 		Inventory->AddItem(LightningGun);
 		Inventory->AddItem(Railgun);
 		Inventory->AddItem(Shotgun);
 		Inventory->AddItem(RocketLauncher);
 		Inventory->AddItem(Rifle);
+		Inventory->AddItem(Sniper);
 	}
 }
 
