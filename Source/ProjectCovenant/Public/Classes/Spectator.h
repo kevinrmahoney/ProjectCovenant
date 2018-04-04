@@ -43,6 +43,12 @@ class PROJECTCOVENANT_API ASpectator : public ASpectatorPawn
 	void Slot1();
 	void Slot2();
 	void Slot3();
+	void Slot4();
+	void Slot5();
+	void Slot6();
+	void Slot7();
+	void Slot8();
+	void Slot9();
 
 private:
 	FVector Movement = FVector::ZeroVector;

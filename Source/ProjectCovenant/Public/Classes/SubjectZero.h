@@ -221,6 +221,12 @@ public:
 	void Slot1();
 	void Slot2();
 	void Slot3();
+	void Slot4();
+	void Slot5();
+	void Slot6();
+	void Slot7();
+	void Slot8();
+	void Slot9();
   
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSpeed() const;

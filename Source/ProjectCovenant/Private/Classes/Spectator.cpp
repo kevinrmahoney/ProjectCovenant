@@ -185,3 +185,33 @@ void ASpectator::Slot3()
 {
 
 }
+
+void ASpectator::Slot4()
+{
+
+}
+
+void ASpectator::Slot5()
+{
+
+}
+
+void ASpectator::Slot6()
+{
+
+}
+
+void ASpectator::Slot7()
+{
+
+}
+
+void ASpectator::Slot8()
+{
+
+}
+
+void ASpectator::Slot9()
+{
+
+}
