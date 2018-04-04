@@ -31,6 +31,10 @@ public:
 	void PrintList();
 	void AddItem(UItem * Item);
 	void RemoveItem(UItem * Item);
+
+	UFUNCTION(BlueprintCallable)
 	UItem * GetItem(int Num);
+
+	UFUNCTION(BlueprintCallable)
 	bool CheckItem(int Num);
 };

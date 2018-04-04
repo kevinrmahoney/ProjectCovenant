@@ -3,10 +3,13 @@
 #pragma once
 
 #include "GameFramework/Character.h"
+#include "Item.h"
 #include "SubjectZero.generated.h"
 
 class AWeapon;
 class UInventory;
+class UItem;
+struct FItemSerialized;
 
 UCLASS()
 class PROJECTCOVENANT_API ASubjectZero : public ACharacter
@@ -266,6 +269,15 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetPitch() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	UInventory * GetInventory() const;
+
+	UFUNCTION(Client, Reliable)
+	void ClientAddItemToInventory(const FItemSerialized & ItemSerialized);
+
+	UFUNCTION()
+	void AddItemToInventory(UItem * Item);
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackUsed() const;

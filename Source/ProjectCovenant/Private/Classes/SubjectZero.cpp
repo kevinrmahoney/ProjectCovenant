@@ -3,17 +3,13 @@
 #include "ProjectCovenant.h"
 #include "Classes/SubjectZero.h"
 #include "UnrealNetwork.h"
+#include "Item.h"
+#include "ItemWeapon.h"
 #include "Weapon.h"
 #include "Railgun.h"
 #include "Shotgun.h"
 #include "Deathmatch.h"
 #include "Inventory.h"
-#include "ItemWeapon.h"
-#include "ItemWeaponShotgun.h"
-#include "ItemWeaponRailgun.h"
-#include "ItemWeaponLightningGun.h"
-#include "ItemWeaponRocketLauncher.h"
-#include "ItemWeaponRifle.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -60,17 +56,7 @@ void ASubjectZero::BeginPlay()
 	{
 		// For some reason you have to add the second argument (naming the UObject) in order to prevent null pointers
 		// https://answers.unrealengine.com/questions/410789/tarray-of-uobjects-getting-garbage-collected.html 
-		Inventory = NewObject<UInventory>(this,"I");
-		UItem * LightningGun = NewObject<UItemWeaponLightningGun>(this, "LightningGun");
-		UItem * Railgun = NewObject<UItemWeaponRailgun>(this, "Railgun");
-		UItem * Shotgun = NewObject<UItemWeaponShotgun>(this, "Shotgun");
-		UItem * RocketLauncher = NewObject<UItemWeaponRocketLauncher>(this, "RocketLauncher");
-		UItem * Rifle = NewObject<UItemWeaponRifle>(this, "Rifle");
-		Inventory->AddItem(LightningGun);
-		Inventory->AddItem(Railgun);
-		Inventory->AddItem(Shotgun);
-		Inventory->AddItem(RocketLauncher);
-		Inventory->AddItem(Rifle);
+		Inventory = NewObject<UInventory>(this, "I");
 	}
 }
 
@@ -125,6 +111,7 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 	
 	// Set the trigger as pulled or not pulled
+
 	if(Weapon)
 	{
 		Weapon->SetTrigger(IsTriggerPulled);
@@ -288,7 +275,7 @@ void ASubjectZero::Equip(int Slot)
 		if(IsLocallyControlled() || HasAuthority())
 		{
 			// Check if the Item is a Weapon (TODO: This should be generalized to "EquippableItem")
-			if(UItemWeapon * ItemWeapon = Cast<UItemWeapon>(Inventory->GetItem(Slot)))
+			if(UItem * ItemWeapon = Cast<UItem>(Inventory->GetItem(Slot)))
 			{
 				// Get the Actor class that represents the Item
 				if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(NewItem->GetItemID()))
@@ -365,13 +352,9 @@ void ASubjectZero::OnRep_Equip()
 
 			if(Weapon)
 			{
-				Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+				Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 				Weapon->SetShooter(this);
 			}
-		}
-		else
-		{
-			Logger::Log("WHAT IN THE ACTUAL FUCK");
 		}
 	}
 	else
@@ -498,6 +481,28 @@ void ASubjectZero::Kill()
 		Weapon->Destroy();
 	}
 	Destroy();
+}
+
+void ASubjectZero::ClientAddItemToInventory_Implementation(const FItemSerialized & ItemSerialized)
+{
+	UItem * Item = UItem::UnserializeItem(ItemSerialized);
+	if(Inventory && Item)
+	{
+		Inventory->AddItem(Item);
+	}
+}
+
+void ASubjectZero::AddItemToInventory(UItem * Item)
+{
+	if(Inventory && Item)
+	{
+		if(!IsLocallyControlled())
+		{
+			FItemSerialized ItemSerialized = UItem::SerializeItem(Item);
+			ClientAddItemToInventory(ItemSerialized);
+		}
+		Inventory->AddItem(Item);
+	}
 }
 
 void ASubjectZero::Destroyed()
@@ -899,6 +904,7 @@ float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
 float ASubjectZero::GetPitch() const { return Pitch; }
 AWeapon* ASubjectZero::GetWeapon() const { return Weapon; }
+UInventory * ASubjectZero::GetInventory() const { return Inventory; }
 bool ASubjectZero::IsJetpackUsed() const { return JetpackUsed; }
 bool ASubjectZero::IsJetpackActive() const { return TryJetpack; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }

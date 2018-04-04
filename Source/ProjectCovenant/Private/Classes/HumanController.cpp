@@ -438,6 +438,7 @@ void AHumanController::InputSlot1()
 	{
 		Spectator->Slot0();
 	}
+	UpdateHotbar();
 }
 void AHumanController::InputSlot2()
 {

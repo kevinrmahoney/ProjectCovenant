@@ -3,12 +3,3 @@
 #include "ProjectCovenant.h"
 #include "Railgun.h"
 #include "ItemWeaponRailgun.h"
-
-UItemWeaponRailgun::UItemWeaponRailgun()
-{
-}
-
-FName UItemWeaponRailgun::GetItemID()
-{
-	return ItemID;
-}

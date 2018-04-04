@@ -10,6 +10,7 @@
 #include "BaseMode.generated.h"
 
 class ASubjectZero;
+class UItem;
 
 /**
  * 
@@ -35,6 +36,8 @@ public:
 	virtual void BeginPlay();
 
 	virtual void PostLogin(APlayerController * NewPlayer);
+
+	virtual void GiveItemToCharacter(ASubjectZero * Character, UItem * Item);
 
 private:
 	TArray<AActor*> SpawnPoints;
