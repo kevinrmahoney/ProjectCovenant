@@ -77,10 +77,13 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 				Shotgun->ItemID = TEXT("2");
 				UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
 				RocketLauncher->ItemID = TEXT("3");
+				UItem * Rifle = NewObject<UItem>(this, "Rifle");
+				Rifle->ItemID = TEXT("4");
 				GiveItemToCharacter(NewPawn, LightningGun);
 				GiveItemToCharacter(NewPawn, Railgun);
 				GiveItemToCharacter(NewPawn, Shotgun);
 				GiveItemToCharacter(NewPawn, RocketLauncher);
+				GiveItemToCharacter(NewPawn, Rifle);
 			}
 		}
 	}
