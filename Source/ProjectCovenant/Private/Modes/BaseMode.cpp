@@ -5,6 +5,7 @@
 #include "Spectator.h"
 #include "SubjectZero.h"
 #include "BasePlayerState.h"
+#include "Item.h"
 #include "BaseMode.h"
 
 void ABaseMode::BeginPlay()
@@ -67,6 +68,19 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 				APawn * OldPawn = Controller->GetPawn();
 				Controller->Possess(NewPawn);
 				if(OldPawn) OldPawn->Destroy();
+
+				UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
+				LightningGun->ItemID = TEXT("0");
+				UItem * Railgun = NewObject<UItem>(this, "Railgun");
+				Railgun->ItemID = TEXT("1");
+				UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
+				Shotgun->ItemID = TEXT("2");
+				UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+				RocketLauncher->ItemID = TEXT("3");
+				GiveItemToCharacter(NewPawn, LightningGun);
+				GiveItemToCharacter(NewPawn, Railgun);
+				GiveItemToCharacter(NewPawn, Shotgun);
+				GiveItemToCharacter(NewPawn, RocketLauncher);
 			}
 		}
 	}
@@ -168,5 +182,14 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 				Logger::Log("Could not kill player " + HumanController->GetName());
 			}
 		}
+	}
+}
+
+void ABaseMode::GiveItemToCharacter(ASubjectZero * Character, UItem * Item)
+{
+	if(Item && Character)
+	{
+		Logger::Chat(Item->ItemID.ToString());
+		Character->AddItemToInventory(Item);
 	}
 }

@@ -13,11 +13,4 @@ UCLASS()
 class PROJECTCOVENANT_API UItemWeaponRocketLauncher : public UItemWeapon
 {
 	GENERATED_BODY()
-	
-public:
-	FName ItemID = TEXT("3");
-
-	virtual FName GetItemID() override;
-	
-	
 };

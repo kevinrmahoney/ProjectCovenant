@@ -6,7 +6,6 @@
 #include "Classes/Weapon.h"
 #include "HitscanWeapon.generated.h"
 
-class UItemWeapon;
 class ASubjectZero;
 
 UCLASS()

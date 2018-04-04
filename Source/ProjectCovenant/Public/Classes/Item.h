@@ -29,9 +29,22 @@ public:
 	FText Description;
 };
 
+USTRUCT(BlueprintType)
+struct FItemSerialized
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	FName ItemID;
+
+	UPROPERTY()
+	int Count;
+};
+
 /**
- * 
- */
+*
+*/
 UCLASS()
 class PROJECTCOVENANT_API UItem : public UObject
 {
@@ -40,14 +53,34 @@ class PROJECTCOVENANT_API UItem : public UObject
 public:
 	UItem();
 
-
 public:
-	virtual FString ToString();
+
+	UPROPERTY()
 	int Count = 0;
+
+	UPROPERTY()
 	bool Equipped = false;
+
+	UPROPERTY()
 	FName ItemID = TEXT("-1");
+
+	UPROPERTY()
+	float LastShotTimeStamp = 0.f;
+
+	UFUNCTION()
+	void SetLastShotTimeStamp(UWorld * World);
 
 	UFUNCTION(BlueprintCallable)
 	virtual FName GetItemID();
 
+	// TODO: Write a static Item method that unserializes an FItemSerialized into a UItem, which is an unserialized version to store on computers
+	UFUNCTION()
+	static UItem * UnserializeItem(FItemSerialized Item);
+
+	// TODO: Write a static Item method that serializes a UItem into a FItemSerialized, which is a serialized version to send over networks
+	UFUNCTION()
+	static FItemSerialized SerializeItem(UItem * Item);
+
+	UFUNCTION()
+	virtual FString ToString();
 };

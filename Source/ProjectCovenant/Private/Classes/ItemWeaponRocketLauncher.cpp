@@ -4,9 +4,3 @@
 #include "ItemWeaponRocketLauncher.h"
 
 
-
-
-FName UItemWeaponRocketLauncher::GetItemID()
-{
-	return ItemID;
-}

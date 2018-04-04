@@ -7,7 +7,7 @@
 #include "Recoil.h"
 #include "Weapon.generated.h"
 
-class UItemWeapon;
+class UItem;
 class ASubjectZero;
 
 UCLASS()
@@ -44,7 +44,7 @@ protected:
 
 	TArray<FVector> ShotVectors;
 
-	UItemWeapon * Item;
+	UItem * Item;
 
 public:
 	UPROPERTY()
@@ -102,7 +102,7 @@ public:
 
 	virtual void Update();
 
-	virtual void SetItem(UItemWeapon * NewItem);
+	virtual void SetItem(UItem * NewItem);
 
 	virtual void SetTrigger(bool T);
 

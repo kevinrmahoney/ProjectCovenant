@@ -3,16 +3,13 @@
 #include "ProjectCovenant.h"
 #include "Classes/SubjectZero.h"
 #include "UnrealNetwork.h"
+#include "Item.h"
+#include "ItemWeapon.h"
 #include "Weapon.h"
 #include "Railgun.h"
 #include "Shotgun.h"
 #include "Deathmatch.h"
 #include "Inventory.h"
-#include "ItemWeapon.h"
-#include "ItemWeaponShotgun.h"
-#include "ItemWeaponRailgun.h"
-#include "ItemWeaponLightningGun.h"
-#include "ItemWeaponRocketLauncher.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -59,15 +56,7 @@ void ASubjectZero::BeginPlay()
 	{
 		// For some reason you have to add the second argument (naming the UObject) in order to prevent null pointers
 		// https://answers.unrealengine.com/questions/410789/tarray-of-uobjects-getting-garbage-collected.html 
-		Inventory = NewObject<UInventory>(this,"I");
-		UItem * LightningGun = NewObject<UItemWeaponLightningGun>(this, "LightningGun");
-		UItem * Railgun = NewObject<UItemWeaponRailgun>(this, "Railgun");
-		UItem * Shotgun = NewObject<UItemWeaponShotgun>(this, "Shotgun");
-		UItem * RocketLauncher = NewObject<UItemWeaponRocketLauncher>(this, "RocketLauncher");
-		Inventory->AddItem(LightningGun);
-		Inventory->AddItem(Railgun);
-		Inventory->AddItem(Shotgun);
-		Inventory->AddItem(RocketLauncher);
+		Inventory = NewObject<UInventory>(this, "I");
 	}
 }
 
@@ -286,7 +275,7 @@ void ASubjectZero::Equip(int Slot)
 		if(IsLocallyControlled() || HasAuthority())
 		{
 			// Check if the Item is a Weapon (TODO: This should be generalized to "EquippableItem")
-			if(UItemWeapon * ItemWeapon = Cast<UItemWeapon>(Inventory->GetItem(Slot)))
+			if(UItem * ItemWeapon = Cast<UItem>(Inventory->GetItem(Slot)))
 			{
 				// Get the Actor class that represents the Item
 				if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(NewItem->GetItemID()))
@@ -492,6 +481,28 @@ void ASubjectZero::Kill()
 		Weapon->Destroy();
 	}
 	Destroy();
+}
+
+void ASubjectZero::ClientAddItemToInventory_Implementation(const FItemSerialized & ItemSerialized)
+{
+	UItem * Item = UItem::UnserializeItem(ItemSerialized);
+	if(Inventory && Item)
+	{
+		Inventory->AddItem(Item);
+	}
+}
+
+void ASubjectZero::AddItemToInventory(UItem * Item)
+{
+	if(Inventory && Item)
+	{
+		if(!IsLocallyControlled())
+		{
+			FItemSerialized ItemSerialized = UItem::SerializeItem(Item);
+			ClientAddItemToInventory(ItemSerialized);
+		}
+		Inventory->AddItem(Item);
+	}
 }
 
 void ASubjectZero::Destroyed()
