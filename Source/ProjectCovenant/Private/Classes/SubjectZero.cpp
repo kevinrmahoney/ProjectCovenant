@@ -57,6 +57,7 @@ void ASubjectZero::BeginPlay()
 		// For some reason you have to add the second argument (naming the UObject) in order to prevent null pointers
 		// https://answers.unrealengine.com/questions/410789/tarray-of-uobjects-getting-garbage-collected.html 
 		Inventory = NewObject<UInventory>(this, "I");
+		RequestStartingInventory();
 	}
 }
 
@@ -467,7 +468,7 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 }
 
 bool ASubjectZero::ReceiveDamageOverTime(float DamageAmount, bool Overlapped) {
-	
+
 	return true;
 }
 
@@ -483,25 +484,79 @@ void ASubjectZero::Kill()
 	Destroy();
 }
 
+void ASubjectZero::RequestStartingInventory()
+{
+	if(HasAuthority())
+	{
+		if(ABaseMode * GameMode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+		{
+			GameMode->GiveStartingInventory(this);
+		}
+	}
+	else if(Role == ROLE_AutonomousProxy)
+	{
+		ServerRequestStartingInventory();
+	}
+}
+
+void ASubjectZero::ServerRequestStartingInventory_Implementation()
+{
+	RequestStartingInventory();
+}
+
+bool ASubjectZero::ServerRequestStartingInventory_Validate()
+{
+	return true;
+}
+
 void ASubjectZero::ClientAddItemToInventory_Implementation(const FItemSerialized & ItemSerialized)
 {
-	UItem * Item = UItem::UnserializeItem(ItemSerialized);
-	if(Inventory && Item)
+	if(Role != ROLE_Authority)
 	{
-		Inventory->AddItem(Item);
+		UItem * Item = UItem::UnserializeItem(ItemSerialized);
+		AddItemToInventory(Item);
 	}
 }
 
 void ASubjectZero::AddItemToInventory(UItem * Item)
 {
-	if(Inventory && Item)
+	if(Role == ROLE_Authority)
 	{
-		if(!IsLocallyControlled())
+		if(Inventory && Item)
 		{
-			FItemSerialized ItemSerialized = UItem::SerializeItem(Item);
-			ClientAddItemToInventory(ItemSerialized);
+			Inventory->AddItem(Item);
+			if(IsLocallyControlled())
+			{
+				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
+				{
+					HumanController->UpdateHotbar();
+				}
+			}
+			else
+			{
+				FItemSerialized ItemSerialized = UItem::SerializeItem(Item);
+				ClientAddItemToInventory(ItemSerialized);
+			}
 		}
-		Inventory->AddItem(Item);
+	}
+	else if(Role == ROLE_AutonomousProxy)
+	{
+		if(Inventory && Item)
+		{
+			if(IsLocallyControlled())
+			{
+				Inventory->AddItem(Item);
+				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
+				{
+					HumanController->UpdateHotbar();
+				}
+			}
+		}
+	}
+
+	if(AHumanController * HumanController = Cast<AHumanController>(Controller))
+	{
+		HumanController->UpdateHotbar();
 	}
 }
 

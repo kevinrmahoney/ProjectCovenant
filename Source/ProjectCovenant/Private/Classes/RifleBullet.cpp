@@ -36,7 +36,6 @@ void ARifleBullet::Explode(AActor * DirectHitActor)
 	{
 		if (ASubjectZero * Player = Cast<ASubjectZero>(DirectHitActor))
 		{
-			Logger::Chat(Player->GetName());
 			ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode());
 
 			if (Mode)

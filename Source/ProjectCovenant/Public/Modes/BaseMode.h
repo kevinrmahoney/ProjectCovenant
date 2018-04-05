@@ -37,6 +37,8 @@ public:
 
 	virtual void PostLogin(APlayerController * NewPlayer);
 
+	virtual void GiveStartingInventory(ASubjectZero * Character);
+
 	virtual void GiveItemToCharacter(ASubjectZero * Character, UItem * Item);
 
 private:

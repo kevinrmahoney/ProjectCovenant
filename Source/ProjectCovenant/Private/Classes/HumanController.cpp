@@ -132,6 +132,7 @@ void AHumanController::Possess(APawn* aPawn)
 		Logger::Log("Spawning as SubjectZero");
 		SubjectZero = NewSubjectZero;
 		Spectator = nullptr;
+		UpdateHotbar();
 	} 
 	else if(ASpectator * NewSpectator = Cast<ASpectator>(AcknowledgedPawn))
 	{
@@ -148,7 +149,8 @@ void AHumanController::UnPossess()
 
 ASubjectZero * AHumanController::GetSubjectZero()
 {
-	return SubjectZero;
+	ASubjectZero * NewSubjectZero = Cast<ASubjectZero>(AcknowledgedPawn);
+	return NewSubjectZero;
 }
 
 void AHumanController::Server_Set_Name_Implementation(FName NewName)
@@ -438,7 +440,6 @@ void AHumanController::InputSlot1()
 	{
 		Spectator->Slot0();
 	}
-	UpdateHotbar();
 }
 void AHumanController::InputSlot2()
 {

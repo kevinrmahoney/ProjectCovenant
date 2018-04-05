@@ -48,7 +48,7 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 			if(Controller)
 			{
 				float AddedPitch = MaxInitialRecoilSpeedPitch * (1 - (RecoilDurationPassed / RecoilDuration)) * (1 - (RecoilDurationPassed / RecoilDuration)) * DeltaTime;
-				float AddedYaw = MaxInitialRecoilSpeedYaw * (1 - (RecoilDurationPassed / RecoilDuration)) * (1 - (RecoilDurationPassed / RecoilDuration)) * DeltaTime;
+				float AddedYaw = LeftRight * MaxInitialRecoilSpeedYaw * (1 - (RecoilDurationPassed / RecoilDuration)) * (1 - (RecoilDurationPassed / RecoilDuration)) * DeltaTime;
 				FRotator Rotation = Controller->GetControlRotation();
 				Rotation.Pitch += AddedPitch;
 				Rotation.Yaw += AddedYaw;
@@ -83,7 +83,14 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 			{
 				FRotator Rotation = Controller->GetControlRotation();
 				Rotation.Pitch -= (DeltaPitch / ReturnDuration) * DeltaTime;
-				Rotation.Yaw -= (DeltaYaw / ReturnDuration) * DeltaTime;
+				if(LeftRight == -1.f)
+				{
+					Rotation.Yaw -= (DeltaYaw / ReturnDuration) * DeltaTime;
+				}
+				else
+				{
+					Rotation.Yaw -= LeftRight * (DeltaYaw / ReturnDuration) * DeltaTime;
+				}
 				Controller->SetControlRotation(Rotation);
 			}
 		}
@@ -97,6 +104,7 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 void URecoil::Recoil()
 {
 	IsRecoilling = true;
+	LeftRight = FMath::RandBool() ? -1.f : 1.f;
 	RecoilDurationPassed = 0.f;
 	ReturnDurationPassed = 0.f;
 	DeltaYaw = 0.f;

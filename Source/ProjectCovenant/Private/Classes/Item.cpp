@@ -36,9 +36,12 @@ void UItem::SetLastShotTimeStamp(UWorld * World)
 UItem * UItem::UnserializeItem(FItemSerialized Item)
 {
 	UItem * UnserializedItem = NewObject<UItem>();
-	UnserializedItem->Count = Item.Count;
-	UnserializedItem->Equipped = false;
-	UnserializedItem->ItemID = Item.ItemID;
+	if(UnserializedItem)
+	{
+		UnserializedItem->Count = Item.Count;
+		UnserializedItem->Equipped = false;
+		UnserializedItem->ItemID = Item.ItemID;
+	}
 	return UnserializedItem;
 }
 

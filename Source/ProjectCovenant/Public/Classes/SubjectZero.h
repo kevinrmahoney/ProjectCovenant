@@ -273,6 +273,12 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	UInventory * GetInventory() const;
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRequestStartingInventory();
+
+	UFUNCTION()
+	void RequestStartingInventory();
+
 	UFUNCTION(Client, Reliable)
 	void ClientAddItemToInventory(const FItemSerialized & ItemSerialized);
 
