@@ -84,7 +84,7 @@ private:
 	float CrouchingSprintSpeed = 300.f;
 	float CrouchingRunSpeed = 200.f;
 	float AimDownSightsSpeed = 200.f;
-	float JetpackAcceleration = 1100.f;
+	float JetpackAcceleration = 1200.f;
 	float JetpackBurstImpulse = 1500.f;
 	float GroundAcceleration = 5000.f;
 	float AirResistanceConstant = 0.00004f;

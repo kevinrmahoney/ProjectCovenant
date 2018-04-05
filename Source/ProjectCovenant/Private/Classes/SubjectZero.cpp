@@ -379,12 +379,13 @@ void ASubjectZero::Jetpack()
 			if(Burst && Fuel > MaxFuel * 0.25f)
 			{
 				// Create a vector that represents the movement of the character within the world
-				if(RotatedMovement.Size() == 0.f)
+				if(RotatedMovement == FVector(0.f, 0.f, 1.f))
 				{
 					RotatedMovement = FVector(0.f, 0.f, 1.f);
 				}
 				else
 				{
+					RotatedMovement.Z = 0.f;
 					RotatedMovement.Normalize();
 				}
 
