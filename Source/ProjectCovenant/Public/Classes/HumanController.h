@@ -94,6 +94,7 @@ private:
 	void InputRightRelease();
 	void InputJumpPress();
 	void InputJumpRelease();
+	void InputBurst();
 	void InputSprintPress();
 	void InputSprintRelease();
 	void InputCrouchPress();

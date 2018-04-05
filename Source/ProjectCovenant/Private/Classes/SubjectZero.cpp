@@ -375,24 +375,56 @@ void ASubjectZero::Jetpack()
 
 			FVector RotatedMovement = Rotation.RotateVector(Movement);
 
-			// Create a vector that represents the movement of the character within the world
-			FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
-			Force = Force * (Sprinting ? 2.f : 1.f);
-			Force = Force * Time;
-
-			GetCharacterMovement()->Velocity += Force;
-
-			float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f)) * (Sprinting ? 2.f : 1.f);
-
-			if(FuelUsed > 0.f)
+			// TODO: Lots of duplicate code here, needs refactoring (create "impulse" method to add velocity to CharacterMovement, other refactoring)
+			if(Burst && Fuel > MaxFuel * 0.25f)
 			{
-				TimeSinceJetpack = 0.f;
-				JetpackUsed = true;
+				// Create a vector that represents the movement of the character within the world
+				if(RotatedMovement.Size() == 0.f)
+				{
+					RotatedMovement = FVector(0.f, 0.f, 1.f);
+				}
+				else
+				{
+					RotatedMovement.Normalize();
+				}
+
+				FVector Force = RotatedMovement * JetpackBurstImpulse;
+				GetCharacterMovement()->Velocity += Force;
+
+				float FuelUsed = MaxFuel * 0.25f;
+
+				if(FuelUsed > 0.f)
+				{
+					TimeSinceJetpack = 0.f;
+					JetpackUsed = true;
+				}
+
+				if(Role == ROLE_Authority)
+				{
+					Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+				}
+				Burst = false;
 			}
-
-			if(Role == ROLE_Authority)
+			else
 			{
-				Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+				// Create a vector that represents the movement of the character within the world
+				FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
+				Force = Force * Time;
+
+				GetCharacterMovement()->Velocity += Force;
+
+				float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f));
+
+				if(FuelUsed > 0.f)
+				{
+					TimeSinceJetpack = 0.f;
+					JetpackUsed = true;
+				}
+
+				if(Role == ROLE_Authority)
+				{
+					Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+				}
 			}
 		}
 	}
@@ -678,6 +710,25 @@ void ASubjectZero::ServerSetJump_Implementation(bool Set)
 }
 
 bool ASubjectZero::ServerSetJump_Validate(bool Set)
+{
+	return true;
+}
+
+void ASubjectZero::SetBurst(bool Set)
+{
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetBurst(Set);
+	}
+	Burst = Set;
+}
+
+void ASubjectZero::ServerSetBurst_Implementation(bool Set)
+{
+	SetBurst(Set);
+}
+
+bool ASubjectZero::ServerSetBurst_Validate(bool Set)
 {
 	return true;
 }

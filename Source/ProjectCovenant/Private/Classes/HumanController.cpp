@@ -49,6 +49,7 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAxis("Pitch", this, &AHumanController::InputPitch);
 		InputComponent->BindAction("Jump", IE_Pressed, this, &AHumanController::InputJumpPress);
 		InputComponent->BindAction("Jump", IE_Released, this, &AHumanController::InputJumpRelease);
+		InputComponent->BindAction("Burst", IE_DoubleClick, this, &AHumanController::InputBurst);
 		InputComponent->BindAction("Sprint", IE_Pressed, this, &AHumanController::InputSprintPress);
 		InputComponent->BindAction("Sprint", IE_Released, this, &AHumanController::InputSprintRelease);
 		InputComponent->BindAction("Crouch", IE_Pressed, this, &AHumanController::InputCrouchPress);
@@ -75,7 +76,6 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Slot 7", IE_Pressed, this, &AHumanController::InputSlot7);
 		InputComponent->BindAction("Slot 8", IE_Pressed, this, &AHumanController::InputSlot8);
 		InputComponent->BindAction("Slot 9", IE_Pressed, this, &AHumanController::InputSlot9);
-
 		InputComponent->BindAction("Use", IE_Pressed, this, &AHumanController::InputUsePress);
 		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
 		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
@@ -331,6 +331,15 @@ void AHumanController::InputJumpRelease()
 		Spectator->SetJump(false);
 	}
 }
+
+void AHumanController::InputBurst()
+{
+	if(SubjectZero)
+	{
+		SubjectZero->SetBurst(true);
+	}
+}
+
 void AHumanController::InputSprintPress()
 {
 	if(SubjectZero)
