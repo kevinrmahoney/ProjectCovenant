@@ -5,6 +5,7 @@
 #include "Spectator.h"
 #include "SubjectZero.h"
 #include "BasePlayerState.h"
+#include "Item.h"
 #include "BaseMode.h"
 
 void ABaseMode::BeginPlay()
@@ -62,12 +63,10 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " at " + NewPawn->GetActorLocation().ToString() + " with rotation " + NewPawn->GetActorRotation().ToString());
 			}
 			Characters.Add(NewPawn);
-			if(Controller)
-			{
-				APawn * OldPawn = Controller->GetPawn();
-				Controller->Possess(NewPawn);
-				if(OldPawn) OldPawn->Destroy();
-			}
+
+			APawn * OldPawn = Controller->GetPawn();
+			Controller->Possess(NewPawn);
+			if(OldPawn) OldPawn->Destroy();
 		}
 	}
 
@@ -168,5 +167,35 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 				Logger::Log("Could not kill player " + HumanController->GetName());
 			}
 		}
+	}
+}
+
+void ABaseMode::GiveItemToCharacter(ASubjectZero * Character, UItem * Item)
+{
+	if(Item && Character)
+	{
+		Character->AddItemToInventory(Item);
+	}
+}
+
+void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
+{
+	if(Character)
+	{
+		UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
+		LightningGun->ItemID = TEXT("0");
+		UItem * Railgun = NewObject<UItem>(this, "Railgun");
+		Railgun->ItemID = TEXT("1");
+		UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
+		Shotgun->ItemID = TEXT("2");
+		UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+		RocketLauncher->ItemID = TEXT("3");
+		UItem * Rifle = NewObject<UItem>(this, "Rifle");
+		Rifle->ItemID = TEXT("4");
+		GiveItemToCharacter(Character, LightningGun);
+		GiveItemToCharacter(Character, Railgun);
+		GiveItemToCharacter(Character, Shotgun);
+		GiveItemToCharacter(Character, RocketLauncher);
+		GiveItemToCharacter(Character, Rifle);
 	}
 }

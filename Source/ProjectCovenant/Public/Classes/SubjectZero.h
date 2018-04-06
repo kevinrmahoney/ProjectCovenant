@@ -3,10 +3,13 @@
 #pragma once
 
 #include "GameFramework/Character.h"
+#include "Item.h"
 #include "SubjectZero.generated.h"
 
 class AWeapon;
 class UInventory;
+class UItem;
+struct FItemSerialized;
 
 UCLASS()
 class PROJECTCOVENANT_API ASubjectZero : public ACharacter
@@ -45,6 +48,9 @@ private:
 	float ShieldRechargeTime = 5.f;
 	float ShieldRechargeRate = 20.f;
 
+	float DefaultFieldOfView = 90.f;
+	float AimDownSightsFieldOfView = 70.f;
+
 	UPROPERTY(Replicated)
 	float Health = 100.f;
 
@@ -81,7 +87,8 @@ private:
 	float CrouchingSprintSpeed = 300.f;
 	float CrouchingRunSpeed = 200.f;
 	float AimDownSightsSpeed = 200.f;
-	float JetpackAcceleration = 1500.f;
+	float JetpackAcceleration = 1200.f;
+	float JetpackBurstImpulse = 1500.f;
 	float GroundAcceleration = 5000.f;
 	float AirResistanceConstant = 0.00004f;
 	float FuelUsage = 75.f;
@@ -97,6 +104,7 @@ private:
 	bool Right = false;
 	bool Forward = false;
 	bool Backward = false;
+	bool Burst = false;
 
 public:
 	UPROPERTY(VisibleDefaultsOnly)
@@ -178,6 +186,11 @@ public:
 	void SetJump(bool Set);
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetJump(bool Set);
+
+	UFUNCTION()
+	void SetBurst(bool Set);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerSetBurst(bool Set);
 
 	UFUNCTION()
 	void SetMoveLeft(bool Set);
@@ -266,6 +279,21 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetPitch() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	UInventory * GetInventory() const;
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRequestStartingInventory();
+
+	UFUNCTION()
+	void RequestStartingInventory();
+
+	UFUNCTION(Client, Reliable)
+	void ClientAddItemToInventory(const FItemSerialized & ItemSerialized);
+
+	UFUNCTION()
+	void AddItemToInventory(UItem * Item);
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackUsed() const;

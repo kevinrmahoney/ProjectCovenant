@@ -34,7 +34,7 @@ public:
 	UPROPERTY()
 	ASpectator * Spectator;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	ASubjectZero * GetSubjectZero();
 
 	UFUNCTION(BlueprintCallable)
@@ -51,10 +51,10 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> Scoreboard;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	UUserWidget * PlayerHUD;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	UUserWidget * PlayerScoreboard;
 
 	UFUNCTION(Exec)
@@ -62,6 +62,9 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_God(const FString & Set);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateHotbar();
 
 protected:
 	void BeginPlay();
@@ -91,6 +94,7 @@ private:
 	void InputRightRelease();
 	void InputJumpPress();
 	void InputJumpRelease();
+	void InputBurst();
 	void InputSprintPress();
 	void InputSprintRelease();
 	void InputCrouchPress();

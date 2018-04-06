@@ -53,6 +53,7 @@ public:
 
 	float DeltaYaw = 0.f;
 	float DeltaPitch = 0.f;
+	float LeftRight = 1.f;
 
 	bool IsRecoilling = false;
 	bool IsReturning = false;

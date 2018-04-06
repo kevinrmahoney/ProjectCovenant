@@ -95,12 +95,12 @@ void ARocketLauncher::DealDamage(ASubjectZero * Victim, float TotalDamage)
 
 FVector ARocketLauncher::GetAimDownSightsLocation()
 {
-	return AimDownSightsLocation;
+	return HipFireLocation;
 }
 
 FRotator ARocketLauncher::GetAimDownSightsRotation()
 {
-	return AimDownSightsRotation;
+	return HipFireRotation;
 }
 
 FVector ARocketLauncher::GetHipFireLocation()

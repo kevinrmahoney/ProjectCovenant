@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ProjectCovenant.h"
-#include "ItemWeapon.h"
+#include "Item.h"
 #include "UnrealNetwork.h"
 #include "SubjectZero.h"
 #include "Weapon.h"
@@ -59,7 +59,7 @@ void AWeapon::Update()
 	
 }
 
-void AWeapon::SetItem(UItemWeapon * NewItem)
+void AWeapon::SetItem(UItem * NewItem)
 {
 	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
 	{

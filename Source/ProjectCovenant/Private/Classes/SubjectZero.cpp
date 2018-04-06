@@ -3,18 +3,13 @@
 #include "ProjectCovenant.h"
 #include "Classes/SubjectZero.h"
 #include "UnrealNetwork.h"
+#include "Item.h"
+#include "ItemWeapon.h"
 #include "Weapon.h"
 #include "Railgun.h"
 #include "Shotgun.h"
 #include "Deathmatch.h"
 #include "Inventory.h"
-#include "ItemWeapon.h"
-#include "ItemWeaponShotgun.h"
-#include "ItemWeaponRailgun.h"
-#include "ItemWeaponLightningGun.h"
-#include "ItemWeaponRocketLauncher.h"
-#include "ItemWeaponRifle.h"
-#include "ItemWeaponSniper.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -61,19 +56,8 @@ void ASubjectZero::BeginPlay()
 	{
 		// For some reason you have to add the second argument (naming the UObject) in order to prevent null pointers
 		// https://answers.unrealengine.com/questions/410789/tarray-of-uobjects-getting-garbage-collected.html 
-		Inventory = NewObject<UInventory>(this,"I");
-		UItem * LightningGun = NewObject<UItemWeaponLightningGun>(this, "LightningGun");
-		UItem * Railgun = NewObject<UItemWeaponRailgun>(this, "Railgun");
-		UItem * Shotgun = NewObject<UItemWeaponShotgun>(this, "Shotgun");
-		UItem * RocketLauncher = NewObject<UItemWeaponRocketLauncher>(this, "RocketLauncher");
-		UItem * Rifle = NewObject<UItemWeaponRifle>(this, "Rifle");
-		UItem * Sniper = NewObject<UItemWeaponSniper>(this, "Sniper");
-		Inventory->AddItem(LightningGun);
-		Inventory->AddItem(Railgun);
-		Inventory->AddItem(Shotgun);
-		Inventory->AddItem(RocketLauncher);
-		Inventory->AddItem(Rifle);
-		Inventory->AddItem(Sniper);
+		Inventory = NewObject<UInventory>(this, "I");
+		RequestStartingInventory();
 	}
 }
 
@@ -111,6 +95,18 @@ void ASubjectZero::Tick(float DeltaTime)
 		ApplyAirResistance();
 	}
 
+	if(IsLocallyControlled())
+	{
+		if(AimDownSights)
+		{
+			Camera->FieldOfView = AimDownSightsFieldOfView;
+		}
+		else
+		{
+			Camera->FieldOfView = DefaultFieldOfView;
+		}
+	}
+
 	PlayJetpackSound();
 	if(Crouching)
 	{
@@ -128,6 +124,7 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 	
 	// Set the trigger as pulled or not pulled
+
 	if(Weapon)
 	{
 		Weapon->SetTrigger(IsTriggerPulled);
@@ -268,7 +265,6 @@ void ASubjectZero::Update()
 //Equips local controller with a weapon, and sends information to the server
 void ASubjectZero::Equip(int Slot)
 {
-	Logger::Log(FString::FromInt(Slot));
 	// Make sure the inventory actually has an item in this slot before equipping it
 	if(Inventory && Inventory->CheckItem(Slot))
 	{
@@ -291,7 +287,7 @@ void ASubjectZero::Equip(int Slot)
 		if(IsLocallyControlled() || HasAuthority())
 		{
 			// Check if the Item is a Weapon (TODO: This should be generalized to "EquippableItem")
-			if(UItemWeapon * ItemWeapon = Cast<UItemWeapon>(Inventory->GetItem(Slot)))
+			if(UItem * ItemWeapon = Cast<UItem>(Inventory->GetItem(Slot)))
 			{
 				// Get the Actor class that represents the Item
 				if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(NewItem->GetItemID()))
@@ -368,13 +364,9 @@ void ASubjectZero::OnRep_Equip()
 
 			if(Weapon)
 			{
-				Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+				Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
 				Weapon->SetShooter(this);
 			}
-		}
-		else
-		{
-			Logger::Log("WHAT IN THE ACTUAL FUCK");
 		}
 	}
 	else
@@ -394,24 +386,57 @@ void ASubjectZero::Jetpack()
 
 			FVector RotatedMovement = Rotation.RotateVector(Movement);
 
-			// Create a vector that represents the movement of the character within the world
-			FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
-			Force = Force * (Sprinting ? 2.f : 1.f);
-			Force = Force * Time;
-
-			GetCharacterMovement()->Velocity += Force;
-
-			float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f)) * (Sprinting ? 2.f : 1.f);
-
-			if(FuelUsed > 0.f)
+			// TODO: Lots of duplicate code here, needs refactoring (create "impulse" method to add velocity to CharacterMovement, other refactoring)
+			if(Burst && Fuel > MaxFuel * 0.25f)
 			{
-				TimeSinceJetpack = 0.f;
-				JetpackUsed = true;
+				// Create a vector that represents the movement of the character within the world
+				if(RotatedMovement == FVector(0.f, 0.f, 1.f))
+				{
+					RotatedMovement = FVector(0.f, 0.f, 1.f);
+				}
+				else
+				{
+					RotatedMovement.Z = 0.f;
+					RotatedMovement.Normalize();
+				}
+
+				FVector Force = RotatedMovement * JetpackBurstImpulse;
+				GetCharacterMovement()->Velocity += Force;
+
+				float FuelUsed = MaxFuel * 0.25f;
+
+				if(FuelUsed > 0.f)
+				{
+					TimeSinceJetpack = 0.f;
+					JetpackUsed = true;
+				}
+
+				if(Role == ROLE_Authority)
+				{
+					Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+				}
+				Burst = false;
 			}
-
-			if(Role == ROLE_Authority)
+			else
 			{
-				Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+				// Create a vector that represents the movement of the character within the world
+				FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
+				Force = Force * Time;
+
+				GetCharacterMovement()->Velocity += Force;
+
+				float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f));
+
+				if(FuelUsed > 0.f)
+				{
+					TimeSinceJetpack = 0.f;
+					JetpackUsed = true;
+				}
+
+				if(Role == ROLE_Authority)
+				{
+					Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+				}
 			}
 		}
 	}
@@ -487,7 +512,7 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 }
 
 bool ASubjectZero::ReceiveDamageOverTime(float DamageAmount, bool Overlapped) {
-	
+
 	return true;
 }
 
@@ -501,6 +526,82 @@ void ASubjectZero::Kill()
 		Weapon->Destroy();
 	}
 	Destroy();
+}
+
+void ASubjectZero::RequestStartingInventory()
+{
+	if(HasAuthority())
+	{
+		if(ABaseMode * GameMode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+		{
+			GameMode->GiveStartingInventory(this);
+		}
+	}
+	else if(Role == ROLE_AutonomousProxy)
+	{
+		ServerRequestStartingInventory();
+	}
+}
+
+void ASubjectZero::ServerRequestStartingInventory_Implementation()
+{
+	RequestStartingInventory();
+}
+
+bool ASubjectZero::ServerRequestStartingInventory_Validate()
+{
+	return true;
+}
+
+void ASubjectZero::ClientAddItemToInventory_Implementation(const FItemSerialized & ItemSerialized)
+{
+	if(Role != ROLE_Authority)
+	{
+		UItem * Item = UItem::UnserializeItem(ItemSerialized);
+		AddItemToInventory(Item);
+	}
+}
+
+void ASubjectZero::AddItemToInventory(UItem * Item)
+{
+	if(Role == ROLE_Authority)
+	{
+		if(Inventory && Item)
+		{
+			Inventory->AddItem(Item);
+			if(IsLocallyControlled())
+			{
+				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
+				{
+					HumanController->UpdateHotbar();
+				}
+			}
+			else
+			{
+				FItemSerialized ItemSerialized = UItem::SerializeItem(Item);
+				ClientAddItemToInventory(ItemSerialized);
+			}
+		}
+	}
+	else if(Role == ROLE_AutonomousProxy)
+	{
+		if(Inventory && Item)
+		{
+			if(IsLocallyControlled())
+			{
+				Inventory->AddItem(Item);
+				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
+				{
+					HumanController->UpdateHotbar();
+				}
+			}
+		}
+	}
+
+	if(AHumanController * HumanController = Cast<AHumanController>(Controller))
+	{
+		HumanController->UpdateHotbar();
+	}
 }
 
 void ASubjectZero::Destroyed()
@@ -621,6 +722,25 @@ void ASubjectZero::ServerSetJump_Implementation(bool Set)
 }
 
 bool ASubjectZero::ServerSetJump_Validate(bool Set)
+{
+	return true;
+}
+
+void ASubjectZero::SetBurst(bool Set)
+{
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetBurst(Set);
+	}
+	Burst = Set;
+}
+
+void ASubjectZero::ServerSetBurst_Implementation(bool Set)
+{
+	SetBurst(Set);
+}
+
+bool ASubjectZero::ServerSetBurst_Validate(bool Set)
 {
 	return true;
 }
@@ -902,6 +1022,7 @@ float ASubjectZero::GetMaxFuel() const { return MaxFuel; }
 float ASubjectZero::GetFuel() const { return Fuel; }
 float ASubjectZero::GetPitch() const { return Pitch; }
 AWeapon* ASubjectZero::GetWeapon() const { return Weapon; }
+UInventory * ASubjectZero::GetInventory() const { return Inventory; }
 bool ASubjectZero::IsJetpackUsed() const { return JetpackUsed; }
 bool ASubjectZero::IsJetpackActive() const { return TryJetpack; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }

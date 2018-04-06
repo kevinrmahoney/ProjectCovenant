@@ -7,7 +7,6 @@
 #include "Projectile.h"
 #include "ProjectileWeapon.generated.h"
 
-class UItemWeapon;
 class ASubjectZero;
 
 UCLASS()

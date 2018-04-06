@@ -15,10 +15,4 @@ UCLASS(Blueprintable)
 class PROJECTCOVENANT_API UItemWeaponShotgun : public UItemWeapon
 {
 	GENERATED_BODY()
-	
-public:
-	UItemWeaponShotgun();
-	FName ItemID = TEXT("2");
-
-	virtual FName GetItemID() override;
 };
