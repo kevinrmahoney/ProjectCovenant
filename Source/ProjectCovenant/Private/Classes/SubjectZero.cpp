@@ -125,22 +125,10 @@ void ASubjectZero::Tick(float DeltaTime)
 	
 	// Set the trigger as pulled or not pulled
 
-	if(Weapon)
+	if (Weapon)
 	{
+		Weapon->AimDownSights(AimDownSights);
 		Weapon->SetTrigger(IsTriggerPulled);
-		if(FirstPersonMesh)
-		{
-			if(AimDownSights)
-			{
-				FirstPersonMesh->SetRelativeLocation(Weapon->GetAimDownSightsLocation());
-				FirstPersonMesh->SetRelativeRotation(Weapon->GetAimDownSightsRotation());
-			}
-			else
-			{
-				FirstPersonMesh->SetRelativeLocation(Weapon->GetHipFireLocation());
-				FirstPersonMesh->SetRelativeRotation(Weapon->GetHipFireRotation());
-			}
-		}
 	}
 }
 

@@ -25,6 +25,8 @@ public:
 	bool TryJetpack = false;
 	float DamageMultiplier = 1.f;
 	float DamageMultiplierDuration = 0.f;
+	float DefaultFieldOfView = 90.f;
+	float AimDownSightsFieldOfView = 70.f;
 
 private:
 	AWeapon * Weapon;
@@ -47,9 +49,6 @@ private:
 	float TimeSinceTookDamage = 0.f;
 	float ShieldRechargeTime = 5.f;
 	float ShieldRechargeRate = 20.f;
-
-	float DefaultFieldOfView = 90.f;
-	float AimDownSightsFieldOfView = 70.f;
 
 	UPROPERTY(Replicated)
 	float Health = 100.f;

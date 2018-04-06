@@ -94,6 +94,8 @@ protected:
 
 	void Destroyed() override;
 
+	float AimDownSightsFieldOfView = 90.f;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -107,6 +109,8 @@ public:
 	virtual void SetTrigger(bool T);
 
 	virtual void SetShooter(ASubjectZero * NewShooter);
+
+	virtual void AimDownSights(bool IsAimDownSights);
 
 	virtual FVector GetAimDownSightsLocation() ;
 

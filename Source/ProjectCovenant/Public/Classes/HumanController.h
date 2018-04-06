@@ -66,6 +66,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateHotbar();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void DrawZoomCrosshair(bool IsScoped);
+
 protected:
 	void BeginPlay();
 	void SetupInputComponent() override;

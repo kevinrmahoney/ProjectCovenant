@@ -4,10 +4,12 @@
 #include "Sniper.h"
 #include "ItemWeapon.h"
 #include "SubjectZero.h"
+#include "HumanController.h"
 
 ASniper::ASniper()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	AimDownSightsFieldOfView = 10.f;
 }
 
 // Called when the game starts or when spawned
@@ -77,6 +79,28 @@ void ASniper::Shoot()
 void ASniper::DealDamage(ASubjectZero * Victim, float TotalDamage)
 {
 	Super::DealDamage(Victim, TotalDamage);
+}
+
+void ASniper::AimDownSights(bool IsAimDownSights) 
+{
+	Super::AimDownSights(IsAimDownSights);
+	if (IsAimDownSights)
+	{
+		if(Shooter && Shooter->Camera) Shooter->Camera->FieldOfView = AimDownSightsFieldOfView;
+		if (GunMesh) GunMesh->SetVisibility(false);
+		if(Shooter && Shooter->FirstPersonMesh) Shooter->FirstPersonMesh->SetVisibility(false);
+	}
+	else
+	{
+		if(Shooter && Shooter->Camera) Shooter->Camera->FieldOfView = Shooter->DefaultFieldOfView;
+		if (GunMesh) GunMesh->SetVisibility(true);
+		if (Shooter && Shooter->FirstPersonMesh) Shooter->FirstPersonMesh->SetVisibility(true);
+	}
+	AHumanController * Human = Cast<AHumanController>(Shooter->GetController());
+	if (Human)
+	{
+		Human->DrawZoomCrosshair(IsAimDownSights);
+	}
 }
 
 FVector ASniper::GetAimDownSightsLocation()

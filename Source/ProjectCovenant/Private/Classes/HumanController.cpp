@@ -563,7 +563,10 @@ void AHumanController::InputScoreboardPress()
 
 void AHumanController::InputScoreboardRelease()
 {
-	PlayerScoreboard->SetVisibility(ESlateVisibility::Hidden);
+	if (PlayerScoreboard) 
+	{
+		PlayerScoreboard->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 FName AHumanController::GetPlayerName() const { return PlayerName; }

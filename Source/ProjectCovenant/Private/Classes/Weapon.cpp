@@ -52,6 +52,7 @@ void AWeapon::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	TimeSinceLastShot += DeltaTime;
 	Update();
+	//AimDownSights(true);
 }
 
 void AWeapon::Update()
@@ -85,7 +86,7 @@ void AWeapon::SetTrigger(bool T)
 
 void AWeapon::Shoot()
 {
-
+	
 }
 
 void AWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
@@ -95,6 +96,25 @@ void AWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 
 void AWeapon::DrawDebugVisuals()
 {
+}
+
+void AWeapon::AimDownSights(bool IsAimDownSights)
+{
+	//Logger::Log(IsAimDownSights ? "Yes" : "No");
+
+	if (Shooter && Shooter->FirstPersonMesh)
+	{
+		if (IsAimDownSights)
+		{
+			Shooter->FirstPersonMesh->SetRelativeLocation(GetAimDownSightsLocation());
+			Shooter->FirstPersonMesh->SetRelativeRotation(GetAimDownSightsRotation());
+		}
+		else
+		{
+			Shooter->FirstPersonMesh->SetRelativeLocation(GetHipFireLocation());
+			Shooter->FirstPersonMesh->SetRelativeRotation(GetHipFireRotation());
+		}
+	}
 }
 
 FVector AWeapon::GetAimDownSightsLocation()
