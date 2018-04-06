@@ -95,6 +95,18 @@ void ASubjectZero::Tick(float DeltaTime)
 		ApplyAirResistance();
 	}
 
+	if(IsLocallyControlled())
+	{
+		if(AimDownSights)
+		{
+			Camera->FieldOfView = AimDownSightsFieldOfView;
+		}
+		else
+		{
+			Camera->FieldOfView = DefaultFieldOfView;
+		}
+	}
+
 	PlayJetpackSound();
 	if(Crouching)
 	{
@@ -253,7 +265,6 @@ void ASubjectZero::Update()
 //Equips local controller with a weapon, and sends information to the server
 void ASubjectZero::Equip(int Slot)
 {
-	Logger::Log(FString::FromInt(Slot));
 	// Make sure the inventory actually has an item in this slot before equipping it
 	if(Inventory && Inventory->CheckItem(Slot))
 	{
