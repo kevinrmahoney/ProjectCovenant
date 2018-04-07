@@ -24,18 +24,24 @@ void ARifle::Tick(float DeltaTime)
 
 void ARifle::Update()
 {
+	// Apply Recoil the tick after the shot
+	if(Fire)
+	{
+		if(RecoilComponent)
+		{
+			RecoilComponent->Recoil();
+		}
+		Fire = false;
+	}
 	// If the trigger is pulled
 	if (Trigger)
 	{
 		// If the cooldown has passed
 		if (TimeSinceLastShot > Cooldown)
 		{
+			Fire = true;
 			// Shoot the weapon
 			Shoot();
-			if(RecoilComponent)
-			{
-				RecoilComponent->Recoil();
-			}
 
 			// Subtract the cooldown from the time passed since the last shot.
 			// make sure the outcome does not go above value of Cooldown

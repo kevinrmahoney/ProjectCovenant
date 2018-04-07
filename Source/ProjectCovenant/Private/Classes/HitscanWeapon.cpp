@@ -36,6 +36,16 @@ void AHitscanWeapon::Tick(float DeltaTime)
 
 void AHitscanWeapon::Update()
 {
+	// Apply Recoil the tick after the shot
+	if(Fire)
+	{
+		if(RecoilComponent)
+		{
+			RecoilComponent->Recoil();
+		}
+		Fire = false;
+	}
+
 	if(TimeSinceLastShot > 0.f)
 	{
 		// If the trigger is pulled
@@ -44,6 +54,7 @@ void AHitscanWeapon::Update()
 			// If the cooldown has passed
 			if(TimeSinceLastShot > Cooldown)
 			{
+				Fire = true;
 				// Shoot the weapon
 				Shoot();
 
@@ -59,10 +70,6 @@ void AHitscanWeapon::Update()
 				{
 					Logger::Log("Could not find Item when attempting to set last shot time stamp");
 				}
-			}
-			if(RecoilComponent)
-			{
-				RecoilComponent->Recoil();
 			}
 		}
 	}

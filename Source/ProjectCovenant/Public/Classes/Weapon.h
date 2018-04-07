@@ -38,6 +38,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 	bool Trigger = false;
 
+	UPROPERTY()
+	bool Fire = false;
+
 	float TimeSinceLastShot = 0.f;
 
 	float Duration = 0.02f;

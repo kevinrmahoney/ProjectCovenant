@@ -103,20 +103,24 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 
 void URecoil::Recoil()
 {
-	IsRecoilling = true;
-	LeftRight = FMath::RandBool() ? -1.f : 1.f;
-	RecoilDurationPassed = 0.f;
-	ReturnDurationPassed = 0.f;
-	DeltaYaw = 0.f;
-	DeltaPitch = 0.f;
-	SetComponentTickEnabled(true);
-	if( Shooter && Shooter->GetController() )
+	if(Shooter->IsLocallyControlled())
 	{
-		AController * Controller = Shooter->GetController();
-		if(Controller)
+		Logger::Chat(Shooter->HasAuthority() ? "Yes" : "No");
+		IsRecoilling = true;
+		LeftRight = FMath::RandBool() ? -1.f : 1.f;
+		RecoilDurationPassed = 0.f;
+		ReturnDurationPassed = 0.f;
+		DeltaYaw = 0.f;
+		DeltaPitch = 0.f;
+		SetComponentTickEnabled(true);
+		if(Shooter && Shooter->GetController())
 		{
-			StartPointYaw = Controller->GetControlRotation().Yaw;
-			StartPointPitch = Controller->GetControlRotation().Pitch;
+			AController * Controller = Shooter->GetController();
+			if(Controller)
+			{
+				StartPointYaw = Controller->GetControlRotation().Yaw;
+				StartPointPitch = Controller->GetControlRotation().Pitch;
+			}
 		}
 	}
 }

@@ -26,22 +26,29 @@ void ASniper::Tick(float DeltaTime)
 
 void ASniper::Update()
 {
+	// Apply Recoil the tick after the shot
+	if(Fire)
+	{
+		if(RecoilComponent)
+		{
+			RecoilComponent->Recoil();
+		}
+		Fire = false;
+	}
 	// If the trigger is pulled
-	if (Trigger)
+	if(Trigger)
 	{
 		// If the cooldown has passed
-		if (TimeSinceLastShot > Cooldown)
+		if(TimeSinceLastShot > Cooldown)
 		{
+			Fire = true;
 			// Shoot the weapon
 			Shoot();
-			if (RecoilComponent)
-			{
-				RecoilComponent->Recoil();
-			}
+
 			// Subtract the cooldown from the time passed since the last shot.
 			// make sure the outcome does not go above value of Cooldown
 			TimeSinceLastShot = 0.f;
-			if (Item)
+			if(Item)
 			{
 				Item->SetLastShotTimeStamp(GetWorld());
 			}
@@ -62,13 +69,14 @@ void ASniper::Shoot()
 {
 	PlayShootSound();
 
-	if (Shooter->HasAuthority())
+	Logger::Chat("SHOT! " + Shooter->GetControlRotation().ToString() + (Shooter->HasAuthority() ? " Server" : " Client"));
+	if(Shooter->HasAuthority())
 	{
 		float TotalDamage = 0.f;
 		int count = 0;
 
 		AProjectile * NewProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, Muzzle->GetComponentLocation(), Muzzle->GetComponentRotation());
-		if (NewProjectile)
+		if(NewProjectile)
 		{
 			NewProjectile->SetWeapon(this);
 			NewProjectile->SetDamage(Damage);
@@ -81,25 +89,29 @@ void ASniper::DealDamage(ASubjectZero * Victim, float TotalDamage)
 	Super::DealDamage(Victim, TotalDamage);
 }
 
-void ASniper::AimDownSights(bool IsAimDownSights) 
+void ASniper::AimDownSights(bool IsAimDownSights)
 {
 	Super::AimDownSights(IsAimDownSights);
-	if (IsAimDownSights)
+
+	if(Shooter && Shooter->IsLocallyControlled())
 	{
-		if(Shooter && Shooter->Camera) Shooter->Camera->FieldOfView = AimDownSightsFieldOfView;
-		if (GunMesh) GunMesh->SetVisibility(false);
-		if(Shooter && Shooter->FirstPersonMesh) Shooter->FirstPersonMesh->SetVisibility(false);
-	}
-	else
-	{
-		if(Shooter && Shooter->Camera) Shooter->Camera->FieldOfView = Shooter->DefaultFieldOfView;
-		if (GunMesh) GunMesh->SetVisibility(true);
-		if (Shooter && Shooter->FirstPersonMesh) Shooter->FirstPersonMesh->SetVisibility(true);
-	}
-	AHumanController * Human = Cast<AHumanController>(Shooter->GetController());
-	if (Human)
-	{
-		Human->DrawZoomCrosshair(IsAimDownSights);
+		if(IsAimDownSights)
+		{
+			if(Shooter->Camera) Shooter->Camera->FieldOfView = AimDownSightsFieldOfView;
+			if(GunMesh) GunMesh->SetVisibility(false);
+			if(Shooter->FirstPersonMesh) Shooter->FirstPersonMesh->SetVisibility(false);
+		}
+		else
+		{
+			if(Shooter->Camera) Shooter->Camera->FieldOfView = Shooter->DefaultFieldOfView;
+			if(GunMesh) GunMesh->SetVisibility(true);
+			if(Shooter->FirstPersonMesh) Shooter->FirstPersonMesh->SetVisibility(true);
+		}
+
+		if(AHumanController * Human = Cast<AHumanController>(Shooter->GetController()))
+		{
+			Human->DrawZoomCrosshair(IsAimDownSights);
+		}
 	}
 }
 

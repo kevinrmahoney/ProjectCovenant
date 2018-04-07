@@ -86,7 +86,6 @@ void AWeapon::SetTrigger(bool T)
 
 void AWeapon::Shoot()
 {
-	
 }
 
 void AWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
