@@ -28,76 +28,55 @@ void URecoil::BeginPlay()
 void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if(IsRecoilling)
-	{
-		if(RecoilDurationPassed + DeltaTime > RecoilDuration)
-		{
-			RecoilDurationPassed = RecoilDuration;
-			IsRecoilling = false;
-			IsReturning = true;
-			DeltaTime = RecoilDuration - RecoilDurationPassed;
-		}
-		else
-		{
-			RecoilDurationPassed += DeltaTime;
-		}
 
-		if(Shooter)
+	//TODO: Make the recoil follow a parabolic function that effectively starts at (0,0), reaches a climax at (t/2, RecoilPower), then ends at (t,0)
+	// This takes the mathematical form of f(x) = -x^2 + (RecoilPower)x
+	// Apply this formula to both the pitch and yaw
+	// Plug in the numbers for t and Recoil pattern
+	// Adjust the player's controller based on the output
+	// Further adjust based on the player's own input (mouse movement) between frames
+
+	RecoilTime += DeltaTime;
+
+	if(Shooter)
+	{
+		AController * Controller = Shooter->GetController();
+		if(Controller)
 		{
-			AController * Controller = Shooter->GetController();
-			if(Controller)
+			FRotator NewRotation = Controller->GetControlRotation();
+
+			// Save the values of where the recoil pattern was calculated at last tick
+			float LastPitch = RecoilPitch;
+			float LastYaw = RecoilYaw;
+
+			// Calculate where the recoil pattern is at this tick
+			RecoilPitch = 20 * (-2 * (RecoilTime * RecoilTime) + RecoilTime);
+			RecoilYaw = 0.f;
+
+			// Find the difference between where the recoil was at last tick compared to this tick
+			float DeltaPitch = RecoilPitch - LastPitch;
+			float DeltaYaw = 0.f;
+
+			Logger::Chat(RecoilTime);
+
+			// Apply the recoil to the rotation
+			if(RecoilPitch >= 0.f)
 			{
-				float AddedPitch = MaxInitialRecoilSpeedPitch * (1 - (RecoilDurationPassed / RecoilDuration)) * (1 - (RecoilDurationPassed / RecoilDuration)) * DeltaTime;
-				float AddedYaw = LeftRight * MaxInitialRecoilSpeedYaw * (1 - (RecoilDurationPassed / RecoilDuration)) * (1 - (RecoilDurationPassed / RecoilDuration)) * DeltaTime;
-				FRotator Rotation = Controller->GetControlRotation();
-				Rotation.Pitch += AddedPitch;
-				Rotation.Yaw += AddedYaw;
-				DeltaPitch += AddedPitch;
-				DeltaYaw += AddedYaw;
-				Controller->SetControlRotation(Rotation);
+				NewRotation.Pitch = NewRotation.Pitch + DeltaPitch;
+				NewRotation.Yaw = NewRotation.Yaw + DeltaYaw;
 			}
-		}
-		else
-		{
-			Logger::Error("Recoil component " + GetName() + " has no weapon");
+			else
+			{
+				NewRotation.Pitch = NewRotation.Pitch - LastPitch;
+				NewRotation.Yaw = NewRotation.Yaw - LastYaw;
+				SetComponentTickEnabled(false);
+			}
+			Controller->SetControlRotation(NewRotation);
 		}
 	}
-	else if(IsReturning)
+	else
 	{
-		if(ReturnDurationPassed + DeltaTime > ReturnDuration)
-		{
-			ReturnDurationPassed = ReturnDuration;
-			IsReturning = false;
-			SetComponentTickEnabled(false);
-			DeltaTime = ReturnDuration - ReturnDurationPassed;
-		}
-		else
-		{
-			ReturnDurationPassed += DeltaTime;
-		}
-
-		if(Shooter)
-		{
-			AController * Controller = Shooter->GetController();
-			if(Controller)
-			{
-				FRotator Rotation = Controller->GetControlRotation();
-				Rotation.Pitch -= (DeltaPitch / ReturnDuration) * DeltaTime;
-				if(LeftRight == -1.f)
-				{
-					Rotation.Yaw -= (DeltaYaw / ReturnDuration) * DeltaTime;
-				}
-				else
-				{
-					Rotation.Yaw -= LeftRight * (DeltaYaw / ReturnDuration) * DeltaTime;
-				}
-				Controller->SetControlRotation(Rotation);
-			}
-		}
-		else
-		{
-			Logger::Error("Recoil component " + GetName() + " has no weapon");
-		}
+		Logger::Error("ERROR");
 	}
 }
 
@@ -110,16 +89,21 @@ void URecoil::Recoil()
 		LeftRight = FMath::RandBool() ? -1.f : 1.f;
 		RecoilDurationPassed = 0.f;
 		ReturnDurationPassed = 0.f;
-		DeltaYaw = 0.f;
-		DeltaPitch = 0.f;
+		PlayerDeltaYaw = 0.f;
+		PlayerDeltaPitch = 0.f;
+		RecoilTime = 0.f;
+		RecoilPitch = 0.f;
+		RecoilYaw = 0.f;
 		SetComponentTickEnabled(true);
 		if(Shooter && Shooter->GetController())
 		{
 			AController * Controller = Shooter->GetController();
 			if(Controller)
 			{
-				StartPointYaw = Controller->GetControlRotation().Yaw;
-				StartPointPitch = Controller->GetControlRotation().Pitch;
+				StartingPitch = Controller->GetControlRotation().Pitch;
+				StartingYaw = Controller->GetControlRotation().Yaw;
+				/*StartPointYaw = Controller->GetControlRotation().Yaw;
+				StartPointPitch = Controller->GetControlRotation().Pitch;*/
 			}
 		}
 	}

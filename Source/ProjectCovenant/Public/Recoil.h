@@ -40,20 +40,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MinInitialRecoilSpeedPitch = 0.f;
 
-	float StartPointYaw = 0.f;
-	float StartPointPitch = 0.f;
-	float EndPointYaw = 0.f;
-	float EndPointPitch = 0.f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float RecoilDuration = 0.2f;
 
 	float ReturnDuration = 0.f;
 	float ReturnDurationPassed = 0.f;
 
-	float DeltaYaw = 0.f;
-	float DeltaPitch = 0.f;
 	float LeftRight = 1.f;
+
+	float RecoilTime = 0.f;
+	float RecoilPitch = 0.f;
+	float RecoilYaw = 0.f;
+
+	float StartingYaw = 0.f;
+	float StartingPitch = 0.f;
+
+	float PlayerDeltaYaw = 0.f;
+	float PlayerDeltaPitch = 0.f;
 
 	bool IsRecoilling = false;
 	bool IsReturning = false;
