@@ -115,6 +115,12 @@ void ASniper::AimDownSights(bool IsAimDownSights)
 	}
 }
 
+void ASniper::Destroyed()
+{
+	AimDownSights(false);
+	Super::Destroyed();
+}
+
 FVector ASniper::GetAimDownSightsLocation()
 {
 	return AimDownSightsLocation;
