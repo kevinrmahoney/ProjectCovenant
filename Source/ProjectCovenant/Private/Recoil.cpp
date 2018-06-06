@@ -20,7 +20,6 @@ void URecoil::BeginPlay()
 {
 	Super::BeginPlay();
 	SetComponentTickEnabled(false);
-	ReturnDuration = RecoilDuration;
 }
 
 
@@ -50,14 +49,12 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 			float LastYaw = RecoilYaw;
 
 			// Calculate where the recoil pattern is at this tick
-			RecoilPitch = 20 * (-2 * (RecoilTime * RecoilTime) + RecoilTime);
-			RecoilYaw = 0.f;
+			RecoilPitch = RecoilPitchMagnitude * (-(1.f/ RecoilDuration) * (RecoilTime * RecoilTime) + RecoilTime);
+			RecoilYaw = RecoilYawMagnitude * (-(1.f / RecoilDuration) * (RecoilTime * RecoilTime) + RecoilTime);
 
 			// Find the difference between where the recoil was at last tick compared to this tick
 			float DeltaPitch = RecoilPitch - LastPitch;
-			float DeltaYaw = 0.f;
-
-			Logger::Chat(RecoilTime);
+			float DeltaYaw = RecoilYaw - LastYaw;
 
 			// Apply the recoil to the rotation
 			if(RecoilPitch >= 0.f)
@@ -65,10 +62,12 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 				NewRotation.Pitch = NewRotation.Pitch + DeltaPitch;
 				NewRotation.Yaw = NewRotation.Yaw + DeltaYaw;
 			}
+			// Apply only a portion of the recoil (otherwise, recoil would go under the original firing point)
 			else
 			{
 				NewRotation.Pitch = NewRotation.Pitch - LastPitch;
 				NewRotation.Yaw = NewRotation.Yaw - LastYaw;
+
 				SetComponentTickEnabled(false);
 			}
 			Controller->SetControlRotation(NewRotation);
@@ -84,28 +83,19 @@ void URecoil::Recoil()
 {
 	if(Shooter->IsLocallyControlled())
 	{
-		Logger::Chat(Shooter->HasAuthority() ? "Yes" : "No");
-		IsRecoilling = true;
+		// Decide whether the yaw recoil is to the left (-1) or the right (1)
 		LeftRight = FMath::RandBool() ? -1.f : 1.f;
-		RecoilDurationPassed = 0.f;
-		ReturnDurationPassed = 0.f;
-		PlayerDeltaYaw = 0.f;
-		PlayerDeltaPitch = 0.f;
+
+		// Reset time, pitch and yaw trackers
 		RecoilTime = 0.f;
 		RecoilPitch = 0.f;
 		RecoilYaw = 0.f;
+
+		// Determine the random yaw and pitch factors
+		RecoilPitchMagnitude = FMath::RandRange(RecoilPitchMagnitudeMin, RecoilPitchMagnitudeMax);
+		RecoilYawMagnitude = FMath::RandRange(RecoilYawMagnitudeMin, RecoilYawMagnitudeMax) * LeftRight;
+
 		SetComponentTickEnabled(true);
-		if(Shooter && Shooter->GetController())
-		{
-			AController * Controller = Shooter->GetController();
-			if(Controller)
-			{
-				StartingPitch = Controller->GetControlRotation().Pitch;
-				StartingYaw = Controller->GetControlRotation().Yaw;
-				/*StartPointYaw = Controller->GetControlRotation().Yaw;
-				StartPointPitch = Controller->GetControlRotation().Pitch;*/
-			}
-		}
 	}
 }
 
