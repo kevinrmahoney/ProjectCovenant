@@ -46,8 +46,6 @@ protected:
 
 	virtual void AimDownSights(bool IsAimDownSights) override;
 
-	virtual void Destroyed() override;
-
 	virtual FVector GetAimDownSightsLocation() override;
 
 	virtual FRotator GetAimDownSightsRotation() override;
