@@ -142,6 +142,8 @@ void AWeapon::Destroyed()
 	{
 		RecoilComponent->Deactivate();
 	}
+	AimDownSights(false);
+
 	//delete RecoilComponent;
 	Super::Destroyed();
 }
