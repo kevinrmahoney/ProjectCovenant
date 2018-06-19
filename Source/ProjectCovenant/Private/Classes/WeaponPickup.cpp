@@ -57,14 +57,8 @@ void AWeaponPickup::GivePlayerWeapon(ASubjectZero * player)
 {
 	if(HasAuthority())
 	{
-		Logger::Chat("Player " + player->GetName() + " has picked up weapon " + PickupWeapon->GetChildActorClass()->GetName());
-
-
-		FName ItemID = GetItemID(PickupWeapon->GetChildActorClass());
-		Logger::Chat("ItemID: " + ItemID.ToString());
-
 		UItem * WeaponItem = NewObject<UItem>(this, "NewWeapon");
-		WeaponItem->ItemID = ItemID;
+		WeaponItem->ItemID = GetItemID(PickupWeapon->GetChildActorClass());
 
 		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{

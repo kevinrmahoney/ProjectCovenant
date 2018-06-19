@@ -20,6 +20,7 @@ void AHumanController::BeginPlay()
 {
 	Super::BeginPlay();
 	Logger::Log("Begin: " + GetName());
+
 	if(IsLocalController())
 	{
 		InitializeHUD();
