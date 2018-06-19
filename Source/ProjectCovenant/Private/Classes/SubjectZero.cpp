@@ -52,13 +52,7 @@ void ASubjectZero::BeginPlay()
 	FirstPersonMesh->SetRelativeLocation(HipfireLocation);
 	FirstPersonMesh->SetRelativeRotation(HipfireRotation);
 
-	if(IsLocallyControlled() || Role == ROLE_Authority)
-	{
-		// For some reason you have to add the second argument (naming the UObject) in order to prevent null pointers
-		// https://answers.unrealengine.com/questions/410789/tarray-of-uobjects-getting-garbage-collected.html 
-		Inventory = NewObject<UInventory>(this, "I");
-		RequestStartingInventory();
-	}
+	Inventory = NewObject<UInventory>(this, "I");
 }
 
 // Called every frame
@@ -516,8 +510,26 @@ void ASubjectZero::Kill()
 	Destroy();
 }
 
+// This is called when possessed
+void ASubjectZero::Restart()
+{
+	Super::Restart();
+
+	// If locally controlled, request that the character be given starting weapons
+	if(IsLocallyControlled())
+	{
+		RequestStartingInventory();
+
+		if(AHumanController * HumanController = Cast<AHumanController>(Controller))
+		{
+			HumanController->UpdateHotbar();
+		}
+	}
+}
+
 void ASubjectZero::RequestStartingInventory()
 {
+	// If character has authority, ask the game mode to gave the starting inventory to this character
 	if(HasAuthority())
 	{
 		if(ABaseMode * GameMode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
@@ -525,12 +537,12 @@ void ASubjectZero::RequestStartingInventory()
 			GameMode->GiveStartingInventory(this);
 		}
 	}
+	// If this character does not have authority, request it via RPC
 	else if(Role == ROLE_AutonomousProxy)
 	{
 		ServerRequestStartingInventory();
 	}
 }
-
 void ASubjectZero::ServerRequestStartingInventory_Implementation()
 {
 	RequestStartingInventory();
@@ -541,6 +553,7 @@ bool ASubjectZero::ServerRequestStartingInventory_Validate()
 	return true;
 }
 
+// RPC to add items to the inventory of clients
 void ASubjectZero::ClientAddItemToInventory_Implementation(const FItemSerialized & ItemSerialized)
 {
 	if(Role != ROLE_Authority)
@@ -556,7 +569,9 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 	{
 		if(Inventory && Item)
 		{
+			// Add the item to the server's inventory
 			Inventory->AddItem(Item);
+
 			if(IsLocallyControlled())
 			{
 				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
@@ -566,6 +581,7 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 			}
 			else
 			{
+				// Send RPC to update the client's inventory
 				FItemSerialized ItemSerialized = UItem::SerializeItem(Item);
 				ClientAddItemToInventory(ItemSerialized);
 			}
@@ -577,7 +593,9 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 		{
 			if(IsLocallyControlled())
 			{
+				// Add item to client's inventory
 				Inventory->AddItem(Item);
+
 				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
 				{
 					HumanController->UpdateHotbar();

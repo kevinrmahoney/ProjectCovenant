@@ -142,6 +142,8 @@ protected:
 
 	virtual void BeginDestroy() override;
 
+	virtual void Restart() override;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 

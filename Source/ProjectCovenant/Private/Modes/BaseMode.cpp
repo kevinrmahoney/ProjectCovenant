@@ -184,21 +184,6 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 	{
 		UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
 		LightningGun->ItemID = TEXT("0");
-		UItem * Railgun = NewObject<UItem>(this, "Railgun");
-		Railgun->ItemID = TEXT("1");
-		UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
-		Shotgun->ItemID = TEXT("2");
-		UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
-		RocketLauncher->ItemID = TEXT("3");
-		UItem * Rifle = NewObject<UItem>(this, "Rifle");
-		Rifle->ItemID = TEXT("4");
-		UItem * Sniper = NewObject<UItem>(this, "Sniper");
-		Sniper->ItemID = TEXT("5");
 		GiveItemToCharacter(Character, LightningGun);
-		GiveItemToCharacter(Character, Railgun);
-		GiveItemToCharacter(Character, Shotgun);
-		GiveItemToCharacter(Character, RocketLauncher);
-		GiveItemToCharacter(Character, Rifle);
-		GiveItemToCharacter(Character, Sniper);
 	}
 }
