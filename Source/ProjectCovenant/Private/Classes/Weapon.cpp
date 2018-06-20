@@ -5,6 +5,7 @@
 #include "UnrealNetwork.h"
 #include "SubjectZero.h"
 #include "Weapon.h"
+#include "BaseMode.h"
 
 
 // Sets default values
@@ -15,6 +16,7 @@ AWeapon::AWeapon()
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
+
 	GunMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMesh"), false);
 	GunMesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
 	GunMesh->SetVisibility(true);
@@ -39,6 +41,12 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	ConstructShotVectors();
+
+	// Adding functions to execute through events must be done in BeginPlay()
+	if(HasAuthority())
+	{
+		GunMesh->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnBeginOverlap);
+	}
 }
 
 void AWeapon::ConstructShotVectors()
@@ -58,6 +66,21 @@ void AWeapon::Tick(float DeltaTime)
 void AWeapon::Update()
 {
 	
+}
+
+void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(HasAuthority())
+	{
+		if(ASubjectZero * Character = Cast<ASubjectZero>(OtherActor))
+		{
+			if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+			{
+				Mode->GiveItemToCharacter(Character, Mode->GetItem(this));
+			}
+		}
+	}
+	Destroy();
 }
 
 void AWeapon::SetItem(UItem * NewItem)

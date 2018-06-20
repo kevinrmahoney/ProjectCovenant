@@ -89,6 +89,10 @@ protected:
 
 	virtual void DrawDebugVisuals();
 
+	// Overlap event must be UFUNCTION() in order to be added via AddDynamic
+	UFUNCTION()
+	virtual void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void DrawVisuals();
 

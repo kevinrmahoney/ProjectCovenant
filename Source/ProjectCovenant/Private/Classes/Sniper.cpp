@@ -69,7 +69,6 @@ void ASniper::Shoot()
 {
 	PlayShootSound();
 
-	Logger::Chat("SHOT! " + Shooter->GetControlRotation().ToString() + (Shooter->HasAuthority() ? " Server" : " Client"));
 	if(Shooter->HasAuthority())
 	{
 		float TotalDamage = 0.f;

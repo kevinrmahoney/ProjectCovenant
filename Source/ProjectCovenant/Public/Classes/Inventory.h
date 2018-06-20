@@ -23,9 +23,6 @@ public:
 private:
 	UPROPERTY()
 	TArray<UItem*> Items;
-
-	UPROPERTY()
-	UItem * Item;
 	
 public:
 	void PrintList();

@@ -47,13 +47,27 @@ UItem * UInventory::GetItem(int Num)
 
 void UInventory::AddItem(UItem * NewItem)
 {
-	Item = NewItem;
-	Items.Add(Item);
+	for(UItem * Item : Items)
+	{
+		if(Item->ItemID == NewItem->ItemID)
+		{
+			Logger::Log("Item already exists in inventory, cannot have multiple of the same item");
+			return;
+		}
+	}
+	Items.Add(NewItem);
 }
 
 void UInventory::RemoveItem(UItem * OldItem)
 {
-	Item = OldItem;
-	Items.Remove(Item);
+	for(UItem * Item : Items)
+	{
+		if(Item->ItemID == OldItem->ItemID)
+		{
+			Items.Remove(Item);
+			return;
+		}
+	}
+	Logger::Log("Could not find item to remove");
 }
 

@@ -27,6 +27,9 @@ public:
 	UPROPERTY()
 	TArray<ASubjectZero*> Characters;
 
+	UPROPERTY(EditDefaultsOnly)
+	UDataTable * ItemDatabase;
+
 	virtual void SpawnPlayer(AHumanController * Controller);
 
 	virtual void DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AWeapon * Weapon);
@@ -40,6 +43,8 @@ public:
 	virtual void GiveStartingInventory(ASubjectZero * Character);
 
 	virtual void GiveItemToCharacter(ASubjectZero * Character, UItem * Item);
+
+	virtual UItem * GetItem(AWeapon * ActorClass);
 
 private:
 	TArray<AActor*> SpawnPoints;
