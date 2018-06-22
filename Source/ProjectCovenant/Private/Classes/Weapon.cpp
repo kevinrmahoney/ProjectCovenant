@@ -23,6 +23,13 @@ AWeapon::AWeapon()
 	GunMesh->SetOnlyOwnerSee(false);
 	GunMesh->SetOwnerNoSee(false);
 
+	// Disable gravity, physics and collision by default
+	GunMesh->SetEnableGravity(false);
+	GunMesh->SetSimulatePhysics(false);
+	GunMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GunMesh->bGenerateOverlapEvents = false;
+
 	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"), false);
 	Muzzle->AttachToComponent(GunMesh, FAttachmentTransformRules::KeepRelativeTransform);
 
@@ -58,8 +65,6 @@ void AWeapon::ConstructShotVectors()
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	TimeSinceLastShot += DeltaTime;
-	Update();
 	//AimDownSights(true);
 }
 
@@ -74,13 +79,27 @@ void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	{
 		if(ASubjectZero * Character = Cast<ASubjectZero>(OtherActor))
 		{
-			if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+			if(Character != Shooter)
 			{
-				Mode->GiveItemToCharacter(Character, Mode->GetItem(this));
+				if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+				{
+					Mode->GiveItemToCharacter(Character, Mode->GetItem(this));
+					Logger::Chat("Destroying " + GetName());
+					Destroy();
+				}
 			}
 		}
 	}
-	Destroy();
+}
+
+void AWeapon::Drop()
+{
+	GunMesh->SetEnableGravity(true);
+	GunMesh->SetSimulatePhysics(true);
+	GunMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	GunMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	GunMesh->bGenerateOverlapEvents = true;
 }
 
 void AWeapon::SetItem(UItem * NewItem)
@@ -116,6 +135,14 @@ void AWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 
 }
 
+void AWeapon::Reload()
+{
+	if(TimeSinceReload <= 0.f && Ammo < AmmoMax)
+	{
+		TimeSinceReload = ReloadTime;
+	}
+}
+
 void AWeapon::DrawDebugVisuals()
 {
 }
@@ -137,6 +164,11 @@ void AWeapon::AimDownSights(bool IsAimDownSights)
 			Shooter->FirstPersonMesh->SetRelativeRotation(GetHipFireRotation());
 		}
 	}
+}
+
+float AWeapon::GetAmmo()
+{
+	return Ammo;
 }
 
 FVector AWeapon::GetAimDownSightsLocation()

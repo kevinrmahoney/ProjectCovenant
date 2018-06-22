@@ -14,7 +14,14 @@ ARifle::ARifle()
 void ARifle::BeginPlay()
 {
 	Super::BeginPlay();
-	//TODO: adjust values for shotgun
+
+	Damage = 30.f;
+	Range = 20000.f;
+	Cooldown = 0.2f;
+	ReloadTime = 2.f;
+	FallOff = 1.f;
+	AmmoMax = 20.f;
+	Ammo = AmmoMax;
 }
 
 void ARifle::Tick(float DeltaTime)
@@ -24,35 +31,33 @@ void ARifle::Tick(float DeltaTime)
 
 void ARifle::Update()
 {
-	// Apply Recoil the tick after the shot
-	if(Fire)
+	if(Ammo > 0)
 	{
-		if(RecoilComponent)
+		// If the trigger is pulled
+		if(Trigger)
 		{
-			RecoilComponent->Recoil();
-		}
-		Fire = false;
-	}
-	// If the trigger is pulled
-	if (Trigger)
-	{
-		// If the cooldown has passed
-		if (TimeSinceLastShot > Cooldown)
-		{
-			Fire = true;
-			// Shoot the weapon
-			Shoot();
+			// If the cooldown has passed
+			if(TimeSinceLastShot > Cooldown)
+			{
+				Ammo--;
+				// Shoot the weapon
+				Shoot();
+				if(RecoilComponent)
+				{
+					RecoilComponent->Recoil();
+				}
 
-			// Subtract the cooldown from the time passed since the last shot.
-			// make sure the outcome does not go above value of Cooldown
-			TimeSinceLastShot = 0.f;
-			if (Item)
-			{
-				Item->SetLastShotTimeStamp(GetWorld());
-			}
-			else
-			{
-				Logger::Log("No item is associated with this weapon");
+				// Subtract the cooldown from the time passed since the last shot.
+				// make sure the outcome does not go above value of Cooldown
+				TimeSinceLastShot = 0.f;
+				if(Item)
+				{
+					Item->SetLastShotTimeStamp(GetWorld());
+				}
+				else
+				{
+					Logger::Log("No item is associated with this weapon");
+				}
 			}
 		}
 	}
@@ -66,14 +71,14 @@ void ARifle::ConstructShotVectors()
 void ARifle::Shoot()
 {
 	PlayShootSound();
-
-	if (Shooter->HasAuthority())
+	
+	if(Shooter->HasAuthority())
 	{
 		float TotalDamage = 0.f;
 		int count = 0;
 
 		AProjectile * NewProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, Muzzle->GetComponentLocation(), Muzzle->GetComponentRotation());
-		if (NewProjectile)
+		if(NewProjectile)
 		{
 			NewProjectile->SetWeapon(this);
 			NewProjectile->SetDamage(Damage);

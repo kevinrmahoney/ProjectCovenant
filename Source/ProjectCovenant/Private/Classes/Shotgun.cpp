@@ -14,43 +14,62 @@ AShotgun::AShotgun()
 void AShotgun::BeginPlay() 
 {
 	Super::BeginPlay();
-	//TODO: adjust values for shotgun
-	Damage = 100.f / (CircleCount * RollCount + 1);
-	Range = 5000.f;
+
+	ConstructShotVectors();
+
+	Damage = 100.f;
+	Range = 20000.f;
 	Cooldown = 1.f;
-	FallOff = 1.f; //not yet implemented, less damage depending on distance. 1 = 100%
-	//TODO lower ammo count, but don't disable shooting with negative ammo yet
-	Ammo = 100.f; //not yet implemented 
-	Duration = 0.25;
-	ShotVectors.Add(FVector(Range, 0.f, 0.f));
+	ReloadTime = 2.f;
+	FallOff = 1.f;
+	AmmoMax = 6.f;
+	Ammo = AmmoMax;
 }
 
 void AShotgun::Tick(float DeltaTime) 
 {
-	Super::Tick(DeltaTime);
+	Super::Super::Tick(DeltaTime);
+	TimeSinceLastShot += DeltaTime;
+
+	if(TimeSinceReload > 0.f)
+	{
+		TimeSinceReload = FMath::Max(TimeSinceReload - DeltaTime, 0.f);
+		if(TimeSinceReload == 0.f)
+		{
+			Ammo = AmmoMax;
+		}
+	}
+	else
+	{
+		Update();
+	}
 }
 
 void AShotgun::Update()
 {
-	// If the trigger is pulled
-	if(Trigger)
+	if(Ammo > 0)
 	{
-		// If the cooldown has passed
-		if(TimeSinceLastShot > Cooldown)
+		// If the trigger is pulled
+		if(Trigger)
 		{
-			// Shoot the weapon
-			Shoot();
-			if(RecoilComponent)
+			// If the cooldown has passed
+			if(TimeSinceLastShot > Cooldown)
 			{
-				RecoilComponent->Recoil();
-			}
+				Ammo--;
+				// Shoot the weapon
+				Shoot();
+				if(RecoilComponent)
+				{
+					RecoilComponent->Recoil();
+				}
 
-			// Subtract the cooldown from the time passed since the last shot.
-			// make sure the outcome does not go above value of Cooldown
-			TimeSinceLastShot = 0.f;
-			if(Item)
-			{
-				Item->SetLastShotTimeStamp(GetWorld());
+				// Subtract the cooldown from the time passed since the last shot.
+				// make sure the outcome does not go above value of Cooldown
+				TimeSinceLastShot = 0.f;
+				if(Item)
+				{
+					Item->SetLastShotTimeStamp(GetWorld());
+				}
 			}
 		}
 	}
@@ -118,7 +137,6 @@ void AShotgun::Shoot()
 		{
 			DealDamage(Victim, TotalDamage);
 		}
-		RecoilComponent->Recoil();
 	}
 }
 

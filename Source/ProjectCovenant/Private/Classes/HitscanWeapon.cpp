@@ -19,56 +19,72 @@ void AHitscanWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Damage = 15.f;
+	Damage = 10.f;
 	Range = 20000.f;
 	Cooldown = 0.1f;
+	ReloadTime = 2.f;
 	FallOff = 1.f;
-	Ammo = 100.f;
-	Trigger = false;
-	Duration = 0.02f;
+	AmmoMax = 30.f;
+	Ammo = AmmoMax;
 }
 
 // Called every frame
 void AHitscanWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	TimeSinceLastShot += DeltaTime;
+
+	if(Trigger && Ammo > 0.f)
+	{
+		if(TimeSinceReload >= ReloadTime)
+		{
+			TimeSinceReload = ReloadTime * 2.f;
+			Ammo = 0.f;
+		}
+	}
+	else
+	{
+		TimeSinceReload = FMath::Max(TimeSinceReload - DeltaTime, 0.f);
+		if(TimeSinceReload < ReloadTime)
+		{
+			Ammo = AmmoMax;
+		}
+	}
+	Update();
 }
 
 void AHitscanWeapon::Update()
 {
-	// Apply Recoil the tick after the shot
-	if(Fire)
+	if(Ammo > 0)
 	{
-		if(RecoilComponent)
+		if(TimeSinceLastShot > 0.f)
 		{
-			RecoilComponent->Recoil();
-		}
-		Fire = false;
-	}
-
-	if(TimeSinceLastShot > 0.f)
-	{
-		// If the trigger is pulled
-		if(Trigger)
-		{
-			// If the cooldown has passed
-			if(TimeSinceLastShot > Cooldown)
+			// If the trigger is pulled
+			if(Trigger)
 			{
-				Fire = true;
-				// Shoot the weapon
-				Shoot();
+				// If the cooldown has passed
+				if(TimeSinceLastShot > Cooldown)
+				{
+					TimeSinceReload = TimeSinceReload + Cooldown;
+					// Shoot the weapon
+					Shoot();
+					if(RecoilComponent)
+					{
+						RecoilComponent->Recoil();
+					}
 
-				// Subtract the cooldown from the time passed since the last shot.
-				// make sure the outcome does not go above value of Cooldown
-				TimeSinceLastShot = 0.f;
-				//Item->LastShotTimeStamp = 0.f;
-				if(Item && (Role == ROLE_Authority || Role == ROLE_AutonomousProxy))
-				{
-					Item->SetLastShotTimeStamp(GetWorld());
-				}
-				else
-				{
-					Logger::Log("Could not find Item when attempting to set last shot time stamp");
+					// Subtract the cooldown from the time passed since the last shot.
+					// make sure the outcome does not go above value of Cooldown
+					TimeSinceLastShot = 0.f;
+					//Item->LastShotTimeStamp = 0.f;
+					if(Item && (Role == ROLE_Authority || Role == ROLE_AutonomousProxy))
+					{
+						Item->SetLastShotTimeStamp(GetWorld());
+					}
+					else
+					{
+						Logger::Log("Could not find Item when attempting to set last shot time stamp");
+					}
 				}
 			}
 		}
@@ -84,8 +100,6 @@ void AHitscanWeapon::ConstructShotVectors()
 
 void AHitscanWeapon::Shoot()
 {
-	//DrawDebugVisuals(); TODO: enable with console command
-
 	if(HasAuthority())
 	{
 		ASubjectZero * Victim = nullptr;

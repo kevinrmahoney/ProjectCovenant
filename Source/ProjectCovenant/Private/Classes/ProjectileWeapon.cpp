@@ -25,6 +25,19 @@ void AProjectileWeapon::BeginPlay()
 void AProjectileWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	TimeSinceLastShot += DeltaTime;
+	if(TimeSinceReload > 0.f)
+	{
+		TimeSinceReload = TimeSinceReload - DeltaTime;
+		if(TimeSinceReload <= 0.f)
+		{
+			Ammo = AmmoMax;
+		}
+	}
+	else
+	{
+		Update();
+	}
 }
 
 void AProjectileWeapon::Update()

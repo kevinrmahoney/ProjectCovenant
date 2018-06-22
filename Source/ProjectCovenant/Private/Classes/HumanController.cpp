@@ -10,6 +10,7 @@
 #include "Blueprint/UserWidget.h"
 #include "UnrealNetwork.h"
 #include "Spectator.h"
+#include "Weapon.h"
 
 AHumanController::AHumanController()
 {
@@ -80,6 +81,7 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Use", IE_Pressed, this, &AHumanController::InputUsePress);
 		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
 		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
+		InputComponent->BindAction("Reload", IE_Pressed, this, &AHumanController::InputReload);
 	}
 }
 
@@ -567,6 +569,17 @@ void AHumanController::InputScoreboardRelease()
 	if (PlayerScoreboard) 
 	{
 		PlayerScoreboard->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void AHumanController::InputReload()
+{
+	if(SubjectZero)
+	{
+		if(AWeapon * Weapon = SubjectZero->GetWeapon())
+		{
+			Weapon->Reload();
+		}
 	}
 }
 

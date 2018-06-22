@@ -18,52 +18,72 @@ ARailgun::ARailgun()
 void ARailgun::BeginPlay()
 {
 	Super::BeginPlay();
+
 	Damage = 100.f;
 	Range = 20000.f;
-	Cooldown = 2.25f;
+	Cooldown = 2.f;
+	ReloadTime = 2.f;
 	FallOff = 1.f;
-	Ammo = 100.f;
-	Duration = 2.f;
+	AmmoMax = 1.f;
+	Ammo = AmmoMax;
 }
 
 // Called every frame
 void ARailgun::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	Super::Super::Tick(DeltaTime);
+	TimeSinceLastShot += DeltaTime;
+
+	if(Trigger && Ammo > 0.f)
+	{
+		if(TimeSinceReload >= ReloadTime)
+		{
+			TimeSinceReload = ReloadTime * 2.f;
+			Ammo = 0.f;
+		}
+		Update();
+	}
+	else
+	{
+		TimeSinceReload = FMath::Max(TimeSinceReload - DeltaTime, 0.f);
+		if(TimeSinceReload == 0.f)
+		{
+			Ammo = 1.f;
+		}
+	}
 }
 
 void ARailgun::Update()
 {
-	// Apply Recoil the tick after the shot
-	if(Fire)
+	if(Ammo > 0)
 	{
-		if(RecoilComponent)
+		// If the trigger is pulled
+		if(Trigger)
 		{
-			RecoilComponent->Recoil();
-		}
-		Fire = false;
-	}
-
-	// If the trigger is pulled
-	if(Trigger)
-	{
-		// If the cooldown has passed
-		if(TimeSinceLastShot > Cooldown)
-		{
-			Fire = true;
-			// Shoot the weapon
-			Shoot();
-
-			// Subtract the cooldown from the time passed since the last shot.
-			// make sure the outcome does not go above value of Cooldown
-			TimeSinceLastShot = 0.f;
-			if(Item)
+			// If the cooldown has passed
+			if(TimeSinceLastShot > Cooldown)
 			{
-				Item->SetLastShotTimeStamp(GetWorld());
-			}
-			else
-			{
-				Logger::Log("Could not find Item when attempting to set last shot time stamp");
+				TimeSinceReload = TimeSinceReload + Cooldown;
+
+				Ammo = 0.f;
+				// Shoot the weapon
+				Shoot();
+				if(RecoilComponent)
+				{
+					RecoilComponent->Recoil();
+				}
+
+				// Subtract the cooldown from the time passed since the last shot.
+				// make sure the outcome does not go above value of Cooldown
+				TimeSinceLastShot = 0.f;
+				if(Item)
+				{
+					Item->SetLastShotTimeStamp(GetWorld());
+				}
+				else
+				{
+					Logger::Log("Could not find Item when attempting to set last shot time stamp");
+				}
 			}
 		}
 	}

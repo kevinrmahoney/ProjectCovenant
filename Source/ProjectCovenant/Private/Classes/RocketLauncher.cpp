@@ -14,14 +14,15 @@ ARocketLauncher::ARocketLauncher()
 void ARocketLauncher::BeginPlay()
 {
 	Super::BeginPlay();
-	//TODO: adjust values for shotgun
-	Damage = 100.f;
-	Range = 5000.f;
-	Cooldown = 1.f;
-	FallOff = 1.f; //not yet implemented, less damage depending on distance. 1 = 100%
-				   //TODO lower ammo count, but don't disable shooting with negative ammo yet
-	Ammo = 100.f; //not yet implemented 
 	ShotVectors.Add(FVector(Range, 0.f, 0.f));
+
+	Damage = 120.f;
+	Range = 20000.f;
+	Cooldown = 1.f;
+	ReloadTime = 2.f;
+	FallOff = 1.f;
+	AmmoMax = 4.f;
+	Ammo = AmmoMax;
 }
 
 void ARocketLauncher::Tick(float DeltaTime)
@@ -31,36 +32,33 @@ void ARocketLauncher::Tick(float DeltaTime)
 
 void ARocketLauncher::Update()
 {
-	// Apply Recoil the tick after the shot
-	if(Fire)
+	if(Ammo > 0)
 	{
-		if(RecoilComponent)
+		// If the trigger is pulled
+		if(Trigger)
 		{
-			RecoilComponent->Recoil();
-		}
-		Fire = false;
-	}
-
-	// If the trigger is pulled
-	if(Trigger)
-	{
-		// If the cooldown has passed
-		if(TimeSinceLastShot > Cooldown)
-		{
-			Fire = true;
-			// Shoot the weapon
-			Shoot();
-
-			// Subtract the cooldown from the time passed since the last shot.
-			// make sure the outcome does not go above value of Cooldown
-			TimeSinceLastShot = 0.f;
-			if(Item)
+			// If the cooldown has passed
+			if(TimeSinceLastShot > Cooldown)
 			{
-				Item->SetLastShotTimeStamp(GetWorld());
-			}
-			else
-			{
-				Logger::Log("No item is associated with this weapon");
+				Ammo--;
+				// Shoot the weapon
+				Shoot();
+				if(RecoilComponent)
+				{
+					RecoilComponent->Recoil();
+				}
+
+				// Subtract the cooldown from the time passed since the last shot.
+				// make sure the outcome does not go above value of Cooldown
+				TimeSinceLastShot = 0.f;
+				if(Item)
+				{
+					Item->SetLastShotTimeStamp(GetWorld());
+				}
+				else
+				{
+					Logger::Log("No item is associated with this weapon");
+				}
 			}
 		}
 	}
