@@ -8,14 +8,6 @@
 AShotgun::AShotgun()
 {
 	PrimaryActorTick.bCanEverTick = true;
-}
-
-// Called when the game starts or when spawned
-void AShotgun::BeginPlay() 
-{
-	Super::BeginPlay();
-
-	ConstructShotVectors();
 
 	Damage = 100.f;
 	Range = 20000.f;
@@ -24,6 +16,13 @@ void AShotgun::BeginPlay()
 	FallOff = 1.f;
 	AmmoMax = 6.f;
 	Ammo = AmmoMax;
+	Damage = Damage / ShotVectors.Num();
+}
+
+// Called when the game starts or when spawned
+void AShotgun::BeginPlay() 
+{
+	Super::BeginPlay();
 }
 
 void AShotgun::Tick(float DeltaTime) 

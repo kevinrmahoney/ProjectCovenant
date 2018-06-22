@@ -84,7 +84,6 @@ void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 				if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 				{
 					Mode->GiveItemToCharacter(Character, Mode->GetItem(this));
-					Logger::Chat("Destroying " + GetName());
 					Destroy();
 				}
 			}
@@ -132,7 +131,11 @@ void AWeapon::Shoot()
 
 void AWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 {
-
+	ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode());
+	if(Mode)
+	{
+		Mode->DealDamage(Shooter, Victim, TotalDamage, this);
+	}
 }
 
 void AWeapon::Reload()
@@ -149,8 +152,6 @@ void AWeapon::DrawDebugVisuals()
 
 void AWeapon::AimDownSights(bool IsAimDownSights)
 {
-	//Logger::Log(IsAimDownSights ? "Yes" : "No");
-
 	if (Shooter && Shooter->FirstPersonMesh)
 	{
 		if (IsAimDownSights)

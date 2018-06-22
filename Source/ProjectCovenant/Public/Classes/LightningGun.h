@@ -4,23 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Classes/HitscanWeapon.h"
-#include "Shotgun.generated.h"
+#include "LightningGun.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTCOVENANT_API AShotgun : public AHitscanWeapon
+class PROJECTCOVENANT_API ALightningGun : public AHitscanWeapon
 {
 	GENERATED_BODY()
+	
+public:
+	ALightningGun();
 
-public: 
-	AShotgun();
-
-	//(X=-6.900000,Y=-7.933466,Z=-151.000000)
-	FVector AimDownSightsLocation = FVector(-6.900000f,-7.933466f,-151.000000f);
-	//(Pitch=3.300000,Yaw=-11.800000,Roll=0.000008)
-	FRotator AimDownSightsRotation = FRotator(3.300000f,-11.800000f,0.000000f);
+	//(X=-6.456540,Y=-7.700000,Z=-148.210724)
+	FVector AimDownSightsLocation = FVector(-6.456540f, -7.700000f, -148.210724f);
+	//(Pitch=2.500000,Yaw=-11.700012,Roll=0.000000)
+	FRotator AimDownSightsRotation = FRotator(2.500000f, -11.700012f, 0.000000f);
 
 	//(X=1.575968,Y=11.798502,Z=-153.145187)
 	FVector HipFireLocation = FVector(1.575968f, 11.798502f, -153.145187f);
@@ -44,13 +44,6 @@ private:
 
 	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
 
-	float MaxConeAngle = 1000.f;
-
-	//maybe change to FRotator
-	float RollCount = 8.f;
-
-	float CircleCount = 4.f;
-
 	virtual FVector GetAimDownSightsLocation() override;
 
 	virtual FRotator GetAimDownSightsRotation() override;
@@ -58,4 +51,6 @@ private:
 	virtual FVector GetHipFireLocation() override;
 
 	virtual FRotator GetHipFireRotation() override;
+	
+	
 };

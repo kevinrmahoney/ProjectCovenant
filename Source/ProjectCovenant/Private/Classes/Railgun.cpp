@@ -6,18 +6,10 @@
 #include "ItemWeapon.h"
 #include "SubjectZero.h"
 
-
-
 // Sets default values
 ARailgun::ARailgun()
 {
 	PrimaryActorTick.bCanEverTick = true;
-}
-
-// Called when the game starts or when spawned
-void ARailgun::BeginPlay()
-{
-	Super::BeginPlay();
 
 	Damage = 100.f;
 	Range = 20000.f;
@@ -26,6 +18,12 @@ void ARailgun::BeginPlay()
 	FallOff = 1.f;
 	AmmoMax = 1.f;
 	Ammo = AmmoMax;
+}
+
+// Called when the game starts or when spawned
+void ARailgun::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 // Called every frame

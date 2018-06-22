@@ -8,12 +8,6 @@
 ARifle::ARifle()
 {
 	PrimaryActorTick.bCanEverTick = true;
-}
-
-// Called when the game starts or when spawned
-void ARifle::BeginPlay()
-{
-	Super::BeginPlay();
 
 	Damage = 30.f;
 	Range = 20000.f;
@@ -22,6 +16,12 @@ void ARifle::BeginPlay()
 	FallOff = 1.f;
 	AmmoMax = 20.f;
 	Ammo = AmmoMax;
+}
+
+// Called when the game starts or when spawned
+void ARifle::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void ARifle::Tick(float DeltaTime)

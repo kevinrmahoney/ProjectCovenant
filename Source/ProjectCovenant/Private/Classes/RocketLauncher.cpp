@@ -8,13 +8,6 @@
 ARocketLauncher::ARocketLauncher()
 {
 	PrimaryActorTick.bCanEverTick = true;
-}
-
-// Called when the game starts or when spawned
-void ARocketLauncher::BeginPlay()
-{
-	Super::BeginPlay();
-	ShotVectors.Add(FVector(Range, 0.f, 0.f));
 
 	Damage = 120.f;
 	Range = 20000.f;
@@ -23,6 +16,12 @@ void ARocketLauncher::BeginPlay()
 	FallOff = 1.f;
 	AmmoMax = 4.f;
 	Ammo = AmmoMax;
+}
+
+// Called when the game starts or when spawned
+void ARocketLauncher::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void ARocketLauncher::Tick(float DeltaTime)

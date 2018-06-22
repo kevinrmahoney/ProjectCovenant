@@ -9,14 +9,8 @@
 ASniper::ASniper()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
 	AimDownSightsFieldOfView = 10.f;
-}
-
-// Called when the game starts or when spawned
-void ASniper::BeginPlay()
-{
-	Super::BeginPlay();
-
 	Damage = 150.f;
 	Range = 20000.f;
 	Cooldown = 2.f;
@@ -24,6 +18,12 @@ void ASniper::BeginPlay()
 	FallOff = 1.f;
 	AmmoMax = 1.f;
 	Ammo = AmmoMax;
+}
+
+// Called when the game starts or when spawned
+void ASniper::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void ASniper::Tick(float DeltaTime)
