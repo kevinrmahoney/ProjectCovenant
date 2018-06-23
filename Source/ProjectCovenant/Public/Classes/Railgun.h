@@ -32,18 +32,11 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void Update() override;
-
 	virtual void ConstructShotVectors() override;
 
+	virtual void Fire() override;
+
 protected:
-	void Shoot() override;
-
-	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
-
 	virtual FVector GetAimDownSightsLocation() override;
 
 	virtual FRotator GetAimDownSightsRotation() override;

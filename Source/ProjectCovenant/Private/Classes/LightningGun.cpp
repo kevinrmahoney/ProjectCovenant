@@ -15,8 +15,8 @@ ALightningGun::ALightningGun()
 
 	Damage = 10.f;
 	Range = 20000.f;
-	Cooldown = 0.1f;
-	ReloadTime = 2.f;
+	FireRate = 0.1f;
+	Reload = 4.f;
 	FallOff = 1.f;
 	AmmoMax = 30.f;
 	Ammo = AmmoMax;
@@ -32,40 +32,40 @@ void ALightningGun::BeginPlay()
 void ALightningGun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	TimeSinceLastShot += DeltaTime;
+	FireRateProgress += DeltaTime;
 
 	if(Trigger && Ammo > 0.f)
 	{
-		if(TimeSinceReload >= ReloadTime)
+		if(ReloadProgress >= Reload)
 		{
-			TimeSinceReload = ReloadTime * 2.f;
+			ReloadProgress = Reload + 1.f;
 			Ammo = 0.f;
 		}
 	}
 	else
 	{
-		TimeSinceReload = FMath::Max(TimeSinceReload - DeltaTime, 0.f);
-		if(TimeSinceReload < ReloadTime)
+		ReloadProgress = FMath::Max(ReloadProgress - DeltaTime, 0.f);
+		if(ReloadProgress < Reload)
 		{
 			Ammo = AmmoMax;
 		}
 	}
-	Update();
+	Update(DeltaTime);
 }
 
-void ALightningGun::Update()
+void ALightningGun::Update(float DeltaTime)
 {
 	if(Ammo > 0)
 	{
-		if(TimeSinceLastShot > 0.f)
+		if(FireRateProgress > 0.f)
 		{
 			// If the trigger is pulled
 			if(Trigger)
 			{
 				// If the cooldown has passed
-				if(TimeSinceLastShot > Cooldown)
+				if(FireRateProgress > FireRate)
 				{
-					TimeSinceReload = TimeSinceReload + Cooldown;
+					ReloadProgress = ReloadProgress + FireRate;
 					// Shoot the weapon
 					Shoot();
 					if(RecoilComponent)
@@ -75,7 +75,7 @@ void ALightningGun::Update()
 
 					// Subtract the cooldown from the time passed since the last shot.
 					// make sure the outcome does not go above value of Cooldown
-					TimeSinceLastShot = 0.f;
+					FireRateProgress = 0.f;
 					//Item->LastShotTimeStamp = 0.f;
 					if(Item && (Role == ROLE_Authority || Role == ROLE_AutonomousProxy))
 					{
@@ -130,9 +130,6 @@ void ALightningGun::Shoot()
 			delete StartTrace;
 			delete EndTrace;
 		}
-		// TODO: Victim isn't deleted, causes game to crash when you do
-		// This is a potential memory leak?
-		//delete Victim;
 	}
 }
 

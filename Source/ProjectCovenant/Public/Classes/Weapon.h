@@ -27,10 +27,10 @@ protected:
 	float Range;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Cooldown;
+	float FireRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ReloadTime;
+	float Reload;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FallOff;
@@ -44,10 +44,16 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	float Ammo;
 
-	float TimeSinceLastShot = 0.f;
+	float FireRateProgress = 0.f;
 
 	UPROPERTY(BlueprintReadOnly)
-	float TimeSinceReload = 0.f;
+	float ReloadProgress = 0.f;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool IsReloading = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool IsBetweenShots = false;
 
 	float Duration = 0.02f;
 
@@ -115,11 +121,15 @@ public:
 
 	virtual void ConstructShotVectors();
 
-	virtual void Update();
+	virtual void Update(float DeltaTime);
+
+	virtual bool CanFire();
+
+	virtual void Fire();
 
 	virtual void Drop();
 
-	virtual void Reload();
+	virtual void BeginReload();
 
 	virtual void SetItem(UItem * NewItem);
 

@@ -35,7 +35,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void Update() override;
+	virtual void Update(float DeltaTime) override;
 
 	virtual void ConstructShotVectors() override;
 

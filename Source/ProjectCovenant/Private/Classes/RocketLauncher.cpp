@@ -11,8 +11,8 @@ ARocketLauncher::ARocketLauncher()
 
 	Damage = 120.f;
 	Range = 20000.f;
-	Cooldown = 1.f;
-	ReloadTime = 2.f;
+	FireRate = 1.f;
+	Reload = 2.f;
 	FallOff = 1.f;
 	AmmoMax = 4.f;
 	Ammo = AmmoMax;
@@ -29,7 +29,7 @@ void ARocketLauncher::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ARocketLauncher::Update()
+void ARocketLauncher::Update(float DeltaTime)
 {
 	if(Ammo > 0)
 	{
@@ -37,7 +37,7 @@ void ARocketLauncher::Update()
 		if(Trigger)
 		{
 			// If the cooldown has passed
-			if(TimeSinceLastShot > Cooldown)
+			if(FireRateProgress > FireRate)
 			{
 				Ammo--;
 				// Shoot the weapon
@@ -49,7 +49,7 @@ void ARocketLauncher::Update()
 
 				// Subtract the cooldown from the time passed since the last shot.
 				// make sure the outcome does not go above value of Cooldown
-				TimeSinceLastShot = 0.f;
+				FireRateProgress = 0.f;
 				if(Item)
 				{
 					Item->SetLastShotTimeStamp(GetWorld());

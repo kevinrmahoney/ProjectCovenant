@@ -25,22 +25,32 @@ void AProjectileWeapon::BeginPlay()
 void AProjectileWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	TimeSinceLastShot += DeltaTime;
-	if(TimeSinceReload > 0.f)
+	FireRateProgress += DeltaTime;
+	if(ReloadProgress > 0.f)
 	{
-		TimeSinceReload = TimeSinceReload - DeltaTime;
-		if(TimeSinceReload <= 0.f)
+		ReloadProgress = ReloadProgress - DeltaTime;
+		if(ReloadProgress <= 0.f)
 		{
 			Ammo = AmmoMax;
 		}
 	}
 	else
 	{
-		Update();
+		Update(DeltaTime);
 	}
 }
 
-void AProjectileWeapon::Update()
+void AProjectileWeapon::Update(float DeltaTime)
+{
+
+}
+
+bool AProjectileWeapon::CanFire()
+{
+	return Ammo > 0.f && FireRateProgress > FireRate && ReloadProgress == 0.f;
+}
+
+void AProjectileWeapon::Fire()
 {
 
 }

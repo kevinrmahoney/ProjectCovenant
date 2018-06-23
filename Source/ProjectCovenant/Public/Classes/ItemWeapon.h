@@ -24,5 +24,6 @@ public:
 	int Count = 0;
 	int LoadedAmmo = 0;
 	float LastShotTimeStamp = 0.f;
+	float ReloadTimeStamp = 0.f;
 	
 };

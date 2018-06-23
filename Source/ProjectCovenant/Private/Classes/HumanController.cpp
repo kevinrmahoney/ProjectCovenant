@@ -578,7 +578,7 @@ void AHumanController::InputReload()
 	{
 		if(AWeapon * Weapon = SubjectZero->GetWeapon())
 		{
-			Weapon->Reload();
+			Weapon->BeginReload();
 		}
 	}
 }

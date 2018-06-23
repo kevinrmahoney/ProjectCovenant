@@ -47,7 +47,12 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetime
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+
 	ConstructShotVectors();
+
+	FireRate = 1.f / FireRate;
+	FireRateProgress = FireRate;
+	ReloadProgress = Reload;
 
 	// Adding functions to execute through events must be done in BeginPlay()
 	if(HasAuthority())
@@ -58,19 +63,75 @@ void AWeapon::BeginPlay()
 
 void AWeapon::ConstructShotVectors()
 {
-	ShotVectors.Add(FVector(Range, 0.f, 0.f));
 }
 
 // Called every frame
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//AimDownSights(true);
+
+	Update(DeltaTime);
+
+	if(Trigger)
+	{
+		if(CanFire())
+		{
+			Fire();
+		}
+		else
+		{
+		}
+	}
 }
 
-void AWeapon::Update()
+void AWeapon::Update(float DeltaTime)
 {
-	
+	FireRateProgress = FMath::Clamp(FireRateProgress + DeltaTime, 0.f, FireRate);
+
+	if(IsReloading)
+	{
+		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
+		if(ReloadProgress >= Reload)
+		{
+			Ammo = AmmoMax;
+			IsReloading = false;
+		}
+	}
+}
+
+bool AWeapon::CanFire()
+{
+	return false;
+}
+
+void AWeapon::Fire()
+{
+	// Apply recoil
+	if(RecoilComponent)
+	{
+		RecoilComponent->Recoil();
+	}
+
+	// Reset the the progress of the fire rate counter
+	FireRateProgress = 0.f;
+
+	// Draw visuals and play sounds
+	DrawVisuals();
+	PlayShootSound();
+
+}
+
+void AWeapon::BeginReload()
+{
+	if(ReloadProgress == Reload && Ammo < AmmoMax)
+	{
+		IsReloading = true;
+		ReloadProgress = 0.f;
+	}
+	else
+	{
+		Logger::Chat("Cant reload");
+	}
 }
 
 void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -106,8 +167,8 @@ void AWeapon::SetItem(UItem * NewItem)
 	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
 	{
 		Item = NewItem;
-		TimeSinceLastShot = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, Cooldown);
-		TimeSinceLastShot = TimeSinceLastShot - WeaponSwitchCooldown;
+		FireRateProgress = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, FireRate);
+		FireRateProgress = FireRateProgress - WeaponSwitchCooldown;
 	}
 }
 
@@ -135,14 +196,6 @@ void AWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 	if(Mode)
 	{
 		Mode->DealDamage(Shooter, Victim, TotalDamage, this);
-	}
-}
-
-void AWeapon::Reload()
-{
-	if(TimeSinceReload <= 0.f && Ammo < AmmoMax)
-	{
-		TimeSinceReload = ReloadTime;
 	}
 }
 

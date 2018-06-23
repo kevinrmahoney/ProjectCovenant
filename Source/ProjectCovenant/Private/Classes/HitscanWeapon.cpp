@@ -26,9 +26,56 @@ void AHitscanWeapon::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AHitscanWeapon::Update()
+void AHitscanWeapon::Update(float DeltaTime)
 {
+	Super::Update(DeltaTime);
+}
 
+bool AHitscanWeapon::CanFire()
+{
+	return Ammo > 0.f && FireRateProgress >= FireRate && !IsReloading;
+}
+
+void AHitscanWeapon::Fire()
+{
+	Super::Fire();
+
+	if(HasAuthority())
+	{
+		ASubjectZero * Victim = nullptr;
+		float TotalDamage = 0.f;
+
+		//for loop for radius of circle and nested for loop for roll
+		for(FVector Shot : ShotVectors)
+		{
+			FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());
+			FVector * EndTrace = new FVector(*StartTrace + FVector(Muzzle->GetComponentRotation().RotateVector(Shot)));
+			FHitResult* HitResult = new FHitResult();
+			FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
+			TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
+
+			// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
+			if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *EndTrace, ECC_Pawn, *TraceParams) && HitResult && HitResult->GetActor())
+			{
+				// Get the victim and attempt to cast to SubjectZero
+				if(!Victim)
+				{
+					Victim = Cast<ASubjectZero>(HitResult->GetActor());
+				}
+				TotalDamage += Damage;
+			}
+
+			delete HitResult;
+			delete TraceParams;
+			delete StartTrace;
+			delete EndTrace;
+		}
+
+		if(Victim && Shooter)
+		{
+			DealDamage(Victim, TotalDamage);
+		}
+	}
 }
 
 void AHitscanWeapon::ConstructShotVectors()
@@ -47,7 +94,7 @@ void AHitscanWeapon::DrawDebugVisuals()
 	for(FVector V : ShotVectors)
 	{
 		EndPoint = StartPoint + FVector(Muzzle->GetComponentRotation().RotateVector(V));
-		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, Cooldown);
+		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, FireRate);
 	}
 }
 

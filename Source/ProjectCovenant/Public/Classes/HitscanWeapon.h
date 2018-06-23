@@ -49,7 +49,11 @@ public:
 
 	virtual void ConstructShotVectors() override;
 
-	virtual void Update() override;
+	virtual void Update(float DeltaTime) override;
+
+	virtual bool CanFire() override;
+
+	virtual void Fire() override;
 
 	virtual FVector GetAimDownSightsLocation();
 

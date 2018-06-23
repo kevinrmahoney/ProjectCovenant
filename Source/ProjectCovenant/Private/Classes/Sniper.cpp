@@ -13,8 +13,8 @@ ASniper::ASniper()
 	AimDownSightsFieldOfView = 10.f;
 	Damage = 150.f;
 	Range = 20000.f;
-	Cooldown = 2.f;
-	ReloadTime = 2.f;
+	FireRate = 2.f;
+	Reload = 2.f;
 	FallOff = 1.f;
 	AmmoMax = 1.f;
 	Ammo = AmmoMax;
@@ -31,7 +31,7 @@ void ASniper::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASniper::Update()
+void ASniper::Update(float DeltaTime)
 {
 	if(Ammo > 0)
 	{
@@ -39,7 +39,7 @@ void ASniper::Update()
 		if(Trigger)
 		{
 			// If the cooldown has passed
-			if(TimeSinceLastShot > Cooldown)
+			if(FireRateProgress > FireRate)
 			{
 				Ammo--;
 				// Shoot the weapon
@@ -51,7 +51,7 @@ void ASniper::Update()
 
 				// Subtract the cooldown from the time passed since the last shot.
 				// make sure the outcome does not go above value of Cooldown
-				TimeSinceLastShot = 0.f;
+				FireRateProgress = 0.f;
 				if(Item)
 				{
 					Item->SetLastShotTimeStamp(GetWorld());
