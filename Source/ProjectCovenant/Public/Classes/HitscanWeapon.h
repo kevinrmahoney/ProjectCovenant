@@ -28,10 +28,18 @@ public:
 	FRotator HipFireRotation = FRotator(3.000000f, -12.000000f, 0.000000f);
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Range;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float FallOff;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float FireCost;
+
+protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	virtual void Shoot() override;
 
 	virtual void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
 
@@ -49,7 +57,13 @@ public:
 
 	virtual void ConstructShotVectors() override;
 
-	virtual void Update() override;
+	virtual void Update(float DeltaTime) override;
+
+	virtual bool CanFire() override;
+
+	virtual void Fire() override;
+
+	virtual void BeginReload() override;
 
 	virtual FVector GetAimDownSightsLocation();
 

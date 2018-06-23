@@ -119,4 +119,5 @@ private:
 	void InputUsePress();
 	void InputScoreboardPress();
 	void InputScoreboardRelease();
+	void InputReload();
 };

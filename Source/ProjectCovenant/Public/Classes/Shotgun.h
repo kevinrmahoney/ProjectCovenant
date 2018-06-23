@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Classes/HitscanWeapon.h"
-#include "Classes/Weapon.h"
 #include "Shotgun.generated.h"
 
 /**
@@ -33,18 +32,11 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void Update() override;
+	virtual void Fire() override;
 
 	virtual void ConstructShotVectors() override;
 
-private:
-	void Shoot() override;
-
-	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
-
+protected:
 	float MaxConeAngle = 1000.f;
 
 	//maybe change to FRotator

@@ -18,14 +18,6 @@ AHitscanWeapon::AHitscanWeapon()
 void AHitscanWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Damage = 15.f;
-	Range = 20000.f;
-	Cooldown = 0.1f;
-	FallOff = 1.f;
-	Ammo = 100.f;
-	Trigger = false;
-	Duration = 0.02f;
 }
 
 // Called every frame
@@ -34,61 +26,41 @@ void AHitscanWeapon::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AHitscanWeapon::Update()
+void AHitscanWeapon::Update(float DeltaTime)
 {
-	// Apply Recoil the tick after the shot
-	if(Fire)
-	{
-		if(RecoilComponent)
-		{
-			RecoilComponent->Recoil();
-		}
-		Fire = false;
-	}
+	FireRateProgress = FMath::Clamp(FireRateProgress + DeltaTime, 0.f, FireRate);
 
-	if(TimeSinceLastShot > 0.f)
+	if(IsReloading && FireRateProgress >= FireRate)
 	{
-		// If the trigger is pulled
-		if(Trigger)
+		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
+		if(ReloadProgress >= Reload)
 		{
-			// If the cooldown has passed
-			if(TimeSinceLastShot > Cooldown)
-			{
-				Fire = true;
-				// Shoot the weapon
-				Shoot();
-
-				// Subtract the cooldown from the time passed since the last shot.
-				// make sure the outcome does not go above value of Cooldown
-				TimeSinceLastShot = 0.f;
-				//Item->LastShotTimeStamp = 0.f;
-				if(Item && (Role == ROLE_Authority || Role == ROLE_AutonomousProxy))
-				{
-					Item->SetLastShotTimeStamp(GetWorld());
-				}
-				else
-				{
-					Logger::Log("Could not find Item when attempting to set last shot time stamp");
-				}
-			}
+			IsReloading = false;
 		}
 	}
-	DrawVisuals();
-	PlayShootSound();
+
+	if(!(CanFire() && Trigger) && FireRateProgress >= FireRate && !IsReloading)
+	{
+		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
+	}
 }
 
-void AHitscanWeapon::ConstructShotVectors()
+bool AHitscanWeapon::CanFire()
 {
-	ShotVectors.Add(FVector(Range, 0.f, 0.f));
+	return FireRateProgress >= FireRate && !IsReloading;
 }
 
-void AHitscanWeapon::Shoot()
+void AHitscanWeapon::Fire()
 {
-	//DrawDebugVisuals(); TODO: enable with console command
+	Super::Fire();
+
+	ReloadProgress = FMath::Clamp(ReloadProgress - FireCost, 0.f, Reload);
+	if(ReloadProgress <= 0.f) BeginReload();
 
 	if(HasAuthority())
 	{
 		ASubjectZero * Victim = nullptr;
+		float TotalDamage = 0.f;
 
 		//for loop for radius of circle and nested for loop for roll
 		for(FVector Shot : ShotVectors)
@@ -103,12 +75,11 @@ void AHitscanWeapon::Shoot()
 			if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *EndTrace, ECC_Pawn, *TraceParams) && HitResult && HitResult->GetActor())
 			{
 				// Get the victim and attempt to cast to SubjectZero
-				Victim = Cast<ASubjectZero>(HitResult->GetActor());
-				if(Victim && Shooter && Shooter->HasAuthority())
+				if(!Victim)
 				{
-					DealDamage(Victim, Damage);
+					Victim = Cast<ASubjectZero>(HitResult->GetActor());
 				}
-
+				TotalDamage += Damage;
 			}
 
 			delete HitResult;
@@ -116,10 +87,29 @@ void AHitscanWeapon::Shoot()
 			delete StartTrace;
 			delete EndTrace;
 		}
-		// TODO: Victim isn't deleted, causes game to crash when you do
-		// This is a potential memory leak?
-		//delete Victim;
+
+		if(Victim && Shooter)
+		{
+			DealDamage(Victim, TotalDamage);
+		}
 	}
+}
+
+void AHitscanWeapon::BeginReload()
+{
+	if(ReloadProgress <= 0.f)
+	{
+		IsReloading = true;
+		ReloadProgress = 0.f;
+	}
+	else
+	{
+		Logger::Chat("Cant reload");
+	}
+}
+
+void AHitscanWeapon::ConstructShotVectors()
+{
 }
 
 void AHitscanWeapon::DrawDebugVisuals()
@@ -129,17 +119,13 @@ void AHitscanWeapon::DrawDebugVisuals()
 	for(FVector V : ShotVectors)
 	{
 		EndPoint = StartPoint + FVector(Muzzle->GetComponentRotation().RotateVector(V));
-		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, Cooldown);
+		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, FireRate);
 	}
 }
 
 void AHitscanWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 {
-	ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode());
-	if(Mode)
-	{
-		Mode->DealDamage(Shooter, Victim, TotalDamage, this);
-	}
+	Super::DealDamage(Victim, TotalDamage);
 }
 
 FVector AHitscanWeapon::GetAimDownSightsLocation()

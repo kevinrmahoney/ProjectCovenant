@@ -505,7 +505,7 @@ void ASubjectZero::Kill()
 	GetMesh()->WakeAllRigidBodies();
 	if(Weapon)
 	{
-		Weapon->Destroy();
+		Weapon->Drop();
 	}
 	Destroy();
 }

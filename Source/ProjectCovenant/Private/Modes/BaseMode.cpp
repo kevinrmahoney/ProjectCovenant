@@ -175,6 +175,7 @@ void ABaseMode::GiveItemToCharacter(ASubjectZero * Character, UItem * Item)
 	if(Item && Character)
 	{
 		Character->AddItemToInventory(Item);
+		Logger::Log("Gave character " + Character->GetName() + " weapon " + Item->GetName());
 	}
 }
 
@@ -185,5 +186,39 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 		UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
 		LightningGun->ItemID = TEXT("0");
 		GiveItemToCharacter(Character, LightningGun);
+		UItem * Railgun = NewObject<UItem>(this, "Railgun");
+		Railgun->ItemID = TEXT("2");
+		GiveItemToCharacter(Character, Railgun);
+		UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
+		Shotgun->ItemID = TEXT("1");
+		GiveItemToCharacter(Character, Shotgun);
+		UItem * Rifle = NewObject<UItem>(this, "Rifle");
+		Rifle->ItemID = TEXT("4");
+		GiveItemToCharacter(Character, Rifle);
+		UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+		RocketLauncher->ItemID = TEXT("3");
+		GiveItemToCharacter(Character, RocketLauncher);
+		UItem * Sniper = NewObject<UItem>(this, "Sniper");
+		Sniper->ItemID = TEXT("5");
+		GiveItemToCharacter(Character, Sniper);
 	}
+}
+
+// Given a AWeapon, create an associated UItem based on information in the ItemDatabase
+UItem * ABaseMode::GetItem(AWeapon * ActorClass)
+{
+	TArray<FName> RowNames = ItemDatabase->GetRowNames();
+	FString ContextString;
+
+	for(auto& Name : RowNames)
+	{
+		FItemStruct * Item = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+		if(Item && Item->ActorClass == ActorClass->GetClass())
+		{
+			UItem * NewItem = NewObject<UItem>(this, "NewItem");
+			NewItem->ItemID = Item->ItemID;
+			return NewItem;
+		}
+	}
+	return nullptr;
 }

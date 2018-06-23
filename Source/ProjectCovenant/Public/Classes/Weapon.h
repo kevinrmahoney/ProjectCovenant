@@ -21,29 +21,27 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Damage = 15.f;
+	float Damage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Range = 20000.f;
+	float FireRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Cooldown = 0.1f;
+	float Reload;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float FallOff = 1.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Ammo = 100.f;
-
-	UPROPERTY(BlueprintReadWrite, Replicated)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool Trigger = false;
 
-	UPROPERTY()
-	bool Fire = false;
+	float FireRateProgress = 0.f;
 
-	float TimeSinceLastShot = 0.f;
+	UPROPERTY(BlueprintReadOnly)
+	float ReloadProgress = 0.f;
 
-	float Duration = 0.02f;
+	UPROPERTY(BlueprintReadOnly)
+	bool IsReloading = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool IsBetweenShots = false;
 
 	TArray<FVector> ShotVectors;
 
@@ -89,11 +87,18 @@ protected:
 
 	virtual void DrawDebugVisuals();
 
+	// Overlap event must be UFUNCTION() in order to be added via AddDynamic
+	UFUNCTION()
+	virtual void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void DrawVisuals();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayShootSound();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void StopSoundAndVisuals();
 
 	void Destroyed() override;
 
@@ -105,7 +110,15 @@ public:
 
 	virtual void ConstructShotVectors();
 
-	virtual void Update();
+	virtual void Update(float DeltaTime);
+
+	virtual bool CanFire();
+
+	virtual void Fire();
+
+	virtual void Drop();
+
+	virtual void BeginReload();
 
 	virtual void SetItem(UItem * NewItem);
 

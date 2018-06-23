@@ -27,23 +27,10 @@ public:
 	//(Pitch=3.000000,Yaw=-12.000000,Roll=0.000000)
 	FRotator HipFireRotation = FRotator(3.000000f,-12.000000f,0.000000f);
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void Update() override;
-
 	virtual void ConstructShotVectors() override;
 
 protected:
-	void Shoot() override;
-
-	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
-
 	virtual FVector GetAimDownSightsLocation() override;
 
 	virtual FRotator GetAimDownSightsRotation() override;

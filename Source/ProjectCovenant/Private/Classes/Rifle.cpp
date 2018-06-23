@@ -8,82 +8,12 @@
 ARifle::ARifle()
 {
 	PrimaryActorTick.bCanEverTick = true;
-}
 
-// Called when the game starts or when spawned
-void ARifle::BeginPlay()
-{
-	Super::BeginPlay();
-	//TODO: adjust values for shotgun
-}
-
-void ARifle::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-void ARifle::Update()
-{
-	// Apply Recoil the tick after the shot
-	if(Fire)
-	{
-		if(RecoilComponent)
-		{
-			RecoilComponent->Recoil();
-		}
-		Fire = false;
-	}
-	// If the trigger is pulled
-	if (Trigger)
-	{
-		// If the cooldown has passed
-		if (TimeSinceLastShot > Cooldown)
-		{
-			Fire = true;
-			// Shoot the weapon
-			Shoot();
-
-			// Subtract the cooldown from the time passed since the last shot.
-			// make sure the outcome does not go above value of Cooldown
-			TimeSinceLastShot = 0.f;
-			if (Item)
-			{
-				Item->SetLastShotTimeStamp(GetWorld());
-			}
-			else
-			{
-				Logger::Log("No item is associated with this weapon");
-			}
-		}
-	}
-}
-
-void ARifle::ConstructShotVectors()
-{
-	ShotVectors.Add(FVector(Range, 0.f, 0.f));
-}
-
-void ARifle::Shoot()
-{
-	PlayShootSound();
-
-	if (Shooter->HasAuthority())
-	{
-		float TotalDamage = 0.f;
-		int count = 0;
-
-		AProjectile * NewProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, Muzzle->GetComponentLocation(), Muzzle->GetComponentRotation());
-		if (NewProjectile)
-		{
-			NewProjectile->SetWeapon(this);
-			NewProjectile->SetDamage(Damage);
-		}
-	}
-}
-
-void ARifle::DealDamage(ASubjectZero * Victim, float TotalDamage)
-{
-	Super::DealDamage(Victim, TotalDamage);
+	Damage = 30.f;
+	FireRate = 0.2f;
+	Reload = 2.f;
+	AmmoMax = 20.f;
+	Ammo = AmmoMax;
 }
 
 FVector ARifle::GetAimDownSightsLocation()

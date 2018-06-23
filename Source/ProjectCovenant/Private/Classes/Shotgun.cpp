@@ -8,52 +8,20 @@
 AShotgun::AShotgun()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	Damage = 100.f;
+	Range = 20000.f;
+	FireRate = 1.f;
+	Reload = 4.f;
+	FallOff = 1.f;
+	FireCost = 1.f;
 }
 
 // Called when the game starts or when spawned
 void AShotgun::BeginPlay() 
 {
 	Super::BeginPlay();
-	//TODO: adjust values for shotgun
-	Damage = 100.f / (CircleCount * RollCount + 1);
-	Range = 5000.f;
-	Cooldown = 1.f;
-	FallOff = 1.f; //not yet implemented, less damage depending on distance. 1 = 100%
-	//TODO lower ammo count, but don't disable shooting with negative ammo yet
-	Ammo = 100.f; //not yet implemented 
-	Duration = 0.25;
-	ShotVectors.Add(FVector(Range, 0.f, 0.f));
-}
-
-void AShotgun::Tick(float DeltaTime) 
-{
-	Super::Tick(DeltaTime);
-}
-
-void AShotgun::Update()
-{
-	// If the trigger is pulled
-	if(Trigger)
-	{
-		// If the cooldown has passed
-		if(TimeSinceLastShot > Cooldown)
-		{
-			// Shoot the weapon
-			Shoot();
-			if(RecoilComponent)
-			{
-				RecoilComponent->Recoil();
-			}
-
-			// Subtract the cooldown from the time passed since the last shot.
-			// make sure the outcome does not go above value of Cooldown
-			TimeSinceLastShot = 0.f;
-			if(Item)
-			{
-				Item->SetLastShotTimeStamp(GetWorld());
-			}
-		}
-	}
+	Damage = Damage / ShotVectors.Num();
 }
 
 void AShotgun::ConstructShotVectors()
@@ -70,61 +38,10 @@ void AShotgun::ConstructShotVectors()
 	}
 }
 
-void AShotgun::Shoot()
+void AShotgun::Fire()
 {
+	Super::Fire();
 	DrawDebugVisuals();
-	PlayShootSound();
-
-	if(HasAuthority())
-	{
-		float TotalDamage = 0.f;
-		int count = 0;
-
-		ASubjectZero * Victim = nullptr;
-
-		//for loop for radius of circle and nested for loop for roll
-		for(FVector Shot : ShotVectors)
-		{
-			FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());	//start trace at the muzzle of the weapon (in world space)
-			FVector * SpreadEnd = new FVector(0.f, 0.f, 0.f);
-			FHitResult * HitResult = nullptr;
-			FCollisionQueryParams * TraceParams = nullptr;
-
-			*SpreadEnd = FVector(*StartTrace + FVector(Muzzle->GetComponentRotation().RotateVector(Shot)));
-
-			HitResult = new FHitResult();
-			TraceParams = new FCollisionQueryParams();
-			TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
-
-			// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
-			if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *SpreadEnd, ECC_Pawn, *TraceParams) && HitResult && HitResult->GetActor())
-			{
-				if(!Victim)
-				{
-					Victim = Cast<ASubjectZero>(HitResult->GetActor());
-				}
-
-				count++;
-				TotalDamage += Damage;
-			}
-
-			delete HitResult;
-			delete TraceParams;
-			delete StartTrace;
-			delete SpreadEnd;
-		}
-
-		if(Victim)
-		{
-			DealDamage(Victim, TotalDamage);
-		}
-		RecoilComponent->Recoil();
-	}
-}
-
-void AShotgun::DealDamage(ASubjectZero * Victim, float TotalDamage)
-{
-	Super::DealDamage(Victim, TotalDamage);
 }
 
 FVector AShotgun::GetAimDownSightsLocation()
