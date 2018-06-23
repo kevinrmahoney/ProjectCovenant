@@ -31,8 +31,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void Shoot() override;
-
 	virtual void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
 
 	virtual void DrawDebugVisuals() override;
@@ -54,6 +52,8 @@ public:
 	virtual bool CanFire() override;
 
 	virtual void Fire() override;
+
+	virtual void BeginReload() override;
 
 	virtual FVector GetAimDownSightsLocation();
 

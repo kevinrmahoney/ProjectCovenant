@@ -13,31 +13,15 @@ ARailgun::ARailgun()
 
 	Damage = 100.f;
 	Range = 20000.f;
-	FireRate = 2.f;
-	Reload = 2.f;
+	FireRate = 1.f;
+	Reload = 1.5f;
 	FallOff = 1.f;
 	AmmoMax = 1.f;
 	Ammo = AmmoMax;
 }
-
-// Called when the game starts or when spawned
-void ARailgun::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 void ARailgun::ConstructShotVectors()
 {
 	ShotVectors.Add(FVector(Range, 0.f, 0.f));
-}
-
-void ARailgun::Fire()
-{
-	Super::Fire();
-
-	// Railgun only has one bullet, so set to zero, and automatically begin reloading
-	Ammo = 0.f;
-	BeginReload();
 }
 
 FVector ARailgun::GetAimDownSightsLocation()

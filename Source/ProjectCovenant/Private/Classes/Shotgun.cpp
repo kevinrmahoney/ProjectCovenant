@@ -12,9 +12,9 @@ AShotgun::AShotgun()
 	Damage = 100.f;
 	Range = 20000.f;
 	FireRate = 1.f;
-	Reload = 2.f;
+	Reload = 4.f;
 	FallOff = 1.f;
-	AmmoMax = 6.f;
+	AmmoMax = 4.f;
 	Ammo = AmmoMax;
 }
 
@@ -23,11 +23,6 @@ void AShotgun::BeginPlay()
 {
 	Super::BeginPlay();
 	Damage = Damage / ShotVectors.Num();
-}
-
-void AShotgun::Tick(float DeltaTime) 
-{
-	Super::Tick(DeltaTime);
 }
 
 void AShotgun::ConstructShotVectors()
@@ -44,27 +39,10 @@ void AShotgun::ConstructShotVectors()
 	}
 }
 
-void AShotgun::Update(float DeltaTime)
-{
-	Super::Update(DeltaTime);
-}
-
 void AShotgun::Fire()
 {
 	Super::Fire();
 	DrawDebugVisuals();
-	Ammo--;
-}
-
-void AShotgun::Shoot()
-{
-	Super::Fire();
-	Ammo--;
-}
-
-void AShotgun::DealDamage(ASubjectZero * Victim, float TotalDamage)
-{
-	Super::DealDamage(Victim, TotalDamage);
 }
 
 FVector AShotgun::GetAimDownSightsLocation()

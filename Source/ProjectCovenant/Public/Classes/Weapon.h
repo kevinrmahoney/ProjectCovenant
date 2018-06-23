@@ -111,6 +111,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayShootSound();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void StopSoundAndVisuals();
+
 	void Destroyed() override;
 
 	float AimDownSightsFieldOfView = 90.f;

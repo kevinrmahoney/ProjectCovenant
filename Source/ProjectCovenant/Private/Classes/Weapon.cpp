@@ -50,7 +50,6 @@ void AWeapon::BeginPlay()
 
 	ConstructShotVectors();
 
-	FireRate = 1.f / FireRate;
 	FireRateProgress = FireRate;
 	ReloadProgress = Reload;
 
@@ -70,18 +69,16 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Update(DeltaTime);
-
 	if(Trigger)
 	{
 		if(CanFire())
 		{
 			Fire();
 		}
-		else
-		{
-		}
 	}
+
+	// Update variables
+	Update(DeltaTime);
 }
 
 void AWeapon::Update(float DeltaTime)
@@ -118,12 +115,11 @@ void AWeapon::Fire()
 	// Draw visuals and play sounds
 	DrawVisuals();
 	PlayShootSound();
-
 }
 
 void AWeapon::BeginReload()
 {
-	if(ReloadProgress == Reload && Ammo < AmmoMax)
+	if(Ammo < AmmoMax)
 	{
 		IsReloading = true;
 		ReloadProgress = 0.f;

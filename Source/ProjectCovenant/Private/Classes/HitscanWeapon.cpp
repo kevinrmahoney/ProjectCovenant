@@ -28,17 +28,35 @@ void AHitscanWeapon::Tick(float DeltaTime)
 
 void AHitscanWeapon::Update(float DeltaTime)
 {
-	Super::Update(DeltaTime);
+	FireRateProgress = FMath::Clamp(FireRateProgress + DeltaTime, 0.f, FireRate);
+
+	if(IsReloading && FireRateProgress >= FireRate)
+	{
+		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
+		if(ReloadProgress >= Reload)
+		{
+			Ammo = AmmoMax;
+			IsReloading = false;
+		}
+	}
+
+	if(!(CanFire() && Trigger) && FireRateProgress >= FireRate && !IsReloading)
+	{
+		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
+	}
 }
 
 bool AHitscanWeapon::CanFire()
 {
-	return Ammo > 0.f && FireRateProgress >= FireRate && !IsReloading;
+	return FireRateProgress >= FireRate && !IsReloading;
 }
 
 void AHitscanWeapon::Fire()
 {
 	Super::Fire();
+
+	ReloadProgress = FMath::Clamp(ReloadProgress - (Reload / AmmoMax), 0.f, Reload);
+	if(ReloadProgress <= 0.f) BeginReload();
 
 	if(HasAuthority())
 	{
@@ -78,13 +96,21 @@ void AHitscanWeapon::Fire()
 	}
 }
 
-void AHitscanWeapon::ConstructShotVectors()
+void AHitscanWeapon::BeginReload()
 {
+	if(ReloadProgress <= 0.f)
+	{
+		IsReloading = true;
+		ReloadProgress = 0.f;
+	}
+	else
+	{
+		Logger::Chat("Cant reload");
+	}
 }
 
-void AHitscanWeapon::Shoot()
+void AHitscanWeapon::ConstructShotVectors()
 {
-	
 }
 
 void AHitscanWeapon::DrawDebugVisuals()

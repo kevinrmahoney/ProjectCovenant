@@ -35,15 +35,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void Update(float DeltaTime) override;
-
 	virtual void ConstructShotVectors() override;
 
-private:
-	void Shoot() override;
-
-	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
-
+protected:
 	virtual FVector GetAimDownSightsLocation() override;
 
 	virtual FRotator GetAimDownSightsRotation() override;

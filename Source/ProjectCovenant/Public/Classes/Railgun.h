@@ -27,14 +27,8 @@ public:
 	//(Pitch=3.000000,Yaw=-12.000000,Roll=0.000000)
 	FRotator HipFireRotation = FRotator(3.000000f,-12.000000f,0.000000f);
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 public:
 	virtual void ConstructShotVectors() override;
-
-	virtual void Fire() override;
 
 protected:
 	virtual FVector GetAimDownSightsLocation() override;

@@ -32,20 +32,11 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void Update(float DeltaTime) override;
+	virtual void Fire() override;
 
 	virtual void ConstructShotVectors() override;
 
-	void Fire() override;
-
-private:
-	void Shoot() override;
-
-	void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
-
+protected:
 	float MaxConeAngle = 1000.f;
 
 	//maybe change to FRotator
