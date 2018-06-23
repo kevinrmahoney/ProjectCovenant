@@ -10,10 +10,8 @@ ARifle::ARifle()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Damage = 30.f;
-	Range = 20000.f;
 	FireRate = 0.2f;
 	Reload = 2.f;
-	FallOff = 1.f;
 	AmmoMax = 20.f;
 	Ammo = AmmoMax;
 }

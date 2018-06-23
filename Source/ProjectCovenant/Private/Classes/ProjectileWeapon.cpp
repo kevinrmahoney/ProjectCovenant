@@ -29,7 +29,17 @@ void AProjectileWeapon::Tick(float DeltaTime)
 
 void AProjectileWeapon::Update(float DeltaTime)
 {
-	Super::Update(DeltaTime);
+	FireRateProgress = FMath::Clamp(FireRateProgress + DeltaTime, 0.f, FireRate);
+
+	if(IsReloading)
+	{
+		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
+		if(ReloadProgress >= Reload)
+		{
+			Ammo = AmmoMax;
+			IsReloading = false;
+		}
+	}
 }
 
 bool AProjectileWeapon::CanFire()
@@ -41,7 +51,6 @@ void AProjectileWeapon::Fire()
 {
 	Super::Fire();
 
-
 	if(Shooter->HasAuthority())
 	{
 		AProjectile * NewProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, Muzzle->GetComponentLocation(), Muzzle->GetComponentRotation());
@@ -52,6 +61,24 @@ void AProjectileWeapon::Fire()
 		}
 	}
 	Ammo--;
+}
+
+void AProjectileWeapon::BeginReload()
+{
+	if(Ammo < AmmoMax && !IsReloading)
+	{
+		IsReloading = true;
+		ReloadProgress = 0.f;
+	}
+	else
+	{
+		Logger::Chat("Cant reload");
+	}
+}
+
+float AProjectileWeapon::GetAmmo()
+{
+	return Ammo;
 }
 
 void AProjectileWeapon::ConstructShotVectors()

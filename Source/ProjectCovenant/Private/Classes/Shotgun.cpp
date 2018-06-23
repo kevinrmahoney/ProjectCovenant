@@ -14,8 +14,7 @@ AShotgun::AShotgun()
 	FireRate = 1.f;
 	Reload = 4.f;
 	FallOff = 1.f;
-	AmmoMax = 4.f;
-	Ammo = AmmoMax;
+	FireCost = 1.f;
 }
 
 // Called when the game starts or when spawned

@@ -90,7 +90,6 @@ void AWeapon::Update(float DeltaTime)
 		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
 		if(ReloadProgress >= Reload)
 		{
-			Ammo = AmmoMax;
 			IsReloading = false;
 		}
 	}
@@ -119,15 +118,8 @@ void AWeapon::Fire()
 
 void AWeapon::BeginReload()
 {
-	if(Ammo < AmmoMax)
-	{
-		IsReloading = true;
-		ReloadProgress = 0.f;
-	}
-	else
-	{
-		Logger::Chat("Cant reload");
-	}
+	IsReloading = true;
+	ReloadProgress = 0.f;
 }
 
 void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -214,11 +206,6 @@ void AWeapon::AimDownSights(bool IsAimDownSights)
 			Shooter->FirstPersonMesh->SetRelativeRotation(GetHipFireRotation());
 		}
 	}
-}
-
-float AWeapon::GetAmmo()
-{
-	return Ammo;
 }
 
 FVector AWeapon::GetAimDownSightsLocation()

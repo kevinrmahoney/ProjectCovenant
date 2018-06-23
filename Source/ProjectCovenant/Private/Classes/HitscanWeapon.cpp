@@ -35,7 +35,6 @@ void AHitscanWeapon::Update(float DeltaTime)
 		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
 		if(ReloadProgress >= Reload)
 		{
-			Ammo = AmmoMax;
 			IsReloading = false;
 		}
 	}
@@ -55,7 +54,7 @@ void AHitscanWeapon::Fire()
 {
 	Super::Fire();
 
-	ReloadProgress = FMath::Clamp(ReloadProgress - (Reload / AmmoMax), 0.f, Reload);
+	ReloadProgress = FMath::Clamp(ReloadProgress - FireCost, 0.f, Reload);
 	if(ReloadProgress <= 0.f) BeginReload();
 
 	if(HasAuthority())

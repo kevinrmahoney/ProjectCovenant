@@ -24,25 +24,13 @@ protected:
 	float Damage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Range;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FireRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Reload;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float FallOff;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float AmmoMax;
-
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool Trigger = false;
-
-	UPROPERTY(BlueprintReadOnly)
-	float Ammo;
 
 	float FireRateProgress = 0.f;
 
@@ -54,8 +42,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool IsBetweenShots = false;
-
-	float Duration = 0.02f;
 
 	TArray<FVector> ShotVectors;
 
@@ -137,9 +123,6 @@ public:
 	virtual void SetItem(UItem * NewItem);
 
 	virtual void SetTrigger(bool T);
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	virtual float GetAmmo();
 
 	virtual void SetShooter(ASubjectZero * NewShooter);
 

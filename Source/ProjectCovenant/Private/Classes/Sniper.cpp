@@ -12,10 +12,8 @@ ASniper::ASniper()
 
 	AimDownSightsFieldOfView = 10.f;
 	Damage = 150.f;
-	Range = 20000.f;
 	FireRate = 2.f;
 	Reload = 2.f;
-	FallOff = 1.f;
 	AmmoMax = 1.f;
 	Ammo = AmmoMax;
 }

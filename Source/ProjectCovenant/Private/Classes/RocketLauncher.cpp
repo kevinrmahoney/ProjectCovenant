@@ -10,10 +10,8 @@ ARocketLauncher::ARocketLauncher()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Damage = 120.f;
-	Range = 20000.f;
 	FireRate = 1.f;
 	Reload = 2.f;
-	FallOff = 1.f;
 	AmmoMax = 4.f;
 	Ammo = AmmoMax;
 }

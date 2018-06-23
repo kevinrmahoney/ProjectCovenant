@@ -18,8 +18,7 @@ ALightningGun::ALightningGun()
 	FireRate = 0.1f;
 	Reload = 4.f;
 	FallOff = 1.f;
-	AmmoMax = 40.f;
-	Ammo = AmmoMax;
+	FireCost = FireRate;
 }
 
 // Called when the game starts or when spawned

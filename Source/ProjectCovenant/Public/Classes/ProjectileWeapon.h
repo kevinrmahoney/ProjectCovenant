@@ -33,6 +33,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AProjectile> Projectile;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AmmoMax;
+
+	UPROPERTY(BlueprintReadOnly)
+	float Ammo;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -58,6 +64,10 @@ public:
 	virtual bool CanFire() override;
 
 	virtual void Fire() override;
+
+	virtual void BeginReload();
+
+	virtual float GetAmmo();
 
 	virtual FVector GetAimDownSightsLocation() override;
 

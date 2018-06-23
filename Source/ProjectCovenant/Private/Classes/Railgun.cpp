@@ -16,8 +16,7 @@ ARailgun::ARailgun()
 	FireRate = 1.f;
 	Reload = 1.5f;
 	FallOff = 1.f;
-	AmmoMax = 1.f;
-	Ammo = AmmoMax;
+	FireCost = Reload;
 }
 void ARailgun::ConstructShotVectors()
 {

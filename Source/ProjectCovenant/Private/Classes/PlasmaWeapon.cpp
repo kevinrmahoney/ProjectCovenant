@@ -25,19 +25,6 @@ void APlasmaWeapon::BeginPlay()
 void APlasmaWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	FireRateProgress += DeltaTime;
-	if(ReloadProgress > 0.f)
-	{
-		ReloadProgress = ReloadProgress - DeltaTime;
-		if(ReloadProgress <= 0.f)
-		{
-			Ammo = AmmoMax;
-		}
-	}
-	else
-	{
-		Update(DeltaTime);
-	}
 }
 
 void APlasmaWeapon::Update(float DeltaTime)
@@ -47,7 +34,7 @@ void APlasmaWeapon::Update(float DeltaTime)
 
 bool APlasmaWeapon::CanFire()
 {
-	return Ammo > 0.f && FireRateProgress > FireRate && ReloadProgress == 0.f;
+	return false;
 }
 
 void APlasmaWeapon::Fire()
