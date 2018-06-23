@@ -40,7 +40,6 @@ void ALightningGun::Tick(float DeltaTime)
 
 	if(IsReloading || !Trigger)
 	{
-		Logger::Chat("HELLO");
 		StopSoundAndVisuals();
 	}
 }
