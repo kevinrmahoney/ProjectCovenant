@@ -14,11 +14,12 @@ ALightningGun::ALightningGun()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Damage = 10.f;
-	Range = 20000.f;
+	MaximumRange = 20000.f;
 	FireRate = 0.1f;
-	Reload = 4.f;
+	HeatThreshold = 100.f;
+	OverHeatPenalty = 50.f;
 	FallOff = 1.f;
-	FireCost = FireRate;
+	HeatGeneratedPerShot = 2.5f;
 }
 
 // Called when the game starts or when spawned
@@ -29,7 +30,7 @@ void ALightningGun::BeginPlay()
 
 void ALightningGun::ConstructShotVectors()
 {
-	ShotVectors.Add(FVector(Range, 0.f, 0.f));
+	ShotVectors.Add(FVector(MaximumRange, 0.f, 0.f));
 }
 
 // Called every frame
@@ -37,7 +38,7 @@ void ALightningGun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(IsReloading || !Trigger)
+	if(IsCoolingDown || !Trigger)
 	{
 		StopSoundAndVisuals();
 	}

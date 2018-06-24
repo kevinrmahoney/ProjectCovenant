@@ -12,15 +12,16 @@ ARailgun::ARailgun()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Damage = 100.f;
-	Range = 20000.f;
+	MaximumRange = 20000.f;
 	FireRate = 1.f;
-	Reload = 1.5f;
+	HeatThreshold = 100.f;
+	OverHeatPenalty = 25.f;
 	FallOff = 1.f;
-	FireCost = Reload;
+	HeatGeneratedPerShot = HeatThreshold;
 }
 void ARailgun::ConstructShotVectors()
 {
-	ShotVectors.Add(FVector(Range, 0.f, 0.f));
+	ShotVectors.Add(FVector(MaximumRange, 0.f, 0.f));
 }
 
 FVector ARailgun::GetAimDownSightsLocation()

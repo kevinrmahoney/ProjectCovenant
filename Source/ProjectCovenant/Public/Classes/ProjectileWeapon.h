@@ -30,8 +30,17 @@ public:
 	FRotator HipFireRotation = FRotator(3.000000f, -12.000000f, 0.000000f);
 
 protected:
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class AProjectile> Projectile;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Reload;
+
+	UPROPERTY(BlueprintReadOnly)
+	float ReloadProgress = 0.f;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool IsReloading = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AProjectile> Projectile;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AmmoMax;

@@ -238,6 +238,11 @@ public:
 	void Slot7();
 	void Slot8();
 	void Slot9();
+
+	UFUNCTION()
+	void Reload();
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerReload();
   
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetSpeed() const;

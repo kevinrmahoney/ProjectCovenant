@@ -28,14 +28,52 @@ public:
 	FRotator HipFireRotation = FRotator(3.000000f, -12.000000f, 0.000000f);
 
 protected:
+	// How much heat is added to HeatAllowable when Heat
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Range;
+	float OverHeatPenalty;
 
+	// Threshold for heat. If passed, weapon must be completely cooled down before use
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float FallOff;
+	float HeatThreshold = 100.f;
 
+	// If the weapon is cooling down after hitting the heat threshold
+	UPROPERTY(BlueprintReadOnly)
+	bool IsCoolingDown = false;
+
+	// Between 0 and OptimalRange, this weapon does 100% of Damage
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float FireCost;
+	float OptimalRange;
+
+	// The maximum distance that a player can be hit by this weapon
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaximumRange;
+
+	// How much damage is reduced at max range (Damage * FallOff)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float FallOff = 1.f;
+
+	// How much heat is generated for each shot
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float HeatGeneratedPerShot;
+
+	// Current heat level of the weapon
+	UPROPERTY(BlueprintReadOnly)
+	float Heat = 0.f;
+
+	// Rate of cool down for weapon (per second)
+	UPROPERTY()
+	float CooldownRate = 50.f;
+
+	// Seconds after a shot is ready before the gun starts passively cooling down
+	UPROPERTY()
+	float CooldownPause = 0.5f;
+
+	// Timer for cooldown pause
+	UPROPERTY()
+	float CooldownPauseTimer = 0.f;
+
+private:
+	virtual void BeginCooldown();
 
 protected:
 	// Called when the game starts or when spawned

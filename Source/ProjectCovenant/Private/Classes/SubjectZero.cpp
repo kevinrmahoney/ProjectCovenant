@@ -981,6 +981,29 @@ void ASubjectZero::Slot9()
 	}
 }
 
+void ASubjectZero::Reload()
+{
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerReload();
+	}
+	if(Weapon)
+	{
+		Weapon->BeginReload();
+		
+	}
+}
+
+void ASubjectZero::ServerReload_Implementation()
+{
+	Reload();
+}
+
+bool ASubjectZero::ServerReload_Validate()
+{
+	return true;
+}
+
 void ASubjectZero::CalculateMovement()
 {
 	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)

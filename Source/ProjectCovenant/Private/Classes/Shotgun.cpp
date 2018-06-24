@@ -10,11 +10,12 @@ AShotgun::AShotgun()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Damage = 100.f;
-	Range = 20000.f;
+	MaximumRange = 20000.f;
 	FireRate = 1.f;
-	Reload = 4.f;
+	HeatThreshold = 100.f;
+	OverHeatPenalty = 50.f;
 	FallOff = 1.f;
-	FireCost = 1.f;
+	HeatGeneratedPerShot = 25.f;
 }
 
 // Called when the game starts or when spawned
@@ -31,7 +32,7 @@ void AShotgun::ConstructShotVectors()
 		FVector SpreadVector;
 		for(int j = 0; j < RollCount; j++)
 		{
-			SpreadVector = FVector(Range, MaxConeAngle / i, 0.f);
+			SpreadVector = FVector(MaximumRange, MaxConeAngle / i, 0.f);
 			SpreadVector = SpreadVector.RotateAngleAxis(360 / RollCount * j, FVector(1.f, 0.f, 0.f));
 			ShotVectors.Add(SpreadVector);
 		}
