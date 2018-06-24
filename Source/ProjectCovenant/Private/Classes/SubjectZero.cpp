@@ -64,6 +64,9 @@ void ASubjectZero::Tick(float DeltaTime)
 	Update();
 	CalculateMovement();
 
+	// Comment / Uncomment this when finding a weapon's aim down sights and hipfire location
+	//AimDownSights = true;
+
 	if(Grounded)
 	{
 		if(Jumping)
@@ -979,6 +982,29 @@ void ASubjectZero::Slot9()
 	{
 		Server_Equip(ID);
 	}
+}
+
+void ASubjectZero::Reload()
+{
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerReload();
+	}
+	if(Weapon)
+	{
+		Weapon->BeginReload();
+		
+	}
+}
+
+void ASubjectZero::ServerReload_Implementation()
+{
+	Reload();
+}
+
+bool ASubjectZero::ServerReload_Validate()
+{
+	return true;
 }
 
 void ASubjectZero::CalculateMovement()

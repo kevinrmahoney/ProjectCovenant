@@ -186,21 +186,24 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 		UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
 		LightningGun->ItemID = TEXT("0");
 		GiveItemToCharacter(Character, LightningGun);
-		UItem * Railgun = NewObject<UItem>(this, "Railgun");
-		Railgun->ItemID = TEXT("2");
-		GiveItemToCharacter(Character, Railgun);
-		UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
-		Shotgun->ItemID = TEXT("1");
-		GiveItemToCharacter(Character, Shotgun);
-		UItem * Rifle = NewObject<UItem>(this, "Rifle");
-		Rifle->ItemID = TEXT("4");
-		GiveItemToCharacter(Character, Rifle);
-		UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
-		RocketLauncher->ItemID = TEXT("3");
-		GiveItemToCharacter(Character, RocketLauncher);
-		UItem * Sniper = NewObject<UItem>(this, "Sniper");
-		Sniper->ItemID = TEXT("5");
-		GiveItemToCharacter(Character, Sniper);
+		//UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
+		//Shotgun->ItemID = TEXT("1");
+		//GiveItemToCharacter(Character, Shotgun);
+		//UItem * Railgun = NewObject<UItem>(this, "Railgun");
+		//Railgun->ItemID = TEXT("2");
+		//GiveItemToCharacter(Character, Railgun);
+		//UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+		//RocketLauncher->ItemID = TEXT("3");
+		//GiveItemToCharacter(Character, RocketLauncher);
+		//UItem * Rifle = NewObject<UItem>(this, "Rifle");
+		//Rifle->ItemID = TEXT("4");
+		//GiveItemToCharacter(Character, Rifle);
+		//UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
+		//SniperRifle->ItemID = TEXT("5");
+		//GiveItemToCharacter(Character, SniperRifle);
+		//UItem * Carbine = NewObject<UItem>(this, "Carbine");
+		//Carbine->ItemID = TEXT("6");
+		//GiveItemToCharacter(Character, Carbine);
 	}
 }
 

@@ -28,34 +28,41 @@ void AHitscanWeapon::Tick(float DeltaTime)
 
 void AHitscanWeapon::Update(float DeltaTime)
 {
-	FireRateProgress = FMath::Clamp(FireRateProgress + DeltaTime, 0.f, FireRate);
+	FireRateProgress = FireRateProgress + DeltaTime;
 
-	if(IsReloading && FireRateProgress >= FireRate)
-	{
-		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
-		if(ReloadProgress >= Reload)
-		{
-			IsReloading = false;
-		}
+	// If being forced to cooldown or cooling down after a shot
+	if(IsCoolingDown || FireRateProgress >= FireRate + CooldownPause)
+	{ 
+		Heat = FMath::Max(Heat - CooldownRate * DeltaTime, 0.f);
 	}
 
-	if(!(CanFire() && Trigger) && FireRateProgress >= FireRate && !IsReloading)
+	// Stop cooling down if heat is below zero
+	if(IsCoolingDown && Heat <= 0.f)
 	{
-		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
+		IsCoolingDown = false;
 	}
 }
 
 bool AHitscanWeapon::CanFire()
 {
-	return FireRateProgress >= FireRate && !IsReloading;
+	return FireRateProgress >= FireRate && !IsCoolingDown;
 }
 
 void AHitscanWeapon::Fire()
 {
 	Super::Fire();
 
-	ReloadProgress = FMath::Clamp(ReloadProgress - FireCost, 0.f, Reload);
-	if(ReloadProgress <= 0.f) BeginReload();
+	// Reset FireRateProgress and add heat
+	FireRateProgress = 0.f;
+	Heat = Heat + HeatGeneratedPerShot;
+
+	// If heat added is greater than the heat threshold,
+	// add an extra heat penalty and begin the forced cooldown process
+	if(Heat >= HeatThreshold)
+	{
+		Heat = Heat + OverHeatPenalty;
+		BeginCooldown();
+	}
 
 	if(HasAuthority())
 	{
@@ -95,17 +102,14 @@ void AHitscanWeapon::Fire()
 	}
 }
 
+void AHitscanWeapon::BeginCooldown()
+{
+	IsCoolingDown = true;
+}
+
 void AHitscanWeapon::BeginReload()
 {
-	if(ReloadProgress <= 0.f)
-	{
-		IsReloading = true;
-		ReloadProgress = 0.f;
-	}
-	else
-	{
-		Logger::Chat("Cant reload");
-	}
+	//BeginCooldown();
 }
 
 void AHitscanWeapon::ConstructShotVectors()

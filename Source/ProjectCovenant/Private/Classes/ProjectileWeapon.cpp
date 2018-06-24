@@ -51,7 +51,7 @@ void AProjectileWeapon::Fire()
 {
 	Super::Fire();
 
-	if(Shooter->HasAuthority())
+	if(HasAuthority())
 	{
 		AProjectile * NewProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, Muzzle->GetComponentLocation(), Muzzle->GetComponentRotation());
 		if(NewProjectile)

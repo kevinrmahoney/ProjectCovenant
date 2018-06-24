@@ -51,7 +51,6 @@ void AWeapon::BeginPlay()
 	ConstructShotVectors();
 
 	FireRateProgress = FireRate;
-	ReloadProgress = Reload;
 
 	// Adding functions to execute through events must be done in BeginPlay()
 	if(HasAuthority())
@@ -83,16 +82,7 @@ void AWeapon::Tick(float DeltaTime)
 
 void AWeapon::Update(float DeltaTime)
 {
-	FireRateProgress = FMath::Clamp(FireRateProgress + DeltaTime, 0.f, FireRate);
-
-	if(IsReloading)
-	{
-		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
-		if(ReloadProgress >= Reload)
-		{
-			IsReloading = false;
-		}
-	}
+	
 }
 
 bool AWeapon::CanFire()
@@ -118,8 +108,6 @@ void AWeapon::Fire()
 
 void AWeapon::BeginReload()
 {
-	IsReloading = true;
-	ReloadProgress = 0.f;
 }
 
 void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -189,6 +177,13 @@ void AWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 
 void AWeapon::DrawDebugVisuals()
 {
+	FVector StartPoint = FVector(Muzzle->GetComponentLocation());
+	FVector EndPoint;
+	for(FVector V : ShotVectors)
+	{
+		EndPoint = StartPoint + FVector(Muzzle->GetComponentRotation().RotateVector(V));
+		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, 2.f);
+	}
 }
 
 void AWeapon::AimDownSights(bool IsAimDownSights)

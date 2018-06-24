@@ -30,30 +30,54 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class AProjectile> Projectile;
+	TSubclassOf<class AProjectile> Projectile;
+
+	// How much heat is added to HeatAllowable when Heat
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float OverHeatPenalty;
+
+	// Threshold for heat. If passed, weapon must be completely cooled down before use
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float HeatThreshold = 100.f;
+
+	// If the weapon is cooling down after hitting the heat threshold
+	UPROPERTY(BlueprintReadOnly)
+	bool IsCoolingDown = false;
+
+	// How much heat is generated for each shot
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float HeatGeneratedPerShot;
+
+	// Current heat level of the weapon
+	UPROPERTY(BlueprintReadOnly)
+	float Heat = 0.f;
+
+	// Rate of cool down for weapon (per second)
+	UPROPERTY()
+	float CooldownRate = 50.f;
+
+	// Seconds after a shot is ready before the gun starts passively cooling down
+	UPROPERTY()
+	float CooldownPause = 0.5f;
+
+	// Timer for cooldown pause
+	UPROPERTY()
+	float CooldownPauseTimer = 0.f;
+
+private:
+	virtual void BeginCooldown();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void Shoot() override;
-
-	virtual void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
-
-	virtual void DrawDebugVisuals() override;
+	UFUNCTION(BlueprintImplementableEvent)
+	void DrawVisuals();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void DrawVisuals();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void PlayShootSound();
+	void PlayShootSound();
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void ConstructShotVectors() override;
-
 	virtual void Update(float DeltaTime) override;
 
 	virtual bool CanFire() override;

@@ -23,22 +23,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Damage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float FireRate;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Reload;
-
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool Trigger = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float FireRate;
+
+	UPROPERTY(BlueprintReadOnly)
 	float FireRateProgress = 0.f;
-
-	UPROPERTY(BlueprintReadOnly)
-	float ReloadProgress = 0.f;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool IsReloading = false;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool IsBetweenShots = false;
