@@ -21,6 +21,41 @@ void APlasmaWeapon::BeginPlay()
 	Super::BeginPlay();
 }
 
+void APlasmaWeapon::Destroyed()
+{
+	if(Item)
+	{
+		Item->IsCoolingDown = IsCoolingDown;
+		Item->Heat = Heat;
+	}
+
+	Super::Destroyed();
+}
+
+void APlasmaWeapon::SetItem(UItem * NewItem)
+{
+	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
+	{
+		if(NewItem)
+		{
+			Item = NewItem;
+
+			FireRateProgress = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, FireRate);
+			FireRateProgress = FireRateProgress - WeaponSwitchCooldown;
+
+			Heat = NewItem->Heat;
+			
+			IsCoolingDown = NewItem->IsCoolingDown;
+
+			Update(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp);
+		}
+		else
+		{
+			Logger::Error("Attempting to set NULL item for " + GetName());
+		}
+	}
+}
+
 void APlasmaWeapon::Update(float DeltaTime)
 {
 	FireRateProgress = FireRateProgress + DeltaTime;
@@ -59,7 +94,7 @@ void APlasmaWeapon::Fire()
 		BeginCooldown();
 	}
 
-	if(HasAuthority())
+	if(Shooter && Shooter->HasAuthority())
 	{
 		AProjectile * NewProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, Muzzle->GetComponentLocation(), Muzzle->GetComponentRotation());
 		if(NewProjectile)
@@ -94,5 +129,3 @@ FRotator APlasmaWeapon::GetHipFireRotation()
 {
 	return HipFireRotation;
 }
-
-

@@ -78,6 +78,8 @@ public:
 
 	virtual float GetAmmo();
 
+	virtual void SetItem(UItem * NewItem);
+
 	virtual FVector GetAimDownSightsLocation() override;
 
 	virtual FRotator GetAimDownSightsRotation() override;
@@ -85,4 +87,6 @@ public:
 	virtual FVector GetHipFireLocation() override;
 
 	virtual FRotator GetHipFireRotation() override;
+
+	void Destroyed() override;
 };

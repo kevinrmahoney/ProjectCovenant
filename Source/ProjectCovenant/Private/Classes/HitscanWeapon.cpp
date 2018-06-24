@@ -20,6 +20,41 @@ void AHitscanWeapon::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AHitscanWeapon::Destroyed()
+{
+	if(Item)
+	{
+		Item->IsCoolingDown = IsCoolingDown;
+		Item->Heat = Heat;
+	}
+
+	Super::Destroyed();
+}
+
+void AHitscanWeapon::SetItem(UItem * NewItem)
+{
+	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
+	{
+		if(NewItem)
+		{
+			Item = NewItem;
+
+			FireRateProgress = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, FireRate);
+			FireRateProgress = FireRateProgress - WeaponSwitchCooldown;
+
+			Heat = Item->Heat;
+
+			IsCoolingDown = Item->IsCoolingDown;
+		
+			Update(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp);
+		}
+		else
+		{
+			Logger::Error("Attempting to set NULL item for " + GetName());
+		}
+	}
+}
+
 // Called every frame
 void AHitscanWeapon::Tick(float DeltaTime)
 {

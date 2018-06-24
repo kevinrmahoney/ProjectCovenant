@@ -67,6 +67,15 @@ public:
 	UPROPERTY()
 	float LastShotTimeStamp = 0.f;
 
+	UPROPERTY()
+	bool IsCoolingDown = 0.f;
+
+	UPROPERTY()
+	float Heat = 0.f;
+
+	UPROPERTY()
+	float Ammo = 0.f;
+
 	UFUNCTION()
 	void SetLastShotTimeStamp(UWorld * World);
 

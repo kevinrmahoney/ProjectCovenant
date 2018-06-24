@@ -21,6 +21,36 @@ void AProjectileWeapon::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AProjectileWeapon::Destroyed()
+{
+	if(Item)
+	{
+		Item->Ammo = Ammo;
+	}
+
+	Super::Destroyed();
+}
+
+void AProjectileWeapon::SetItem(UItem * NewItem)
+{
+	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
+	{
+		if(NewItem)
+		{
+			Item = NewItem;
+
+			FireRateProgress = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, FireRate);
+			FireRateProgress = FireRateProgress - WeaponSwitchCooldown;
+
+			Ammo = Item->Ammo;
+		}
+		else
+		{
+			Logger::Error("Attempting to set NULL item for " + GetName());
+		}
+	}
+}
+
 // Called every frame
 void AProjectileWeapon::Tick(float DeltaTime)
 {
@@ -51,7 +81,7 @@ void AProjectileWeapon::Fire()
 {
 	Super::Fire();
 
-	if(HasAuthority())
+	if(Shooter && Shooter->HasAuthority())
 	{
 		AProjectile * NewProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, Muzzle->GetComponentLocation(), Muzzle->GetComponentRotation());
 		if(NewProjectile)

@@ -103,6 +103,8 @@ public:
 
 	virtual void BeginReload() override;
 
+	virtual void SetItem(UItem * NewItem);
+
 	virtual FVector GetAimDownSightsLocation();
 
 	virtual FRotator GetAimDownSightsRotation();
@@ -110,4 +112,6 @@ public:
 	virtual FVector GetHipFireLocation();
 
 	virtual FRotator GetHipFireRotation();
+
+	void Destroyed() override;
 };

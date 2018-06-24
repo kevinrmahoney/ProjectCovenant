@@ -59,6 +59,39 @@ void AWeapon::BeginPlay()
 	}
 }
 
+void AWeapon::Destroyed()
+{
+	if(RecoilComponent)
+	{
+		RecoilComponent->Deactivate();
+	}
+
+	AimDownSights(false);
+
+	if(Item)
+	{
+		Item->LastShotTimeStamp = GetWorld()->GetRealTimeSeconds();
+	}
+	Super::Destroyed();
+}
+
+void AWeapon::SetItem(UItem * NewItem)
+{
+	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
+	{
+		if(NewItem)
+		{
+			Item = NewItem;
+			FireRateProgress = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, FireRate);
+			FireRateProgress = FireRateProgress - WeaponSwitchCooldown;
+		}
+		else
+		{
+			Logger::Error("Attempting to set NULL item for " + GetName());
+		}
+	}
+}
+
 void AWeapon::ConstructShotVectors()
 {
 }
@@ -138,16 +171,6 @@ void AWeapon::Drop()
 	GunMesh->bGenerateOverlapEvents = true;
 }
 
-void AWeapon::SetItem(UItem * NewItem)
-{
-	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
-	{
-		Item = NewItem;
-		FireRateProgress = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, FireRate);
-		FireRateProgress = FireRateProgress - WeaponSwitchCooldown;
-	}
-}
-
 void AWeapon::SetShooter(ASubjectZero * NewShooter)
 {
 	Shooter = NewShooter;
@@ -221,16 +244,4 @@ FVector AWeapon::GetHipFireLocation()
 FRotator AWeapon::GetHipFireRotation()
 {
 	return HipFireRotation;
-}
-
-void AWeapon::Destroyed()
-{
-	if(RecoilComponent)
-	{
-		RecoilComponent->Deactivate();
-	}
-	AimDownSights(false);
-
-	//delete RecoilComponent;
-	Super::Destroyed();
 }
