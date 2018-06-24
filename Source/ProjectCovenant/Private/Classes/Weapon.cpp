@@ -177,6 +177,13 @@ void AWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 
 void AWeapon::DrawDebugVisuals()
 {
+	FVector StartPoint = FVector(Muzzle->GetComponentLocation());
+	FVector EndPoint;
+	for(FVector V : ShotVectors)
+	{
+		EndPoint = StartPoint + FVector(Muzzle->GetComponentRotation().RotateVector(V));
+		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, 2.f);
+	}
 }
 
 void AWeapon::AimDownSights(bool IsAimDownSights)

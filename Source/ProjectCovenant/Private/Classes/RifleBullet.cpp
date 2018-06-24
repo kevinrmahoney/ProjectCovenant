@@ -94,5 +94,3 @@ void ARifleBullet::Destroyed()
 {
 	PlayDestructionSound();
 }
-
-

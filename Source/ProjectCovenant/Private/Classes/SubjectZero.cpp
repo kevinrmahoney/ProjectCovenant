@@ -64,6 +64,9 @@ void ASubjectZero::Tick(float DeltaTime)
 	Update();
 	CalculateMovement();
 
+	// Comment / Uncomment this when finding a weapon's aim down sights and hipfire location
+	//AimDownSights = true;
+
 	if(Grounded)
 	{
 		if(Jumping)
