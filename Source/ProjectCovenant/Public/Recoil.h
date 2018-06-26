@@ -26,7 +26,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void Recoil();
+	void Recoil(float Multiplier = 1.f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float RecoilPitchMagnitudeMax = 0.f;

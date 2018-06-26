@@ -76,8 +76,6 @@ bool APlasmaCannon::CanFire()
 
 void APlasmaCannon::Fire()
 {
-	Super::Super::Fire();
-
 	// Reset FireRateProgress and add heat
 	FireRateProgress = 0.f;
 	Heat = Heat + HeatGeneratedPerShot;
@@ -99,9 +97,19 @@ void APlasmaCannon::Fire()
 		{
 			NewProjectile->SetWeapon(this);
 			NewProjectile->SetDamage(Damage * Heat / HeatThreshold);
-			NewProjectile->SetSpeed(ProjectileSpeed * Heat / HeatThreshold);
+			NewProjectile->SetSpeed(ProjectileSpeed + ProjectileSpeed * Heat / HeatThreshold);
 		}
 	}
+
+	// Apply recoil
+	if(RecoilComponent)
+	{
+		RecoilComponent->Recoil(Heat / HeatThreshold);
+	}
+
+	// Draw visuals and play sounds
+	DrawVisuals();
+	PlayShootSound();
 }
 
 void APlasmaCannon::AimDownSights(bool IsAimDownSights)

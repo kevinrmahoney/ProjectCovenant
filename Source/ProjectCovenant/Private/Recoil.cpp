@@ -79,7 +79,7 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 	}
 }
 
-void URecoil::Recoil()
+void URecoil::Recoil(float Multiplier)
 {
 	if(Shooter && Shooter->IsLocallyControlled())
 	{
@@ -92,8 +92,8 @@ void URecoil::Recoil()
 		RecoilYaw = 0.f;
 
 		// Determine the random yaw and pitch factors
-		RecoilPitchMagnitude = FMath::RandRange(RecoilPitchMagnitudeMin, RecoilPitchMagnitudeMax);
-		RecoilYawMagnitude = FMath::RandRange(RecoilYawMagnitudeMin, RecoilYawMagnitudeMax) * LeftRight;
+		RecoilPitchMagnitude = FMath::RandRange(RecoilPitchMagnitudeMin, RecoilPitchMagnitudeMax) * Multiplier;
+		RecoilYawMagnitude = FMath::RandRange(RecoilYawMagnitudeMin, RecoilYawMagnitudeMax) * LeftRight * Multiplier;
 
 		SetComponentTickEnabled(true);
 	}
