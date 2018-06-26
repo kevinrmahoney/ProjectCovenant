@@ -33,5 +33,8 @@ public:
 	UItem * GetItem(int Num);
 
 	UFUNCTION(BlueprintCallable)
+	TArray<UItem*> GetItems();
+
+	UFUNCTION(BlueprintCallable)
 	bool CheckItem(int Num);
 };

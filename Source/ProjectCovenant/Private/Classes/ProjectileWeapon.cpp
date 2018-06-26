@@ -37,12 +37,24 @@ void AProjectileWeapon::SetItem(UItem * NewItem)
 	{
 		if(NewItem)
 		{
+			// Calculate how long its been since the last shot
 			Item = NewItem;
+			float TimeSinceLastShot = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp;
 
-			FireRateProgress = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, FireRate);
-			FireRateProgress = FireRateProgress - WeaponSwitchCooldown;
+			// WeaponSwitchCooldown represents a global cooldown for switching weapons. Wait at least this amount of time
+			// before allowing the gun to shoot. Wait a greater amount of time if the TimeSinceLastShot is longer
+			FireRateProgress = FireRateProgress + TimeSinceLastShot;
 
 			Ammo = Item->Ammo;
+
+			// Based on the newly set variables, recalculate weapon's variables accounting for the time since the weapon has been shot.
+			Update(TimeSinceLastShot);
+
+			// Make sure weapon waits the global weapon switch cooldown
+			if(FireRate - FireRateProgress < WeaponSwitchCooldown)
+			{
+				FireRateProgress = FireRate - WeaponSwitchCooldown;
+			}
 		}
 		else
 		{
@@ -59,11 +71,11 @@ void AProjectileWeapon::Tick(float DeltaTime)
 
 void AProjectileWeapon::Update(float DeltaTime)
 {
-	FireRateProgress = FMath::Clamp(FireRateProgress + DeltaTime, 0.f, FireRate);
+	FireRateProgress = FireRateProgress + DeltaTime;
 
 	if(IsReloading)
 	{
-		ReloadProgress = FMath::Clamp(ReloadProgress + DeltaTime, 0.f, Reload);
+		ReloadProgress = ReloadProgress + DeltaTime;
 		if(ReloadProgress >= Reload)
 		{
 			Ammo = AmmoMax;

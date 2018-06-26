@@ -61,6 +61,7 @@ void AWeapon::BeginPlay()
 
 void AWeapon::Destroyed()
 {
+	Logger::Log("WEAPON DESTROYED");
 	if(RecoilComponent)
 	{
 		RecoilComponent->Deactivate();
@@ -153,6 +154,8 @@ void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 			{
 				if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 				{
+					Logger::Log("Destroying weapon " + GetName() + " after collision with " + Character->GetName());
+					Logger::Log((OtherActor->GetActorLocation() - GetActorLocation()).ToString());
 					Mode->GiveItemToCharacter(Character, Mode->GetItem(this));
 					Destroy();
 				}
@@ -173,6 +176,16 @@ void AWeapon::Drop()
 
 void AWeapon::SetShooter(ASubjectZero * NewShooter)
 {
+	if(Shooter)
+	{
+		// Disable gravity, physics and collision by default
+		//GunMesh->SetEnableGravity(false);
+		//GunMesh->SetSimulatePhysics(false);
+		//GunMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		//GunMesh->bGenerateOverlapEvents = false;
+	}
+
 	Shooter = NewShooter;
 	if(RecoilComponent)
 	{

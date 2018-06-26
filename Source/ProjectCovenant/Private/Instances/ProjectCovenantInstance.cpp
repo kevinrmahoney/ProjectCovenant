@@ -90,10 +90,6 @@ bool UProjectCovenantInstance::Join(FString IPAddress)
 	{
 		IPAddress = "25.53.50.17";
 	}
-	else if(IPAddress.Equals("Patrick"))
-	{
-		IPAddress = "25.3.152.72";
-	}
 
 	Logger::Log("Joining server " + IPAddress);
 	UWorld * World = GetWorld();
@@ -147,4 +143,11 @@ bool UProjectCovenantInstance::Kill()
 		}
 	}
 	return false;
+}
+
+bool UProjectCovenantInstance::Restart()
+{
+	FString MapName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+	Map(MapName);
+	return true;
 }

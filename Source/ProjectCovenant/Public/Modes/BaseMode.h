@@ -46,6 +46,8 @@ public:
 
 	virtual UItem * GetItem(AWeapon * ActorClass);
 
+	virtual TSubclassOf<class AActor> GetActorClass(UItem * Item);
+
 private:
 	TArray<AActor*> SpawnPoints;
 

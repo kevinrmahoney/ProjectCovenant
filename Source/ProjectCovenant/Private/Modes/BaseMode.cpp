@@ -7,6 +7,7 @@
 #include "BasePlayerState.h"
 #include "Item.h"
 #include "BaseMode.h"
+#include "Inventory.h"
 
 void ABaseMode::BeginPlay()
 {
@@ -78,7 +79,6 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 
 void ABaseMode::KillPlayer(AHumanController * Controller)
 {
-	Logger::Chat("Killing player " + Controller->GetName());
 	if(Controller)
 	{
 		if(GetWorld())
@@ -90,6 +90,7 @@ void ABaseMode::KillPlayer(AHumanController * Controller)
 				if(ASubjectZero * SubjectZero = Cast<ASubjectZero>(OldPawn))
 				{
 					Characters.Remove(SubjectZero);
+					Logger::Log("Killing player " + SubjectZero->GetName());
 					SubjectZero->Kill();
 				}
 			}
@@ -142,6 +143,7 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 		Logger::Error("Could not cast or obtain shooter's PlayerState");
 	}
 
+	// If there was a victim of the damage
 	if(Victim)
 	{
 		ABasePlayerState * VictimPlayerState = Cast<ABasePlayerState>(Victim->PlayerState);
@@ -156,15 +158,39 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 		{
 			Logger::Error("Could not cast or obtain victim's PlayerState");
 		}
+
+		// If that victim was killed after damage was dealt
 		if(Killed)
 		{
+
+			// Kill the player, and drop his items on the ground
 			if(AHumanController * HumanController = Cast<AHumanController>(Victim->GetController()))
 			{
+				TArray<UItem*> Items = Victim->GetInventory()->GetItems();
+				for(UItem * Item : Items)
+				{
+					// Spawn an actor of the type associated with the item, a random distance from the victim
+					FVector RandomOffset = FVector(FMath::FRandRange(-100.f, 100.f), FMath::FRandRange(-100.f, 100.f), 0.f);
+					AWeapon * DroppedWeapon = GetWorld()->SpawnActor<AWeapon>(GetActorClass(Item), Victim->GetActorLocation() + RandomOffset,FRotator(0.f, 0.f, 0.f));
+
+					// If the weapon was created successfully, drop it (sets gravity, collision and physics on) and give it a slight velocity relative to the victim's velocity
+					if(DroppedWeapon)
+					{
+						Logger::Log("Dropping weapon " + DroppedWeapon->GetName() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
+						DroppedWeapon->Drop();
+						Logger::Log(Victim->GetActorLocation().ToString());
+						DroppedWeapon->GetRootComponent()->ComponentVelocity = Victim->GetVelocity() + 0.01f * (RandomOffset - Victim->GetActorLocation());
+					}
+					else
+					{
+						Logger::Error("Failed to drop item " + GetActorClass(Item).GetDefaultObject()->GetName() + " from inventory of dead " + Victim->GetName());
+					}
+				}
 				KillPlayer(HumanController);
 			}
 			else
 			{
-				Logger::Log("Could not kill player " + HumanController->GetName());
+				Logger::Log("Could not kill player " + Victim->GetName());
 			}
 		}
 	}
@@ -186,24 +212,24 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 		UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
 		LightningGun->ItemID = TEXT("0");
 		GiveItemToCharacter(Character, LightningGun);
-		//UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
-		//Shotgun->ItemID = TEXT("1");
-		//GiveItemToCharacter(Character, Shotgun);
-		//UItem * Railgun = NewObject<UItem>(this, "Railgun");
-		//Railgun->ItemID = TEXT("2");
-		//GiveItemToCharacter(Character, Railgun);
-		//UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
-		//RocketLauncher->ItemID = TEXT("3");
-		//GiveItemToCharacter(Character, RocketLauncher);
-		//UItem * Rifle = NewObject<UItem>(this, "Rifle");
-		//Rifle->ItemID = TEXT("4");
-		//GiveItemToCharacter(Character, Rifle);
-		//UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
-		//SniperRifle->ItemID = TEXT("5");
-		//GiveItemToCharacter(Character, SniperRifle);
-		//UItem * Carbine = NewObject<UItem>(this, "Carbine");
-		//Carbine->ItemID = TEXT("6");
-		//GiveItemToCharacter(Character, Carbine);
+		UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
+		Shotgun->ItemID = TEXT("1");
+		GiveItemToCharacter(Character, Shotgun);
+		UItem * Railgun = NewObject<UItem>(this, "Railgun");
+		Railgun->ItemID = TEXT("2");
+		GiveItemToCharacter(Character, Railgun);
+		UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+		RocketLauncher->ItemID = TEXT("3");
+		GiveItemToCharacter(Character, RocketLauncher);
+		UItem * Rifle = NewObject<UItem>(this, "Rifle");
+		Rifle->ItemID = TEXT("4");
+		GiveItemToCharacter(Character, Rifle);
+		UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
+		SniperRifle->ItemID = TEXT("5");
+		GiveItemToCharacter(Character, SniperRifle);
+		UItem * Carbine = NewObject<UItem>(this, "Carbine");
+		Carbine->ItemID = TEXT("6");
+		GiveItemToCharacter(Character, Carbine);
 	}
 }
 
@@ -213,14 +239,36 @@ UItem * ABaseMode::GetItem(AWeapon * ActorClass)
 	TArray<FName> RowNames = ItemDatabase->GetRowNames();
 	FString ContextString;
 
-	for(auto& Name : RowNames)
+	if(ActorClass)
 	{
-		FItemStruct * Item = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
-		if(Item && Item->ActorClass == ActorClass->GetClass())
+		for(auto& Name : RowNames)
 		{
-			UItem * NewItem = NewObject<UItem>(this, "NewItem");
-			NewItem->ItemID = Item->ItemID;
-			return NewItem;
+			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+			if(Row && Row->ActorClass == ActorClass->GetClass())
+			{
+				UItem * NewItem = NewObject<UItem>(this, FName(*Row->Name));
+				NewItem->ItemID = Row->ItemID;
+				return NewItem;
+			}
+		}
+	}
+	return nullptr;
+}
+
+TSubclassOf<class AActor> ABaseMode::GetActorClass(UItem * Item)
+{
+	TArray<FName> RowNames = ItemDatabase->GetRowNames();
+	FString ContextString;
+
+	if(Item)
+	{
+		for(auto& Name : RowNames)
+		{
+			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+			if(Item->ItemID == Row->ItemID)
+			{
+				return Row->ActorClass;
+			}
 		}
 	}
 	return nullptr;

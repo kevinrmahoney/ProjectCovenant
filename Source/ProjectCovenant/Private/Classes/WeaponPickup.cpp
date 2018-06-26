@@ -57,11 +57,10 @@ void AWeaponPickup::GivePlayerWeapon(ASubjectZero * player)
 {
 	if(HasAuthority())
 	{
-		UItem * WeaponItem = NewObject<UItem>(this, "NewWeapon");
-		WeaponItem->ItemID = GetItemID(PickupWeapon->GetChildActorClass());
-
 		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{
+			UItem * WeaponItem = NewObject<UItem>(this, FName(*PickupWeapon->GetChildActorClass().GetDefaultObject()->GetName()));
+			WeaponItem->ItemID = GetItemID(PickupWeapon->GetChildActorClass());
 			Mode->GiveItemToCharacter(player, WeaponItem);
 		}
 	}

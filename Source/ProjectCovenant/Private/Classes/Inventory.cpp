@@ -51,7 +51,7 @@ void UInventory::AddItem(UItem * NewItem)
 	{
 		if(Item->ItemID == NewItem->ItemID)
 		{
-			Logger::Log("Item already exists in inventory, cannot have multiple of the same item");
+			Logger::Log("Item " + Item->ItemID.ToString() + " exists in inventory, cannot have multiple of the same item");
 			return;
 		}
 	}
@@ -71,3 +71,7 @@ void UInventory::RemoveItem(UItem * OldItem)
 	Logger::Log("Could not find item to remove");
 }
 
+TArray<UItem*> UInventory::GetItems()
+{
+	return Items;
+}

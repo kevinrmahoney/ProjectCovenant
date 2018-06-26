@@ -17,10 +17,10 @@ class PROJECTCOVENANT_API APlasmaCarbine : public APlasmaWeapon
 public:
 	APlasmaCarbine();
 
-	//(X=-3.327673,Y=-8.630527,Z=-132.148392)
-	FVector AimDownSightsLocation = FVector(-3.327673f, -8.630527f, -132.148392f);
-	//(Pitch=2.999819,Yaw=-12.000000,Roll=0.000007)
-	FRotator AimDownSightsRotation = FRotator(2.999819f, -12.000000f, 0.000007f);
+	//(X=-2.703939,Y=-9.000000,Z=-132.148392)
+	FVector AimDownSightsLocation = FVector(-2.703939f, -9.000000f, -132.148392f);
+	//(Pitch=2.800000,Yaw=-11.800049,Roll=0.00000)
+	FRotator AimDownSightsRotation = FRotator(2.800000f, -11.800049f, 0.0f);
 
 	//(X=1.575968,Y=11.798502,Z=-153.145187)
 	FVector HipFireLocation = FVector(1.575968f, 11.798502f, -153.145187f);

@@ -58,6 +58,9 @@ public:
 	bool Map(FString Map);
 
 	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
+	bool Restart();
+
+	UFUNCTION(Exec, BlueprintPure, BlueprintCallable)
 	bool Kill();
 
 private:
