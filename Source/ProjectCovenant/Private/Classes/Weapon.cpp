@@ -61,7 +61,6 @@ void AWeapon::BeginPlay()
 
 void AWeapon::Destroyed()
 {
-	Logger::Log("WEAPON DESTROYED");
 	if(RecoilComponent)
 	{
 		RecoilComponent->Deactivate();
@@ -166,6 +165,9 @@ void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 
 void AWeapon::Drop()
 {
+	SetReplicates(true);
+	SetReplicateMovement(true);
+	GunMesh->SetIsReplicated(true);
 	GunMesh->SetEnableGravity(true);
 	GunMesh->SetSimulatePhysics(true);
 	GunMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

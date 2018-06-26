@@ -43,6 +43,9 @@ protected:
 	TSubclassOf<AProjectile> Projectile;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ProjectileSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AmmoMax;
 
 	UPROPERTY(BlueprintReadOnly)

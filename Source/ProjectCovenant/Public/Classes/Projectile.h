@@ -31,6 +31,10 @@ public:
 	virtual void SetWeapon(AWeapon * NewWeapon);
 
 	virtual void SetDamage(float NewDamage);
+
+	virtual void SetSpeed(float NewSpeed);
+
+	virtual float GetSpeed();
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

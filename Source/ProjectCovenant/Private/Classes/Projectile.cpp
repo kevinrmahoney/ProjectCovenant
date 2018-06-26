@@ -47,3 +47,16 @@ void AProjectile::SetDamage(float NewDamage)
 {
 	Damage = NewDamage;
 }
+
+void AProjectile::SetSpeed(float NewSpeed)
+{
+	ProjectileMovementComponent->InitialSpeed = NewSpeed;
+	ProjectileMovementComponent->MaxSpeed = NewSpeed;
+	ProjectileMovementComponent->Velocity = ProjectileMovementComponent->Velocity.GetSafeNormal() * NewSpeed;
+	ProjectileMovementComponent->UpdateComponentVelocity();
+}
+
+float AProjectile::GetSpeed()
+{
+	return ProjectileMovementComponent->Velocity.Size();
+}

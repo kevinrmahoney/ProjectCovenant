@@ -56,12 +56,12 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 			if(SpawnPoints.Num())
 			{
 				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
-				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " at " + NewPawn->GetActorLocation().ToString() + " with rotation " + NewPawn->GetActorRotation().ToString());
+				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " (" + NewPawn->GetActorLocation().ToString() + ")");
 			}
 			else
 			{
 				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, FVector::ZeroVector, FRotator::ZeroRotator);
-				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " at " + NewPawn->GetActorLocation().ToString() + " with rotation " + NewPawn->GetActorRotation().ToString());
+				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " (" + NewPawn->GetActorLocation().ToString() + ")");
 			}
 			Characters.Add(NewPawn);
 
@@ -178,7 +178,6 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 					{
 						Logger::Log("Dropping weapon " + DroppedWeapon->GetName() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
 						DroppedWeapon->Drop();
-						Logger::Log(Victim->GetActorLocation().ToString());
 						DroppedWeapon->GetRootComponent()->ComponentVelocity = Victim->GetVelocity() + 0.01f * (RandomOffset - Victim->GetActorLocation());
 					}
 					else
@@ -212,24 +211,27 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 		UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
 		LightningGun->ItemID = TEXT("0");
 		GiveItemToCharacter(Character, LightningGun);
-		UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
-		Shotgun->ItemID = TEXT("1");
-		GiveItemToCharacter(Character, Shotgun);
-		UItem * Railgun = NewObject<UItem>(this, "Railgun");
-		Railgun->ItemID = TEXT("2");
-		GiveItemToCharacter(Character, Railgun);
-		UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
-		RocketLauncher->ItemID = TEXT("3");
-		GiveItemToCharacter(Character, RocketLauncher);
-		UItem * Rifle = NewObject<UItem>(this, "Rifle");
-		Rifle->ItemID = TEXT("4");
-		GiveItemToCharacter(Character, Rifle);
-		UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
-		SniperRifle->ItemID = TEXT("5");
-		GiveItemToCharacter(Character, SniperRifle);
-		UItem * Carbine = NewObject<UItem>(this, "Carbine");
-		Carbine->ItemID = TEXT("6");
-		GiveItemToCharacter(Character, Carbine);
+		//UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
+		//Shotgun->ItemID = TEXT("1");
+		//GiveItemToCharacter(Character, Shotgun);
+		//UItem * Railgun = NewObject<UItem>(this, "Railgun");
+		//Railgun->ItemID = TEXT("2");
+		//GiveItemToCharacter(Character, Railgun);
+		//UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+		//RocketLauncher->ItemID = TEXT("3");
+		//GiveItemToCharacter(Character, RocketLauncher);
+		//UItem * Rifle = NewObject<UItem>(this, "Rifle");
+		//Rifle->ItemID = TEXT("4");
+		//GiveItemToCharacter(Character, Rifle);
+		//UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
+		//SniperRifle->ItemID = TEXT("5");
+		//GiveItemToCharacter(Character, SniperRifle);
+		//UItem * Carbine = NewObject<UItem>(this, "Carbine");
+		//Carbine->ItemID = TEXT("6");
+		//GiveItemToCharacter(Character, Carbine);
+		//UItem * Cannon = NewObject<UItem>(this, "Cannon");
+		//Cannon->ItemID = TEXT("7");
+		//GiveItemToCharacter(Character, Cannon);
 	}
 }
 

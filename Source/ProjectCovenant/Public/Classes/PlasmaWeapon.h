@@ -32,6 +32,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AProjectile> Projectile;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ProjectileSpeed;
+
 	// How much heat is added to HeatAllowable when Heat
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float OverHeatPenalty;
@@ -64,9 +67,6 @@ protected:
 	UPROPERTY()
 	float CooldownPauseTimer = 0.f;
 
-private:
-	virtual void BeginCooldown();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -85,6 +85,8 @@ public:
 	virtual void Fire() override;
 
 	virtual void SetItem(UItem * NewItem);
+
+	virtual void BeginCooldown();
 
 	virtual FVector GetAimDownSightsLocation() override;
 

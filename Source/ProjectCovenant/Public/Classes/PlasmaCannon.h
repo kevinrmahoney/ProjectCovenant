@@ -4,30 +4,43 @@
 
 #include "CoreMinimal.h"
 #include "Classes/PlasmaWeapon.h"
-#include "PlasmaCarbine.generated.h"
+#include "PlasmaCannon.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTCOVENANT_API APlasmaCarbine : public APlasmaWeapon
+class PROJECTCOVENANT_API APlasmaCannon : public APlasmaWeapon
 {
 	GENERATED_BODY()
 	
 public:
-	APlasmaCarbine();
+	APlasmaCannon();
 
-	//(X=-2.703939,Y=-9.000000,Z=-132.148392)
-	FVector AimDownSightsLocation = FVector(-2.703939f, -9.000000f, -132.148392f);
-	//(Pitch=2.800000,Yaw=-11.800049,Roll=0.00000)
-	FRotator AimDownSightsRotation = FRotator(2.800000f, -11.800049f, 0.0f);
+	bool IsCharging = false;
+
+	//(X=1.575968,Y=11.798502,Z=-153.145187)
+	FVector AimDownSightsLocation = FVector(1.575968f, 11.798502f, -153.145187f);
+	//(Pitch=3.000000,Yaw=-12.000000,Roll=0.000000)
+	FRotator AimDownSightsRotation = FRotator(3.000000f, -12.000000f, 0.000000f);
 
 	//(X=1.575968,Y=11.798502,Z=-153.145187)
 	FVector HipFireLocation = FVector(1.575968f, 11.798502f, -153.145187f);
 	//(Pitch=3.000000,Yaw=-12.000000,Roll=0.000000)
 	FRotator HipFireRotation = FRotator(3.000000f, -12.000000f, 0.000000f);
 
+	virtual void SetTrigger(bool T) override;
+
+	virtual void Update(float DeltaTime) override;
+
+	virtual bool CanFire() override;
+
+	virtual void Fire() override;
+
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float HeatRateWhileCharging;
+
 	virtual void AimDownSights(bool IsAimDownSights) override;
 
 	virtual FVector GetAimDownSightsLocation() override;

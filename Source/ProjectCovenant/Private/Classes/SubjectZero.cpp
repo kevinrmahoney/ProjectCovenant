@@ -506,10 +506,6 @@ void ASubjectZero::Kill()
 	GetMesh()->SetAllBodiesSimulatePhysics(true);
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->WakeAllRigidBodies();
-	if(Weapon)
-	{
-		Weapon->Drop();
-	}
 	Destroy();
 }
 
