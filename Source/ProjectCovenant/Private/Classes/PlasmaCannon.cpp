@@ -42,7 +42,6 @@ void APlasmaCannon::Update(float DeltaTime)
 	if(IsCharging)
 	{
 		Heat += DeltaTime * HeatRateWhileCharging;
-		Logger::Chat(Heat);
 	}
 
 	if(Heat >= HeatThreshold && IsCharging)
