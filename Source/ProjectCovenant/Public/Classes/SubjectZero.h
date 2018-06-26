@@ -49,6 +49,7 @@ private:
 	float TimeSinceTookDamage = 0.f;
 	float ShieldRechargeTime = 5.f;
 	float ShieldRechargeRate = 20.f;
+	float JetpackDisableTime = 5.f;
 
 	UPROPERTY(Replicated)
 	float Health = 100.f;
@@ -73,6 +74,9 @@ private:
 
 	UPROPERTY(Replicated)
 	float Pitch = 0.f;
+
+	UPROPERTY(Replicated)
+	bool IsJetpackDisabled = false;
 
 	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);
 	FVector HipfireLocation = FVector(-15.419446f, 10.841988f, -152.856400f);

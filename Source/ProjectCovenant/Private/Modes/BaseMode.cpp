@@ -177,8 +177,7 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 					if(DroppedWeapon)
 					{
 						Logger::Log("Dropping weapon " + DroppedWeapon->GetName() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
-						DroppedWeapon->Drop();
-						DroppedWeapon->GetRootComponent()->ComponentVelocity = Victim->GetVelocity() + 0.01f * (RandomOffset - Victim->GetActorLocation());
+						DroppedWeapon->Drop(Victim->GetVelocity());
 					}
 					else
 					{

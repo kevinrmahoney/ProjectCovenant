@@ -80,7 +80,7 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 	else
 	{
-		if(TryJetpack && Fuel > 0.f && Movement != FVector::ZeroVector)
+		if(TryJetpack && Fuel > 0.f && Movement != FVector::ZeroVector && !IsJetpackDisabled)
 		{
 			Movement.Z = Jumping;
 			Jetpack();
@@ -143,6 +143,7 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Armor)
 	DOREPLIFETIME(ASubjectZero, Shield)
 	DOREPLIFETIME(ASubjectZero, Fuel)
+	DOREPLIFETIME(ASubjectZero, IsJetpackDisabled)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Pitch, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, EquippedItemID, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
@@ -221,6 +222,11 @@ void ASubjectZero::Update()
 		else if(Shield < MaxShield)
 		{
 			Shield = FMath::Min(Shield + 20.f * Time, MaxShield);
+		}
+
+		if(TimeSinceTookDamage > JetpackDisableTime)
+		{
+			IsJetpackDisabled = false;
 		}
 
 		// Damage boost
@@ -364,7 +370,7 @@ void ASubjectZero::Jetpack()
 {
 	if(IsLocallyControlled() || Role == ROLE_Authority)
 	{
-		if(Fuel > 0.f)
+		if(Fuel > 0.f && !IsJetpackDisabled)
 		{
 			FRotator Rotation = Controller->GetControlRotation();
 			Rotation.Pitch = 0;
@@ -441,6 +447,7 @@ void ASubjectZero::ApplyAirResistance()
 bool ASubjectZero::ReceiveDamage(float Dmg)
 {
 	TimeSinceTookDamage = 0.f;
+	IsJetpackDisabled = true;
 	if(HasAuthority())
 	{
 		if(Shield > 0.f)
