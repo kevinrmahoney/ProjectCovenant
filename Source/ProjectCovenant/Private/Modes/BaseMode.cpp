@@ -111,7 +111,7 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 		{
 			if(VictimController && VictimController->GodMode == false)
 			{
-				Killed = Victim->ReceiveDamage(Damage);
+				Killed = Victim->ReceiveDamage(Damage, Victim == Shooter);
 			}
 		}
 	}

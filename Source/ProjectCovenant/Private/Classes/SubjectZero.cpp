@@ -444,10 +444,12 @@ void ASubjectZero::ApplyAirResistance()
 	}
 }
 
-bool ASubjectZero::ReceiveDamage(float Dmg)
+bool ASubjectZero::ReceiveDamage(float Dmg, bool SelfDamage)
 {
+	// Self damage doesn't disable jetpack
+	IsJetpackDisabled = !SelfDamage;
 	TimeSinceTookDamage = 0.f;
-	IsJetpackDisabled = true;
+
 	if(HasAuthority())
 	{
 		if(Shield > 0.f)
@@ -461,7 +463,7 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			{
 				Dmg = Dmg - Shield;
 				Shield = 0.f;
-				return ReceiveDamage(Dmg);
+				return ReceiveDamage(Dmg, SelfDamage);
 			}
 		}
 		else if(Armor > 0.f)
@@ -475,7 +477,7 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			{
 				Dmg = Dmg - Armor;
 				Armor = 0.f;
-				return ReceiveDamage(Dmg);
+				return ReceiveDamage(Dmg, SelfDamage);
 			}
 		}
 		else if(Health > 0.f)
@@ -528,7 +530,7 @@ void ASubjectZero::Restart()
 
 		if(AHumanController * HumanController = Cast<AHumanController>(Controller))
 		{
-			HumanController->UpdateHotbar();
+			HumanController->UpdateHUD();
 		}
 	}
 }
@@ -582,7 +584,7 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 			{
 				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
 				{
-					HumanController->UpdateHotbar();
+					HumanController->UpdateHUD();
 				}
 			}
 			else
@@ -604,7 +606,7 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 
 				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
 				{
-					HumanController->UpdateHotbar();
+					HumanController->UpdateHUD();
 				}
 			}
 		}
@@ -612,7 +614,7 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 
 	if(AHumanController * HumanController = Cast<AHumanController>(Controller))
 	{
-		HumanController->UpdateHotbar();
+		HumanController->UpdateHUD();
 	}
 }
 

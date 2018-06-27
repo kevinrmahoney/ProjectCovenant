@@ -151,7 +151,7 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	bool ReceiveDamage(float Damage);
+	bool ReceiveDamage(float Damage, bool SelfDamage = false);
 
 	virtual void Destroyed() override;
 

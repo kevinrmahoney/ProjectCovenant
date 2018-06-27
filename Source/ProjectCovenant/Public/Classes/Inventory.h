@@ -30,6 +30,9 @@ public:
 	void RemoveItem(UItem * Item);
 
 	UFUNCTION(BlueprintCallable)
+	void SwapItem(int A, int B);
+
+	UFUNCTION(BlueprintCallable)
 	UItem * GetItem(int Num);
 
 	UFUNCTION(BlueprintCallable)

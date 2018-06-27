@@ -64,10 +64,13 @@ public:
 	void Server_God(const FString & Set);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateHotbar();
+	void UpdateHUD();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DrawZoomCrosshair(bool IsScoped);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ToggleInventory(bool Toggle);
 
 protected:
 	void BeginPlay();
@@ -120,4 +123,6 @@ private:
 	void InputScoreboardPress();
 	void InputScoreboardRelease();
 	void InputReload();
+	void InputQuickOpenInventory();
+	void InputQuickCloseInventory();
 };

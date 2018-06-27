@@ -82,13 +82,14 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
 		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
 		InputComponent->BindAction("Reload", IE_Pressed, this, &AHumanController::InputReload);
+		InputComponent->BindAction("QuickInventory", IE_Pressed, this, &AHumanController::InputQuickOpenInventory);
+		InputComponent->BindAction("QuickInventory", IE_Released, this, &AHumanController::InputQuickCloseInventory);
 	}
 }
 
 void AHumanController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	//DOREPLIFETIME(AHumanController, Health)
 }
 
 void AHumanController::God(FString Set = "")
@@ -135,7 +136,7 @@ void AHumanController::Possess(APawn* aPawn)
 		Logger::Log("Spawning as SubjectZero");
 		SubjectZero = NewSubjectZero;
 		Spectator = nullptr;
-		UpdateHotbar();
+		UpdateHUD();
 	} 
 	else if(ASpectator * NewSpectator = Cast<ASpectator>(AcknowledgedPawn))
 	{
@@ -172,16 +173,22 @@ bool AHumanController::Server_Set_Name_Validate(FName Name)
 
 void AHumanController::InitializeHUD()
 {
-	Logger::Log("Initializing HUD");
-
-	Logger::Log("Initializing Base HUD");
 	if(HUD)
 	{
 		PlayerHUD = CreateWidget<UUserWidget>(this, HUD);
 		if(PlayerHUD)
 		{
 			PlayerHUD->AddToViewport();
+			Logger::Log("Added HUD to viewport");
 		}
+		else
+		{
+			Logger::Error("Main widget failed to create");
+		}
+	}
+	else
+	{
+		Logger::Error("HUD failed to create");
 	}
 
 	Logger::Log("Initializing Scoreboard");
@@ -578,6 +585,20 @@ void AHumanController::InputReload()
 	{
 		SubjectZero->Reload();
 	}
+}
+
+void AHumanController::InputQuickOpenInventory()
+{
+	bShowMouseCursor = true;
+	SetInputMode(FInputModeGameAndUI());
+	ToggleInventory(true);
+}
+
+void AHumanController::InputQuickCloseInventory()
+{
+	bShowMouseCursor = false;
+	SetInputMode(FInputModeGameOnly());
+	ToggleInventory(false);
 }
 
 FName AHumanController::GetPlayerName() const { return PlayerName; }
