@@ -134,7 +134,7 @@ private:
 	void Equip(int Slot);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Equip(int Slot);
+	void Server_Equip(FName ItemID);
 
 	UFUNCTION()
 	void OnRep_Equip();

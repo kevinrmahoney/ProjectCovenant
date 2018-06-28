@@ -327,13 +327,35 @@ void ASubjectZero::Equip(int Slot)
 	}
 }
 
-void ASubjectZero::Server_Equip_Implementation(int Slot)
+/* Tell the server which item the client has attempted to equip
+	Since inventory slots are not synced between client and server,
+	the client must send the ItemID of the Slot number that has been 
+	equipped, rather than the slot. If the server's inventory has the 
+	Item, then it switches to it too.
+
+	NOTE: In order to do it this way, the inventoy cannot have multiple
+	instances of a single item.
+*/
+void ASubjectZero::Server_Equip_Implementation(FName ItemID)
 {
-	Equip(Slot);
+	int Slot = 0;
+
+	for(UItem * Item : GetInventory()->GetItems())
+	{
+		if(Item->ItemID == ItemID)
+		{
+			Equip(Slot);
+			return;
+		}
+		else
+		{
+			Slot++;
+		}
+	}
 }
 
 
-bool ASubjectZero::Server_Equip_Validate(int Slot)
+bool ASubjectZero::Server_Equip_Validate(FName ItemID)
 {
 	return true;
 }
@@ -894,7 +916,7 @@ void ASubjectZero::Slot0()
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
@@ -904,7 +926,7 @@ void ASubjectZero::Slot1()
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
@@ -915,7 +937,7 @@ void ASubjectZero::Slot2()
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
@@ -925,7 +947,7 @@ void ASubjectZero::Slot3()
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
@@ -935,7 +957,7 @@ void ASubjectZero::Slot4()
 	Equip(ID);
 	if (Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
@@ -945,7 +967,7 @@ void ASubjectZero::Slot5()
 	Equip(ID);
 	if (Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
@@ -955,7 +977,7 @@ void ASubjectZero::Slot6()
 	Equip(ID);
 	if (Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
@@ -965,7 +987,7 @@ void ASubjectZero::Slot7()
 	Equip(ID);
 	if (Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
@@ -975,7 +997,7 @@ void ASubjectZero::Slot8()
 	Equip(ID);
 	if (Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
@@ -985,7 +1007,7 @@ void ASubjectZero::Slot9()
 	Equip(ID);
 	if (Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
