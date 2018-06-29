@@ -947,6 +947,96 @@ void ASubjectZero::Slot2()
 	}
 }
 
+void ASubjectZero::DropItem(int Index)
+{
+	UItem * ItemToDrop = Inventory->GetItem(Index);
+	if(Role == ROLE_AutonomousProxy)
+	{
+		if(Inventory && ItemToDrop)
+		{
+			// Add the item to the server's inventory
+			Inventory->RemoveItem(ItemToDrop);
+
+			if(!IsLocallyControlled())
+			{
+				// Send RPC to update the client's inventory
+				FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
+				ServerDropItem(ItemSerialized);
+			}
+		}
+	}
+	else if(Role == ROLE_Authority)
+	{
+		if(Inventory && ItemToDrop)
+		{
+			if(IsLocallyControlled())
+			{
+				// Add item to client's inventory
+				Inventory->RemoveItem(ItemToDrop);
+			}
+		}
+	}
+}
+
+void ASubjectZero::ServerDropItem_Implementation(const FItemSerialized & ItemSerialized)
+{
+	if(Role == ROLE_Authority)
+	{
+		UItem * Item = UItem::UnserializeItem(ItemSerialized);
+		Inventory->RemoveItem(Item);
+	}
+}
+
+bool ASubjectZero::ServerDropItem_Validate(const FItemSerialized & ItemSerialized)
+{
+	return true;
+}
+
+void ASubjectZero::DestroyItem(int Index)
+{
+	UItem * ItemToDestroy = Inventory->GetItem(Index);
+	if(Role == ROLE_AutonomousProxy)
+	{
+		if(Inventory && ItemToDestroy)
+		{
+			// Add the item to the server's inventory
+			Inventory->RemoveItem(ItemToDestroy);
+
+			if(!IsLocallyControlled())
+			{
+				// Send RPC to update the client's inventory
+				FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDestroy);
+				ServerDropItem(ItemSerialized);
+			}
+		}
+	}
+	else if(Role == ROLE_Authority)
+	{
+		if(Inventory && ItemToDestroy)
+		{
+			if(IsLocallyControlled())
+			{
+				// Add item to client's inventory
+				Inventory->RemoveItem(ItemToDestroy);
+			}
+		}
+	}
+}
+
+void ASubjectZero::ServerDestroyItem_Implementation(const FItemSerialized & ItemSerialized)
+{
+	if(Role == ROLE_Authority)
+	{
+		UItem * Item = UItem::UnserializeItem(ItemSerialized);
+		Inventory->RemoveItem(Item);
+	}
+}
+
+bool ASubjectZero::ServerDestroyItem_Validate(const FItemSerialized & ItemSerialized)
+{
+	return true;
+}
+
 void ASubjectZero::Reload()
 {
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
