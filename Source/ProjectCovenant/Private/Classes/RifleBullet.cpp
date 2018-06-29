@@ -30,7 +30,7 @@ void ARifleBullet::Tick(float DeltaTime)
 	PlayWhizzingSound();
 }
 
-void ARifleBullet::Explode(AActor * DirectHitActor)
+void ARifleBullet::Explode(AActor * DirectHitActor, UPrimitiveComponent * HitComponent)
 {
 	if (HasAuthority())
 	{
@@ -42,11 +42,11 @@ void ARifleBullet::Explode(AActor * DirectHitActor)
 			{
 				if (Weapon)
 				{
-					Mode->DealDamage(Weapon->Shooter, Player, Damage, Weapon);
+					Mode->DealDamage(Weapon->Shooter, Player, Damage, Weapon, HitComponent);
 				}
 				else
 				{
-					Mode->DealDamage(nullptr, Player, Damage, nullptr);
+					Mode->DealDamage(nullptr, Player, Damage, nullptr, HitComponent);
 				}
 			}
 		}
@@ -65,7 +65,7 @@ void ARifleBullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 		else
 		{
 			if (OtherActor) { Logger::Log("Bullet hit " + OtherActor->GetName()); }
-			Explode(OtherActor);
+			Explode(OtherActor, OtherComponent);
 		}
 	}
 }
@@ -79,7 +79,7 @@ void ARifleBullet::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 		}
 		else
 		{
-			Explode(OtherActor);
+			Explode(OtherActor, OtherComp);
 		}
 	}
 }

@@ -21,6 +21,8 @@ class PROJECTCOVENANT_API ABaseMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	ABaseMode();
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ASubjectZero> SubjectZeroBlueprint;
 
@@ -30,9 +32,13 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UDataTable * ItemDatabase;
 
+	TMap<FString, float> HitBoxDamage;
+
 	virtual void SpawnPlayer(AHumanController * Controller);
 
-	virtual void DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AWeapon * Weapon);
+	float CalculateLocationalDamage(float BaseDamage, UPrimitiveComponent * HitBox);
+
+	virtual void DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AWeapon * Weapon, UPrimitiveComponent * HitBox = nullptr);
 
 	virtual void KillPlayer(AHumanController * Controller);
 

@@ -29,6 +29,7 @@ public:
 	float AimDownSightsFieldOfView = 70.f;
 
 private:
+
 	AWeapon * Weapon;
 
 	UPROPERTY(Replicated, ReplicatedUsing = OnRep_Equip)
@@ -49,6 +50,7 @@ private:
 	float TimeSinceTookDamage = 0.f;
 	float ShieldRechargeTime = 5.f;
 	float ShieldRechargeRate = 20.f;
+	float JetpackDisableTime = 5.f;
 
 	UPROPERTY(Replicated)
 	float Health = 100.f;
@@ -73,6 +75,9 @@ private:
 
 	UPROPERTY(Replicated)
 	float Pitch = 0.f;
+
+	UPROPERTY(Replicated)
+	bool IsJetpackDisabled = false;
 
 	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);
 	FVector HipfireLocation = FVector(-15.419446f, 10.841988f, -152.856400f);
@@ -130,7 +135,7 @@ private:
 	void Equip(int Slot);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_Equip(int Slot);
+	void Server_Equip(FName ItemID);
 
 	UFUNCTION()
 	void OnRep_Equip();
@@ -147,7 +152,7 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	bool ReceiveDamage(float Damage);
+	bool ReceiveDamage(float Damage, bool SelfDamage = false);
 
 	virtual void Destroyed() override;
 
@@ -231,13 +236,6 @@ public:
 	void Slot0();
 	void Slot1();
 	void Slot2();
-	void Slot3();
-	void Slot4();
-	void Slot5();
-	void Slot6();
-	void Slot7();
-	void Slot8();
-	void Slot9();
 
 	UFUNCTION()
 	void Reload();

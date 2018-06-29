@@ -80,7 +80,7 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 	else
 	{
-		if(TryJetpack && Fuel > 0.f && Movement != FVector::ZeroVector)
+		if(TryJetpack && Fuel > 0.f && Movement != FVector::ZeroVector && !IsJetpackDisabled)
 		{
 			Movement.Z = Jumping;
 			Jetpack();
@@ -143,6 +143,7 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Armor)
 	DOREPLIFETIME(ASubjectZero, Shield)
 	DOREPLIFETIME(ASubjectZero, Fuel)
+	DOREPLIFETIME(ASubjectZero, IsJetpackDisabled)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Pitch, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, EquippedItemID, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
@@ -221,6 +222,11 @@ void ASubjectZero::Update()
 		else if(Shield < MaxShield)
 		{
 			Shield = FMath::Min(Shield + 20.f * Time, MaxShield);
+		}
+
+		if(TimeSinceTookDamage > JetpackDisableTime)
+		{
+			IsJetpackDisabled = false;
 		}
 
 		// Damage boost
@@ -321,13 +327,35 @@ void ASubjectZero::Equip(int Slot)
 	}
 }
 
-void ASubjectZero::Server_Equip_Implementation(int Slot)
+/* Tell the server which item the client has attempted to equip
+	Since inventory slots are not synced between client and server,
+	the client must send the ItemID of the Slot number that has been 
+	equipped, rather than the slot. If the server's inventory has the 
+	Item, then it switches to it too.
+
+	NOTE: In order to do it this way, the inventoy cannot have multiple
+	instances of a single item.
+*/
+void ASubjectZero::Server_Equip_Implementation(FName ItemID)
 {
-	Equip(Slot);
+	int Slot = 0;
+
+	for(UItem * Item : GetInventory()->GetItems())
+	{
+		if(Item->ItemID == ItemID)
+		{
+			Equip(Slot);
+			return;
+		}
+		else
+		{
+			Slot++;
+		}
+	}
 }
 
 
-bool ASubjectZero::Server_Equip_Validate(int Slot)
+bool ASubjectZero::Server_Equip_Validate(FName ItemID)
 {
 	return true;
 }
@@ -364,7 +392,7 @@ void ASubjectZero::Jetpack()
 {
 	if(IsLocallyControlled() || Role == ROLE_Authority)
 	{
-		if(Fuel > 0.f)
+		if(Fuel > 0.f && !IsJetpackDisabled)
 		{
 			FRotator Rotation = Controller->GetControlRotation();
 			Rotation.Pitch = 0;
@@ -438,9 +466,12 @@ void ASubjectZero::ApplyAirResistance()
 	}
 }
 
-bool ASubjectZero::ReceiveDamage(float Dmg)
+bool ASubjectZero::ReceiveDamage(float Dmg, bool SelfDamage)
 {
+	// Self damage doesn't disable jetpack
+	IsJetpackDisabled = !SelfDamage;
 	TimeSinceTookDamage = 0.f;
+
 	if(HasAuthority())
 	{
 		if(Shield > 0.f)
@@ -454,7 +485,7 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			{
 				Dmg = Dmg - Shield;
 				Shield = 0.f;
-				return ReceiveDamage(Dmg);
+				return ReceiveDamage(Dmg, SelfDamage);
 			}
 		}
 		else if(Armor > 0.f)
@@ -468,7 +499,7 @@ bool ASubjectZero::ReceiveDamage(float Dmg)
 			{
 				Dmg = Dmg - Armor;
 				Armor = 0.f;
-				return ReceiveDamage(Dmg);
+				return ReceiveDamage(Dmg, SelfDamage);
 			}
 		}
 		else if(Health > 0.f)
@@ -521,7 +552,7 @@ void ASubjectZero::Restart()
 
 		if(AHumanController * HumanController = Cast<AHumanController>(Controller))
 		{
-			HumanController->UpdateHotbar();
+			HumanController->UpdateHUD();
 		}
 	}
 }
@@ -575,7 +606,7 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 			{
 				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
 				{
-					HumanController->UpdateHotbar();
+					HumanController->UpdateHUD();
 				}
 			}
 			else
@@ -597,7 +628,7 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 
 				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
 				{
-					HumanController->UpdateHotbar();
+					HumanController->UpdateHUD();
 				}
 			}
 		}
@@ -605,7 +636,7 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 
 	if(AHumanController * HumanController = Cast<AHumanController>(Controller))
 	{
-		HumanController->UpdateHotbar();
+		HumanController->UpdateHUD();
 	}
 }
 
@@ -885,7 +916,7 @@ void ASubjectZero::Slot0()
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		Server_Equip(Inventory->GetItem(ID)->GetItemID());
 	}
 }
 
@@ -895,7 +926,10 @@ void ASubjectZero::Slot1()
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
+		if(Inventory && Inventory->CheckItem(ID))
+		{
+			Server_Equip(Inventory->GetItem(ID)->GetItemID());
+		}
 	}
 }
 
@@ -906,77 +940,10 @@ void ASubjectZero::Slot2()
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(ID);
-	}
-}
-
-void ASubjectZero::Slot3()
-{
-	int ID = 3;
-	Equip(ID);
-	if(Role == ROLE_AutonomousProxy)
-	{
-		Server_Equip(ID);
-	}
-}
-
-void ASubjectZero::Slot4()
-{
-	int ID = 4;
-	Equip(ID);
-	if (Role == ROLE_AutonomousProxy)
-	{
-		Server_Equip(ID);
-	}
-}
-
-void ASubjectZero::Slot5()
-{
-	int ID = 5;
-	Equip(ID);
-	if (Role == ROLE_AutonomousProxy)
-	{
-		Server_Equip(ID);
-	}
-}
-
-void ASubjectZero::Slot6()
-{
-	int ID = 6;
-	Equip(ID);
-	if (Role == ROLE_AutonomousProxy)
-	{
-		Server_Equip(ID);
-	}
-}
-
-void ASubjectZero::Slot7()
-{
-	int ID = 7;
-	Equip(ID);
-	if (Role == ROLE_AutonomousProxy)
-	{
-		Server_Equip(ID);
-	}
-}
-
-void ASubjectZero::Slot8()
-{
-	int ID = 8;
-	Equip(ID);
-	if (Role == ROLE_AutonomousProxy)
-	{
-		Server_Equip(ID);
-	}
-}
-
-void ASubjectZero::Slot9()
-{
-	int ID = 9;
-	Equip(ID);
-	if (Role == ROLE_AutonomousProxy)
-	{
-		Server_Equip(ID);
+		if(Inventory && Inventory->CheckItem(ID))
+		{
+			Server_Equip(Inventory->GetItem(ID)->GetItemID());
+		}
 	}
 }
 

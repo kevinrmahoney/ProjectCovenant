@@ -68,27 +68,21 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Fire", IE_Released, this, &AHumanController::InputShootRelease);
 		InputComponent->BindAction("SecondaryFire", IE_Pressed, this, &AHumanController::InputSecondaryFirePress);
 		InputComponent->BindAction("SecondaryFire", IE_Released, this, &AHumanController::InputSecondaryFireRelease);
-		InputComponent->BindAction("Slot 0", IE_Pressed, this, &AHumanController::InputSlot0);
-		InputComponent->BindAction("Slot 1", IE_Pressed, this, &AHumanController::InputSlot1);
-		InputComponent->BindAction("Slot 2", IE_Pressed, this, &AHumanController::InputSlot2);
-		InputComponent->BindAction("Slot 3", IE_Pressed, this, &AHumanController::InputSlot3);
-		InputComponent->BindAction("Slot 4", IE_Pressed, this, &AHumanController::InputSlot4);
-		InputComponent->BindAction("Slot 5", IE_Pressed, this, &AHumanController::InputSlot5);
-		InputComponent->BindAction("Slot 6", IE_Pressed, this, &AHumanController::InputSlot6);
-		InputComponent->BindAction("Slot 7", IE_Pressed, this, &AHumanController::InputSlot7);
-		InputComponent->BindAction("Slot 8", IE_Pressed, this, &AHumanController::InputSlot8);
-		InputComponent->BindAction("Slot 9", IE_Pressed, this, &AHumanController::InputSlot9);
+		InputComponent->BindAction("Slot 1", IE_Pressed, this, &AHumanController::InputSlot0);
+		InputComponent->BindAction("Slot 2", IE_Pressed, this, &AHumanController::InputSlot1);
+		InputComponent->BindAction("Slot 3", IE_Pressed, this, &AHumanController::InputSlot2);
 		InputComponent->BindAction("Use", IE_Pressed, this, &AHumanController::InputUsePress);
 		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
 		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
 		InputComponent->BindAction("Reload", IE_Pressed, this, &AHumanController::InputReload);
+		InputComponent->BindAction("QuickInventory", IE_Pressed, this, &AHumanController::InputQuickOpenInventory);
+		InputComponent->BindAction("QuickInventory", IE_Released, this, &AHumanController::InputQuickCloseInventory);
 	}
 }
 
 void AHumanController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	//DOREPLIFETIME(AHumanController, Health)
 }
 
 void AHumanController::God(FString Set = "")
@@ -135,7 +129,7 @@ void AHumanController::Possess(APawn* aPawn)
 		Logger::Log("Spawning as SubjectZero");
 		SubjectZero = NewSubjectZero;
 		Spectator = nullptr;
-		UpdateHotbar();
+		UpdateHUD();
 	} 
 	else if(ASpectator * NewSpectator = Cast<ASpectator>(AcknowledgedPawn))
 	{
@@ -172,16 +166,22 @@ bool AHumanController::Server_Set_Name_Validate(FName Name)
 
 void AHumanController::InitializeHUD()
 {
-	Logger::Log("Initializing HUD");
-
-	Logger::Log("Initializing Base HUD");
 	if(HUD)
 	{
 		PlayerHUD = CreateWidget<UUserWidget>(this, HUD);
 		if(PlayerHUD)
 		{
 			PlayerHUD->AddToViewport();
+			Logger::Log("Added HUD to viewport");
 		}
+		else
+		{
+			Logger::Error("Main widget failed to create");
+		}
+	}
+	else
+	{
+		Logger::Error("HUD failed to create");
 	}
 
 	Logger::Log("Initializing Scoreboard");
@@ -435,25 +435,14 @@ void AHumanController::InputSlot0()
 {
 	if (SubjectZero)
 	{
-		SubjectZero->Slot9();
-	}
-	else if (Spectator)
-	{
-		Spectator->Slot9();
-	}
-}
-void AHumanController::InputSlot1()
-{
-	if(SubjectZero)
-	{
 		SubjectZero->Slot0();
 	}
-	else if(Spectator)
+	else if (Spectator)
 	{
 		Spectator->Slot0();
 	}
 }
-void AHumanController::InputSlot2()
+void AHumanController::InputSlot1()
 {
 	if(SubjectZero)
 	{
@@ -464,7 +453,7 @@ void AHumanController::InputSlot2()
 		Spectator->Slot1();
 	}
 }
-void AHumanController::InputSlot3()
+void AHumanController::InputSlot2()
 {
 	if(SubjectZero)
 	{
@@ -473,73 +462,6 @@ void AHumanController::InputSlot3()
 	else if(Spectator)
 	{
 		Spectator->Slot2();
-	}
-}
-
-void AHumanController::InputSlot4()
-{
-	if(SubjectZero)
-	{
-		SubjectZero->Slot3();
-	}
-	else if(Spectator)
-	{
-		Spectator->Slot3();
-	}
-}
-void AHumanController::InputSlot5()
-{
-	if (SubjectZero)
-	{
-		SubjectZero->Slot4();
-	}
-	else if (Spectator)
-	{
-		Spectator->Slot4();
-	}
-}
-void AHumanController::InputSlot6()
-{
-	if (SubjectZero)
-	{
-		SubjectZero->Slot5();
-	}
-	else if (Spectator)
-	{
-		Spectator->Slot5();
-	}
-}
-void AHumanController::InputSlot7()
-{
-	if (SubjectZero)
-	{
-		SubjectZero->Slot6();
-	}
-	else if (Spectator)
-	{
-		Spectator->Slot6();
-	}
-}
-void AHumanController::InputSlot8()
-{
-	if (SubjectZero)
-	{
-		SubjectZero->Slot7();
-	}
-	else if (Spectator)
-	{
-		Spectator->Slot7();
-	}
-}
-void AHumanController::InputSlot9()
-{
-	if (SubjectZero)
-	{
-		SubjectZero->Slot8();
-	}
-	else if (Spectator)
-	{
-		Spectator->Slot8();
 	}
 }
 
@@ -578,6 +500,20 @@ void AHumanController::InputReload()
 	{
 		SubjectZero->Reload();
 	}
+}
+
+void AHumanController::InputQuickOpenInventory()
+{
+	bShowMouseCursor = true;
+	SetInputMode(FInputModeGameAndUI());
+	ToggleInventory(true);
+}
+
+void AHumanController::InputQuickCloseInventory()
+{
+	bShowMouseCursor = false;
+	SetInputMode(FInputModeGameOnly());
+	ToggleInventory(false);
 }
 
 FName AHumanController::GetPlayerName() const { return PlayerName; }

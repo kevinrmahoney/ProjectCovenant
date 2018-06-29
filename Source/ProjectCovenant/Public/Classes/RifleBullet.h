@@ -33,7 +33,7 @@ protected:
 	void Destroyed() override;
 
 private:
-	void Explode(AActor * DirectHitActor);
+	void Explode(AActor * DirectHitActor, UPrimitiveComponent * HitComponent);
 
 	bool WeaponHasBeenSet = false;
 

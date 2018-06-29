@@ -110,38 +110,42 @@ void AHitscanWeapon::Fire()
 
 	if(HasAuthority())
 	{
-		ASubjectZero * Victim = nullptr;
-		float TotalDamage = 0.f;
-
-		//for loop for radius of circle and nested for loop for roll
-		for(FVector Shot : ShotVectors)
+		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{
-			FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());
-			FVector * EndTrace = new FVector(*StartTrace + FVector(Muzzle->GetComponentRotation().RotateVector(Shot)));
-			FHitResult* HitResult = new FHitResult();
-			FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
-			TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
+			ASubjectZero * Victim = nullptr;
+			float TotalDamage = 0.f;
 
-			// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
-			if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *EndTrace, ECC_Pawn, *TraceParams) && HitResult && HitResult->GetActor())
+			//for loop for radius of circle and nested for loop for roll
+			for(FVector Shot : ShotVectors)
 			{
-				// Get the victim and attempt to cast to SubjectZero
-				if(!Victim)
+				FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());
+				FVector * EndTrace = new FVector(*StartTrace + FVector(Muzzle->GetComponentRotation().RotateVector(Shot)));
+				FHitResult* HitResult = new FHitResult();
+				FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
+				TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
+
+				// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
+				if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *EndTrace, ECC_GameTraceChannel3, *TraceParams) && HitResult && HitResult->GetActor())
 				{
-					Victim = Cast<ASubjectZero>(HitResult->GetActor());
+					// Get the victim and attempt to cast to SubjectZero
+					if(!Victim)
+					{
+						Victim = Cast<ASubjectZero>(HitResult->GetActor());
+					}
+					UPrimitiveComponent * HitBox = HitResult->Component.Get();
+					TotalDamage += Mode->CalculateLocationalDamage(Damage, HitBox);
 				}
-				TotalDamage += Damage;
+
+				delete HitResult;
+				delete TraceParams;
+				delete StartTrace;
+				delete EndTrace;
 			}
 
-			delete HitResult;
-			delete TraceParams;
-			delete StartTrace;
-			delete EndTrace;
-		}
-
-		if(Victim && Shooter)
-		{
-			DealDamage(Victim, TotalDamage);
+			if(Victim && Shooter)
+			{
+				DealDamage(Victim, TotalDamage);
+			}
 		}
 	}
 }

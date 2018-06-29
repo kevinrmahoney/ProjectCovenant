@@ -75,3 +75,12 @@ TArray<UItem*> UInventory::GetItems()
 {
 	return Items;
 }
+
+void UInventory::SwapItem(int A, int B)
+{
+	if(A == B || A < 0 || B < 0 || A >= Items.Num() || B >= Items.Num()) return;
+
+	UItem * Temp = Items[A];
+	Items[A] = Items[B];
+	Items[B] = Temp;
+}

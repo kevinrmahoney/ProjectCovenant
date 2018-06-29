@@ -9,6 +9,29 @@
 #include "BaseMode.h"
 #include "Inventory.h"
 
+ABaseMode::ABaseMode()
+{
+	// 200% Damage
+	HitBoxDamage.Add("HitBoxHead", 2.f);
+
+	// 100% Damage
+	HitBoxDamage.Add("HitBoxTorso", 1.f);
+
+	// 75% Damage
+	HitBoxDamage.Add("HitBoxLeftUpperarm", 0.75f);
+	HitBoxDamage.Add("HitBoxRightUpperarm", 0.75f);
+	HitBoxDamage.Add("HitBoxLeftThigh", 0.75f);
+	HitBoxDamage.Add("HitBoxRightThigh", 0.75f);
+
+	// 50% Damage
+	HitBoxDamage.Add("HitBoxLeftLowerArm", 0.5f);
+	HitBoxDamage.Add("HitBoxRightLowerArm", 0.5f);
+	HitBoxDamage.Add("HitBoxLeftCalf", 0.5f);
+	HitBoxDamage.Add("HitBoxLeftFoot", 0.5f);
+	HitBoxDamage.Add("HitBoxRightFoot", 0.5f);
+	HitBoxDamage.Add("HitBoxRightCalf", 0.5f);
+}
+
 void ABaseMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -98,10 +121,25 @@ void ABaseMode::KillPlayer(AHumanController * Controller)
 	}
 }
 
-void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AWeapon * Weapon)
+float ABaseMode::CalculateLocationalDamage(float BaseDamage, UPrimitiveComponent * HitBox)
+{
+	if(HitBox)
+	{
+		if(float HitBoxMultiplier = HitBoxDamage[HitBox->GetName()])
+		{
+			BaseDamage = BaseDamage * HitBoxMultiplier;
+			Logger::Chat(HitBox->GetName());
+		}
+	}
+	return BaseDamage;
+}
+
+void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float Damage, AWeapon * Weapon, UPrimitiveComponent * HitBox)
 {
 	// Multiply raw damage by multiplier
+	Damage = CalculateLocationalDamage(Damage, HitBox);
 	Damage = Shooter ? Shooter->GetDamageMultiplier() * Damage : Damage;
+
 	bool Killed = false;
 
 	// Deal damage to the victim, returns if the player was killed by the damage
@@ -111,7 +149,7 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 		{
 			if(VictimController && VictimController->GodMode == false)
 			{
-				Killed = Victim->ReceiveDamage(Damage);
+				Killed = Victim->ReceiveDamage(Damage, Victim == Shooter);
 			}
 		}
 	}
@@ -177,8 +215,7 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 					if(DroppedWeapon)
 					{
 						Logger::Log("Dropping weapon " + DroppedWeapon->GetName() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
-						DroppedWeapon->Drop();
-						DroppedWeapon->GetRootComponent()->ComponentVelocity = Victim->GetVelocity() + 0.01f * (RandomOffset - Victim->GetActorLocation());
+						DroppedWeapon->Drop(Victim->GetVelocity());
 					}
 					else
 					{
@@ -211,27 +248,27 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 		UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
 		LightningGun->ItemID = TEXT("0");
 		GiveItemToCharacter(Character, LightningGun);
-		//UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
-		//Shotgun->ItemID = TEXT("1");
-		//GiveItemToCharacter(Character, Shotgun);
-		//UItem * Railgun = NewObject<UItem>(this, "Railgun");
-		//Railgun->ItemID = TEXT("2");
-		//GiveItemToCharacter(Character, Railgun);
-		//UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
-		//RocketLauncher->ItemID = TEXT("3");
-		//GiveItemToCharacter(Character, RocketLauncher);
-		//UItem * Rifle = NewObject<UItem>(this, "Rifle");
-		//Rifle->ItemID = TEXT("4");
-		//GiveItemToCharacter(Character, Rifle);
-		//UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
-		//SniperRifle->ItemID = TEXT("5");
-		//GiveItemToCharacter(Character, SniperRifle);
-		//UItem * Carbine = NewObject<UItem>(this, "Carbine");
-		//Carbine->ItemID = TEXT("6");
-		//GiveItemToCharacter(Character, Carbine);
-		//UItem * Cannon = NewObject<UItem>(this, "Cannon");
-		//Cannon->ItemID = TEXT("7");
-		//GiveItemToCharacter(Character, Cannon);
+		UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
+		Shotgun->ItemID = TEXT("1");
+		GiveItemToCharacter(Character, Shotgun);
+		UItem * Railgun = NewObject<UItem>(this, "Railgun");
+		Railgun->ItemID = TEXT("2");
+		GiveItemToCharacter(Character, Railgun);
+		UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+		RocketLauncher->ItemID = TEXT("3");
+		GiveItemToCharacter(Character, RocketLauncher);
+		UItem * Rifle = NewObject<UItem>(this, "Rifle");
+		Rifle->ItemID = TEXT("4");
+		GiveItemToCharacter(Character, Rifle);
+		UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
+		SniperRifle->ItemID = TEXT("5");
+		GiveItemToCharacter(Character, SniperRifle);
+		UItem * Carbine = NewObject<UItem>(this, "Carbine");
+		Carbine->ItemID = TEXT("6");
+		GiveItemToCharacter(Character, Carbine);
+		UItem * Cannon = NewObject<UItem>(this, "Cannon");
+		Cannon->ItemID = TEXT("7");
+		GiveItemToCharacter(Character, Cannon);
 	}
 }
 

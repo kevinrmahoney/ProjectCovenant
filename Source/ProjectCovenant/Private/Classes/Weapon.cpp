@@ -163,7 +163,7 @@ void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	}
 }
 
-void AWeapon::Drop()
+void AWeapon::Drop(FVector NewVelocity)
 {
 	SetReplicates(true);
 	SetReplicateMovement(true);
@@ -174,6 +174,7 @@ void AWeapon::Drop()
 	GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	GunMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	GunMesh->bGenerateOverlapEvents = true;
+	RootComponent->ComponentVelocity = NewVelocity;
 }
 
 void AWeapon::SetShooter(ASubjectZero * NewShooter)

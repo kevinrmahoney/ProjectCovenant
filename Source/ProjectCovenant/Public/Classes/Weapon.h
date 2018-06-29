@@ -108,7 +108,7 @@ public:
 
 	virtual void Fire();
 
-	virtual void Drop();
+	virtual void Drop(FVector Velocity = FVector(0.f, 0.f, 0.f));
 
 	virtual void BeginReload();
 

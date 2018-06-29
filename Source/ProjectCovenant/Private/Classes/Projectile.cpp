@@ -15,6 +15,7 @@ AProjectile::AProjectile()
 
 	CollisionCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"), false);
 	SetRootComponent(CollisionCapsule);
+	CollisionCapsule->SetCollisionProfileName(TEXT("Projectile"));
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RocketMesh"), false);
 	Mesh->AttachToComponent(CollisionCapsule, FAttachmentTransformRules::KeepRelativeTransform);
