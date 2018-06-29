@@ -125,10 +125,10 @@ float ABaseMode::CalculateLocationalDamage(float BaseDamage, UPrimitiveComponent
 {
 	if(HitBox)
 	{
-		if(float HitBoxMultiplier = HitBoxDamage[HitBox->GetName()])
+		if(HitBoxDamage.Contains(HitBox->GetName()))
 		{
+			float HitBoxMultiplier = *HitBoxDamage.Find(HitBox->GetName());
 			BaseDamage = BaseDamage * HitBoxMultiplier;
-			Logger::Chat(HitBox->GetName());
 		}
 	}
 	return BaseDamage;

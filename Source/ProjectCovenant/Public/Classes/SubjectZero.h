@@ -29,7 +29,7 @@ public:
 	float AimDownSightsFieldOfView = 70.f;
 
 private:
-
+	UPROPERTY()
 	AWeapon * Weapon;
 
 	UPROPERTY(Replicated, ReplicatedUsing = OnRep_Equip)

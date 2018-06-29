@@ -55,6 +55,29 @@ void ASubjectZero::BeginPlay()
 	Inventory = NewObject<UInventory>(this, "I");
 }
 
+void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+{
+	// The follow variables are replicated from server to the clients
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ASubjectZero, Health)
+	DOREPLIFETIME(ASubjectZero, Armor)
+	DOREPLIFETIME(ASubjectZero, Shield)
+	DOREPLIFETIME(ASubjectZero, Fuel)
+	DOREPLIFETIME(ASubjectZero, IsJetpackDisabled)
+	DOREPLIFETIME_CONDITION(ASubjectZero, Pitch, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, EquippedItemID, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, Crouching, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, AimDownSights, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, JetpackUsed, COND_SimulatedOnly)
+}
+
+void ASubjectZero::BeginDestroy()
+{
+	if(Weapon) Weapon->Destroy();
+	Super::BeginDestroy();
+}
+
 // Called every frame
 void ASubjectZero::Tick(float DeltaTime)
 {
@@ -129,29 +152,6 @@ void ASubjectZero::Tick(float DeltaTime)
 	}
 }
 
-void ASubjectZero::BeginDestroy() 
-{
-	if(Weapon) Weapon->Destroy();
-	Super::BeginDestroy();
-}
-
-void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
-{
-	// The follow variables are replicated from server to the clients
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASubjectZero, Health)
-	DOREPLIFETIME(ASubjectZero, Armor)
-	DOREPLIFETIME(ASubjectZero, Shield)
-	DOREPLIFETIME(ASubjectZero, Fuel)
-	DOREPLIFETIME(ASubjectZero, IsJetpackDisabled)
-	DOREPLIFETIME_CONDITION(ASubjectZero, Pitch, COND_SimulatedOnly)
-	DOREPLIFETIME_CONDITION(ASubjectZero, EquippedItemID, COND_SimulatedOnly)
-	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
-	DOREPLIFETIME_CONDITION(ASubjectZero, Crouching, COND_SimulatedOnly)
-	DOREPLIFETIME_CONDITION(ASubjectZero, AimDownSights, COND_SimulatedOnly)
-	DOREPLIFETIME_CONDITION(ASubjectZero, JetpackUsed, COND_SimulatedOnly)
-}
-
 void ASubjectZero::Move()
 {
 	// Update movement speeds depending on the character's stance
@@ -203,7 +203,7 @@ void ASubjectZero::Update()
 	Velocity = GetVelocity();
 	JetpackUsed = false;
 
-	TryJetpack = TryJetpack && !Grounded && !AimDownSights;
+	if(Grounded || AimDownSights) TryJetpack = false;
 
 	// Update pitch from controller
 	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
