@@ -18,18 +18,18 @@ ABaseMode::ABaseMode()
 	HitBoxDamage.Add("HitBoxTorso", 1.f);
 
 	// 75% Damage
-	HitBoxDamage.Add("HitBoxLeftUpperarm", 1.f);
-	HitBoxDamage.Add("HitBoxRightUpperarm", 1.f);
-	HitBoxDamage.Add("HitBoxLeftThigh", 1.f);
-	HitBoxDamage.Add("HitBoxRightThigh", 1.f);
+	HitBoxDamage.Add("HitBoxLeftUpperarm", 0.75f);
+	HitBoxDamage.Add("HitBoxRightUpperarm", 0.75f);
+	HitBoxDamage.Add("HitBoxLeftThigh", 0.75f);
+	HitBoxDamage.Add("HitBoxRightThigh", 0.75f);
 
 	// 50% Damage
-	HitBoxDamage.Add("HitBoxLeftLowerArm", 1.f);
-	HitBoxDamage.Add("HitBoxRightLowerArm", 1.f);
-	HitBoxDamage.Add("HitBoxLeftCalf", 1.f);
-	HitBoxDamage.Add("HitBoxLeftFoot", 1.f);
-	HitBoxDamage.Add("HitBoxRightFoot", 1.f);
-	HitBoxDamage.Add("HitBoxRightCalf", 1.f);
+	HitBoxDamage.Add("HitBoxLeftLowerArm", 0.5f);
+	HitBoxDamage.Add("HitBoxRightLowerArm", 0.5f);
+	HitBoxDamage.Add("HitBoxLeftCalf", 0.5f);
+	HitBoxDamage.Add("HitBoxLeftFoot", 0.5f);
+	HitBoxDamage.Add("HitBoxRightFoot", 0.5f);
+	HitBoxDamage.Add("HitBoxRightCalf", 0.5f);
 }
 
 void ABaseMode::BeginPlay()
