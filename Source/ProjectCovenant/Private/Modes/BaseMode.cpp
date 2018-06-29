@@ -11,14 +11,21 @@
 
 ABaseMode::ABaseMode()
 {
+	// 200% Damage
 	HitBoxDamage.Add("HitBoxHead", 2.f);
+
+	// 100% Damage
 	HitBoxDamage.Add("HitBoxTorso", 1.f);
+
+	// 75% Damage
 	HitBoxDamage.Add("HitBoxLeftUpperarm", 1.f);
 	HitBoxDamage.Add("HitBoxRightUpperarm", 1.f);
-	HitBoxDamage.Add("HitBoxLeftLowerArm", 1.f);
-	HitBoxDamage.Add("HitBoxRightLowerArm", 1.f);
 	HitBoxDamage.Add("HitBoxLeftThigh", 1.f);
 	HitBoxDamage.Add("HitBoxRightThigh", 1.f);
+
+	// 50% Damage
+	HitBoxDamage.Add("HitBoxLeftLowerArm", 1.f);
+	HitBoxDamage.Add("HitBoxRightLowerArm", 1.f);
 	HitBoxDamage.Add("HitBoxLeftCalf", 1.f);
 	HitBoxDamage.Add("HitBoxLeftFoot", 1.f);
 	HitBoxDamage.Add("HitBoxRightFoot", 1.f);
