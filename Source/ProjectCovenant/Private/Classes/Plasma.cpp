@@ -30,7 +30,7 @@ void APlasma::Tick(float DeltaTime)
 	PlayWhizzingSound();
 }
 
-void APlasma::Explode(AActor * DirectHitActor)
+void APlasma::Explode(AActor * DirectHitActor, UPrimitiveComponent * HitComponent)
 {
 	if(HasAuthority())
 	{
@@ -42,11 +42,11 @@ void APlasma::Explode(AActor * DirectHitActor)
 			{
 				if(Weapon)
 				{
-					Mode->DealDamage(Weapon->Shooter, Player, Damage, Weapon);
+					Mode->DealDamage(Weapon->Shooter, Player, Damage, Weapon, HitComponent);
 				}
 				else
 				{
-					Mode->DealDamage(nullptr, Player, Damage, nullptr);
+					Mode->DealDamage(nullptr, Player, Damage, nullptr, HitComponent);
 				}
 			}
 		}
@@ -64,8 +64,7 @@ void APlasma::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 		}
 		else
 		{
-			if(OtherActor) { Logger::Log("Bullet hit " + OtherActor->GetName()); }
-			Explode(OtherActor);
+			Explode(OtherActor, OtherComponent);
 		}
 	}
 }
@@ -79,7 +78,7 @@ void APlasma::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 		}
 		else
 		{
-			Explode(OtherActor);
+			Explode(OtherActor, OtherComp);
 		}
 	}
 }
