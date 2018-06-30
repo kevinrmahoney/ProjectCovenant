@@ -26,8 +26,15 @@ private:
 	
 public:
 	void PrintList();
+
+	UFUNCTION(BlueprintCallable)
 	void AddItem(UItem * Item);
+
+	UFUNCTION(BlueprintCallable)
 	void RemoveItem(UItem * Item);
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveItemAt(int Index);
 
 	UFUNCTION(BlueprintCallable)
 	void SwapItem(int A, int B);

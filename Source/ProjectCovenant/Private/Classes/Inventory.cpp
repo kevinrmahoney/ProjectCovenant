@@ -71,6 +71,18 @@ void UInventory::RemoveItem(UItem * OldItem)
 	Logger::Log("Could not find item to remove");
 }
 
+void UInventory::RemoveItemAt(int Index)
+{
+	if(Index < Items.Num())
+	{
+		Items.RemoveAt(Index);
+	}
+	else
+	{
+		Logger::Log("Could not find item to remove");
+	}
+}
+
 TArray<UItem*> UInventory::GetItems()
 {
 	return Items;

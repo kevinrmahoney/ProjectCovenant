@@ -237,6 +237,16 @@ public:
 	void Slot1();
 	void Slot2();
 
+	UFUNCTION(BlueprintCallable)
+	void DropItem(int Index);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerDropItem(const FItemSerialized & ItemSerialized);
+
+	UFUNCTION(BlueprintCallable)
+	void DestroyItem(int Index);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerDestroyItem(const FItemSerialized & ItemSerialized);
+
 	UFUNCTION()
 	void Reload();
 	UFUNCTION(Reliable, Server, WithValidation)

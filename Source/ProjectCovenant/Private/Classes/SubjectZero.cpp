@@ -947,6 +947,106 @@ void ASubjectZero::Slot2()
 	}
 }
 
+void ASubjectZero::DropItem(int Index)
+{
+	UItem * ItemToDrop = Inventory->GetItem(Index);
+	if(Role == ROLE_AutonomousProxy)
+	{
+		if(Inventory && ItemToDrop)
+		{
+			// Add the item to the server's inventory
+			Inventory->RemoveItem(ItemToDrop);
+
+			// Send RPC to update the client's inventory
+			FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
+			ServerDropItem(ItemSerialized);
+		}
+	}
+	else if(Role == ROLE_Authority)
+	{
+		if(Inventory && ItemToDrop)
+		{
+			if(IsLocallyControlled())
+			{
+				// Add item to client's inventory
+				Inventory->RemoveItem(ItemToDrop);
+				if(ItemToDrop)
+				{
+					if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+					{
+						AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(ItemToDrop), Camera->GetComponentLocation() + Camera->GetForwardVector() * 200.f, FRotator(0.f, 0.f, 0.f));
+						NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 5000.f);
+					}
+				}
+			}
+		}
+	}
+}
+
+void ASubjectZero::ServerDropItem_Implementation(const FItemSerialized & ItemSerialized)
+{
+	if(Role == ROLE_Authority)
+	{
+		UItem * Item = UItem::UnserializeItem(ItemSerialized);
+		Inventory->RemoveItem(Item);
+		if(Item)
+		{
+			if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+			{
+				AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(Item), GetActorLocation() + Camera->GetForwardVector() * 100.f, FRotator(0.f, 0.f, 0.f));
+				NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 1000.f);
+			}
+		}
+	}
+}
+
+bool ASubjectZero::ServerDropItem_Validate(const FItemSerialized & ItemSerialized)
+{
+	return true;
+}
+
+void ASubjectZero::DestroyItem(int Index)
+{
+	UItem * ItemToDestroy = Inventory->GetItem(Index);
+	if(Role == ROLE_AutonomousProxy)
+	{
+		if(Inventory && ItemToDestroy)
+		{
+			// Add the item to the server's inventory
+			Inventory->RemoveItem(ItemToDestroy);
+
+			// Send RPC to update the client's inventory
+			FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDestroy);
+			ServerDestroyItem(ItemSerialized);
+		}
+	}
+	else if(Role == ROLE_Authority)
+	{
+		if(Inventory && ItemToDestroy)
+		{
+			if(IsLocallyControlled())
+			{
+				// Add item to client's inventory
+				Inventory->RemoveItem(ItemToDestroy);
+			}
+		}
+	}
+}
+
+void ASubjectZero::ServerDestroyItem_Implementation(const FItemSerialized & ItemSerialized)
+{
+	if(Role == ROLE_Authority)
+	{
+		UItem * Item = UItem::UnserializeItem(ItemSerialized);
+		Inventory->RemoveItem(Item);
+	}
+}
+
+bool ASubjectZero::ServerDestroyItem_Validate(const FItemSerialized & ItemSerialized)
+{
+	return true;
+}
+
 void ASubjectZero::Reload()
 {
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
