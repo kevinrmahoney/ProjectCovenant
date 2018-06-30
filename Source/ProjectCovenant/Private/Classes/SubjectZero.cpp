@@ -957,12 +957,9 @@ void ASubjectZero::DropItem(int Index)
 			// Add the item to the server's inventory
 			Inventory->RemoveItem(ItemToDrop);
 
-			if(!IsLocallyControlled())
-			{
-				// Send RPC to update the client's inventory
-				FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
-				ServerDropItem(ItemSerialized);
-			}
+			// Send RPC to update the client's inventory
+			FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
+			ServerDropItem(ItemSerialized);
 		}
 	}
 	else if(Role == ROLE_Authority)
@@ -973,6 +970,14 @@ void ASubjectZero::DropItem(int Index)
 			{
 				// Add item to client's inventory
 				Inventory->RemoveItem(ItemToDrop);
+				if(ItemToDrop)
+				{
+					if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+					{
+						AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(ItemToDrop), Camera->GetComponentLocation() + Camera->GetForwardVector() * 200.f, FRotator(0.f, 0.f, 0.f));
+						NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 5000.f);
+					}
+				}
 			}
 		}
 	}
@@ -984,6 +989,14 @@ void ASubjectZero::ServerDropItem_Implementation(const FItemSerialized & ItemSer
 	{
 		UItem * Item = UItem::UnserializeItem(ItemSerialized);
 		Inventory->RemoveItem(Item);
+		if(Item)
+		{
+			if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+			{
+				AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(Item), GetActorLocation() + Camera->GetForwardVector() * 100.f, FRotator(0.f, 0.f, 0.f));
+				NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 1000.f);
+			}
+		}
 	}
 }
 
@@ -1002,12 +1015,9 @@ void ASubjectZero::DestroyItem(int Index)
 			// Add the item to the server's inventory
 			Inventory->RemoveItem(ItemToDestroy);
 
-			if(!IsLocallyControlled())
-			{
-				// Send RPC to update the client's inventory
-				FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDestroy);
-				ServerDropItem(ItemSerialized);
-			}
+			// Send RPC to update the client's inventory
+			FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDestroy);
+			ServerDestroyItem(ItemSerialized);
 		}
 	}
 	else if(Role == ROLE_Authority)

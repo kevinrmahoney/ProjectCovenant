@@ -48,6 +48,8 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GunMesh->SetMassOverrideInKg(NAME_None, 5.f);
+
 	ConstructShotVectors();
 
 	FireRateProgress = FireRate;
@@ -174,7 +176,7 @@ void AWeapon::Drop(FVector NewVelocity)
 	GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	GunMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	GunMesh->bGenerateOverlapEvents = true;
-	RootComponent->ComponentVelocity = NewVelocity;
+	GunMesh->AddImpulse(NewVelocity);
 }
 
 void AWeapon::SetShooter(ASubjectZero * NewShooter)
