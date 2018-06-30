@@ -28,6 +28,7 @@ AWeapon::AWeapon()
 	GunMesh->SetSimulatePhysics(false);
 	GunMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GunMesh->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	GunMesh->bGenerateOverlapEvents = false;
 
 	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"), false);
@@ -93,6 +94,8 @@ void AWeapon::SetItem(UItem * NewItem)
 		}
 	}
 }
+
+UItem* AWeapon::GetItem() { return Item; }
 
 void AWeapon::ConstructShotVectors()
 {

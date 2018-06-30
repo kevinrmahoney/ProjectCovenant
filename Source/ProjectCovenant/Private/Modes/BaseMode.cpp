@@ -210,6 +210,7 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 					// Spawn an actor of the type associated with the item, a random distance from the victim
 					FVector RandomOffset = FVector(FMath::FRandRange(-100.f, 100.f), FMath::FRandRange(-100.f, 100.f), 0.f);
 					AWeapon * DroppedWeapon = GetWorld()->SpawnActor<AWeapon>(GetActorClass(Item), Victim->GetActorLocation() + RandomOffset,FRotator(0.f, 0.f, 0.f));
+					DroppedWeapon->SetItem(Item);
 
 					// If the weapon was created successfully, drop it (sets gravity, collision and physics on) and give it a slight velocity relative to the victim's velocity
 					if(DroppedWeapon)

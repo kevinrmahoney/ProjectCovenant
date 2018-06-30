@@ -113,6 +113,8 @@ public:
 	virtual void BeginReload();
 
 	virtual void SetItem(UItem * NewItem);
+	
+	virtual UItem* GetItem();
 
 	virtual void SetTrigger(bool T);
 

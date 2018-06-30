@@ -10,6 +10,7 @@
 #include "Shotgun.h"
 #include "Deathmatch.h"
 #include "Inventory.h"
+#include "Interactor.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -31,6 +32,9 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 	FirstPersonMesh->AttachToComponent(Camera, FAttachmentTransformRules::KeepRelativeTransform);
 	FirstPersonMesh->bCastDynamicShadow = false;
 	FirstPersonMesh->CastShadow = false;
+
+	// Interactor
+	Interactor = ObjectInitializer.CreateDefaultSubobject<UInteractor>(this, TEXT("Interactor"));
 
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -897,7 +901,7 @@ bool ASubjectZero::ServerSetSecondaryFire_Validate(bool Set)
 
 void ASubjectZero::SetUse(bool Set)
 {
-
+	Interactor->Interact();
 }
 
 void ASubjectZero::ServerSetUse_Implementation(bool Set)
@@ -976,6 +980,7 @@ void ASubjectZero::DropItem(int Index)
 					{
 						AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(ItemToDrop), Camera->GetComponentLocation() + Camera->GetForwardVector() * 200.f, FRotator(0.f, 0.f, 0.f));
 						NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 5000.f);
+						NewWeapon->SetItem(ItemToDrop);
 					}
 				}
 			}

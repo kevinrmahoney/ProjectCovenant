@@ -9,6 +9,7 @@
 class AWeapon;
 class UInventory;
 class UItem;
+class UInteractor;
 struct FItemSerialized;
 
 UCLASS()
@@ -118,6 +119,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	UCameraComponent* Camera;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UInteractor* Interactor;
+	
 private:
 	UFUNCTION()
 	void Update();
