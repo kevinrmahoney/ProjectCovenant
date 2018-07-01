@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Interactable.h"
 #include "Recoil.h"
 #include "Weapon.generated.h"
 
@@ -11,7 +11,7 @@ class UItem;
 class ASubjectZero;
 
 UCLASS()
-class PROJECTCOVENANT_API AWeapon : public AActor
+class PROJECTCOVENANT_API AWeapon : public AInteractable
 {
 GENERATED_BODY()
 

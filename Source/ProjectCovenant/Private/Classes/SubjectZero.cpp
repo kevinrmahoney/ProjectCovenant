@@ -992,14 +992,15 @@ void ASubjectZero::ServerDropItem_Implementation(const FItemSerialized & ItemSer
 {
 	if(Role == ROLE_Authority)
 	{
-		UItem * Item = UItem::UnserializeItem(ItemSerialized);
-		Inventory->RemoveItem(Item);
-		if(Item)
+		UItem * ItemToDrop = UItem::UnserializeItem(ItemSerialized);
+		Inventory->RemoveItem(ItemToDrop);
+		if(ItemToDrop)
 		{
 			if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 			{
-				AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(Item), GetActorLocation() + Camera->GetForwardVector() * 100.f, FRotator(0.f, 0.f, 0.f));
-				NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 1000.f);
+				AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(ItemToDrop), Camera->GetComponentLocation() + Camera->GetForwardVector() * 200.f, FRotator(0.f, 0.f, 0.f));
+				NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 5000.f);
+				NewWeapon->SetItem(ItemToDrop);
 			}
 		}
 	}

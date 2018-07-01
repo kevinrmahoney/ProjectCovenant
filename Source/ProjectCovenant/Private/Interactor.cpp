@@ -3,6 +3,7 @@
 #include "ProjectCovenant.h"
 #include "SubjectZero.h"
 #include "Weapon.h"
+#include "Interactable.h"
 #include "Interactor.h"
 
 
@@ -32,17 +33,28 @@ void UInteractor::Interact()
 	{
 		Logger::Log("Character name is " + Character->GetName());
 		FHitResult HitResult = GetFirstActor();
-		if (AWeapon * Weapon = Cast<AWeapon>(HitResult.Actor.Get()))
+		if (AInteractable * Interactable = Cast<AInteractable>(HitResult.Actor.Get()))
 		{
-			Logger::Log(Weapon->GetName());
-			Character->AddItemToInventory(Weapon->GetItem());
+			Logger::Log("Interactable Name: " + Interactable->GetName());
+			Interactable->Interact(Character);
 		}
-		else if(HitResult.Actor.Get())
+		else
 		{
-			Logger::Log("Not a weapon: "+ HitResult.Actor.Get()->GetName());
+			AActor * ActorHit = HitResult.Actor.Get();
+			if(ActorHit)
+			{
+				Logger::Log("Actor hit isnt interactable: " + ActorHit->GetName());
+			}
+			else
+			{
+				Logger::Log("Actor not hit");
+			}
 		}
 	}
-
+	else
+	{
+		Logger::Log("Couldn't cast character");
+	}
 }
 
 const FHitResult UInteractor::GetFirstActor() 
