@@ -26,6 +26,9 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 	// Allow the pawn to control rotation
 	Camera->bUsePawnControlRotation = true;
 
+	// Create the interactor
+	Interactor = ObjectInitializer.CreateDefaultSubobject<UInteractor>(this, TEXT("Interactor"));
+
 	// Mesh
 	FirstPersonMesh = ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("FirstPersonMesh"));
 	FirstPersonMesh->SetOnlyOwnerSee(true);         // only the owning player will see this mesh
@@ -896,41 +899,44 @@ bool ASubjectZero::ServerSetSecondaryFire_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetUse(bool Set)
+void ASubjectZero::SetInteract(bool Set)
 {
-	AInteractable * InteractableHit = Interact();
-	if(HasAuthority())
+	if(Set)
 	{
-		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+		AInteractable * InteractableHit = Interactor->GetInteractable();
+		if(InteractableHit)
 		{
-			if(InteractableHit)
-			{
-				UItem * Item = Mode->GetItem(InteractableHit->GetStaticMeshComponent()->GetStaticMesh());
-				Mode->GiveItemToCharacter(this, Item);
-				InteractableHit->Destroy();
-			}
+			Interact(InteractableHit);
 		}
-	}
-	else
-	{
-		ServerSetUse(InteractableHit);
 	}
 }
 
-void ASubjectZero::ServerSetUse_Implementation(AInteractable * InteractableHit)
+void ASubjectZero::Interact(AInteractable * InteractableHit)
 {
-	if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+	check(InteractableHit != nullptr)
+
+	if(HasAuthority())
 	{
-		if(InteractableHit)
+		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{
 			UItem * Item = Mode->GetItem(InteractableHit->GetStaticMeshComponent()->GetStaticMesh());
 			Mode->GiveItemToCharacter(this, Item);
 			InteractableHit->Destroy();
 		}
 	}
+	else
+	{
+		ServerInteract(InteractableHit);
+	}
 }
 
-bool ASubjectZero::ServerSetUse_Validate(AInteractable * Interactable)
+
+void ASubjectZero::ServerInteract_Implementation(AInteractable * InteractableHit)
+{
+	Interact(InteractableHit);
+}
+
+bool ASubjectZero::ServerInteract_Validate(AInteractable * Interactable)
 {
 	return true;
 }

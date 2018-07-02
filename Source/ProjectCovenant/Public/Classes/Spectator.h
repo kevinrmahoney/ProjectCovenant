@@ -38,7 +38,7 @@ class PROJECTCOVENANT_API ASpectator : public ASpectatorPawn
 	void SetMoveBackward(bool Set);
 	void SetFire(bool Set);
 	void SetSecondaryFire(bool Set);
-	void SetUse(bool Set);
+	void SetInteract(bool Set);
 	void Slot0();
 	void Slot1();
 	void Slot2();

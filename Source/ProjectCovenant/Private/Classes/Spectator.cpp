@@ -161,7 +161,7 @@ void ASpectator::SetSecondaryFire(bool Set)
 
 }
 
-void ASpectator::SetUse(bool Set)
+void ASpectator::SetInteract(bool Set)
 {
 	Spawn();
 }

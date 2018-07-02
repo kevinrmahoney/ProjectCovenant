@@ -71,7 +71,7 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Slot 1", IE_Pressed, this, &AHumanController::InputSlot0);
 		InputComponent->BindAction("Slot 2", IE_Pressed, this, &AHumanController::InputSlot1);
 		InputComponent->BindAction("Slot 3", IE_Pressed, this, &AHumanController::InputSlot2);
-		InputComponent->BindAction("Use", IE_Pressed, this, &AHumanController::InputUsePress);
+		InputComponent->BindAction("Use", IE_Pressed, this, &AHumanController::InputInteractPress);
 		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
 		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
 		InputComponent->BindAction("Reload", IE_Pressed, this, &AHumanController::InputReload);
@@ -465,15 +465,15 @@ void AHumanController::InputSlot2()
 	}
 }
 
-void AHumanController::InputUsePress()
+void AHumanController::InputInteractPress()
 {
 	if(SubjectZero)
 	{
-		SubjectZero->SetUse(true);
+		SubjectZero->SetInteract(true);
 	}
 	else if(Spectator)
 	{
-		Spectator->SetUse(true);
+		Spectator->SetInteract(true);
 	}
 }
 

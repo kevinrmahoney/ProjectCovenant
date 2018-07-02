@@ -3,19 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Components/ActorComponent.h"
 #include "Interactor.generated.h"
 
 class AInteractable;
 
 UCLASS()
-class PROJECTCOVENANT_API AInteractor : public ACharacter
+class PROJECTCOVENANT_API UInteractor : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	AInteractor();
+	UInteractor();
 
 protected:
 	// Called when the game starts
@@ -24,7 +24,7 @@ protected:
 	float Reach = 1000.f;
 
 public:
-	AInteractable * Interact();
+	AInteractable * GetInteractable();
 
 private:
 	const FHitResult GetFirstActor();

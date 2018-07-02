@@ -209,14 +209,12 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 				{
 					// Spawn an actor of the type associated with the item, a random distance from the victim
 					FVector RandomOffset = FVector(FMath::FRandRange(-100.f, 100.f), FMath::FRandRange(-100.f, 100.f), 0.f);
-					AWeapon * DroppedWeapon = GetWorld()->SpawnActor<AWeapon>(GetActorClass(Item), Victim->GetActorLocation() + RandomOffset,FRotator(0.f, 0.f, 0.f));
-					DroppedWeapon->SetItem(Item);
 
 					// If the weapon was created successfully, drop it (sets gravity, collision and physics on) and give it a slight velocity relative to the victim's velocity
-					if(DroppedWeapon)
+					if(Item)
 					{
-						Logger::Log("Dropping weapon " + DroppedWeapon->GetName() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
-						DroppedWeapon->Drop(Victim->GetVelocity());
+						DropItem(Item, Victim->GetActorLocation() + RandomOffset, Victim->GetVelocity());
+						Logger::Log("Dropping weapon " + Item->ItemID.ToString() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
 					}
 					else
 					{
@@ -252,16 +250,11 @@ void ABaseMode::DropItem(UItem * Item, FVector Position, FVector Velocity)
 		}
 	}
 
-	if(!StaticMesh)
-	{
-		Logger::Log("Couldn't find static mesh compnent for item with ID " + Item->ItemID.ToString()); 
-	}
-	else
-	{
-		AInteractable * Interactable = GetWorld()->SpawnActor<AInteractable>(Position, FRotator(0.f, 0.f, 0.f));
-		Interactable->SetMesh(StaticMesh);
-		Interactable->GetStaticMeshComponent()->AddImpulse(Velocity);
-	}
+	check(StaticMesh != nullptr)
+
+	AInteractable * Interactable = GetWorld()->SpawnActor<AInteractable>(Position, FRotator(0.f, 0.f, 0.f));
+	Interactable->SetMesh(StaticMesh);
+	Interactable->GetStaticMeshComponent()->AddImpulse(Velocity);
 }
 
 void ABaseMode::GiveItemToCharacter(ASubjectZero * Character, UItem * Item)

@@ -168,32 +168,8 @@ void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	}
 }
 
-void AWeapon::Drop(FVector NewVelocity)
-{
-	SetReplicates(true);
-	SetReplicateMovement(true);
-	GunMesh->SetIsReplicated(true);
-	GunMesh->SetEnableGravity(true);
-	GunMesh->SetSimulatePhysics(true);
-	GunMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	GunMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-	GunMesh->bGenerateOverlapEvents = true;
-	//GunMesh->AddImpulse(NewVelocity);
-}
-
 void AWeapon::SetShooter(ASubjectZero * NewShooter)
 {
-	if(Shooter)
-	{
-		// Disable gravity, physics and collision by default
-		//GunMesh->SetEnableGravity(false);
-		//GunMesh->SetSimulatePhysics(false);
-		//GunMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		//GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		//GunMesh->bGenerateOverlapEvents = false;
-	}
-
 	Shooter = NewShooter;
 	if(RecoilComponent)
 	{

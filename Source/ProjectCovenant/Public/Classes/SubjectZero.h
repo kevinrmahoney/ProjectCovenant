@@ -13,7 +13,7 @@ class UItem;
 struct FItemSerialized;
 
 UCLASS()
-class PROJECTCOVENANT_API ASubjectZero : public AInteractor
+class PROJECTCOVENANT_API ASubjectZero : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -30,6 +30,9 @@ public:
 	float AimDownSightsFieldOfView = 70.f;
 
 private:
+	UPROPERTY()
+	UInteractor * Interactor;
+
 	UPROPERTY()
 	AWeapon * Weapon;
 
@@ -230,9 +233,11 @@ public:
 	void ServerSetSecondaryFire(bool Set);
 
 	UFUNCTION()
-	void SetUse(bool Set);
+	void SetInteract(bool Set);
+	UFUNCTION()
+	void Interact(AInteractable * Interactable);
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerSetUse(AInteractable * Interactable);
+	void ServerInteract(AInteractable * Interactable);
 
 	void Slot0();
 	void Slot1();

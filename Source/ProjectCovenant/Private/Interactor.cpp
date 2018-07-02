@@ -8,37 +8,29 @@
 
 
 // Sets default values for this component's properties
-AInteractor::AInteractor()
+UInteractor::UInteractor()
 {
-	SetReplicates(true);
-	SetReplicateMovement(true);
-	GetMesh()->SetEnableGravity(true);
-	GetMesh()->SetSimulatePhysics(true);
 }
 
 
 // Called when the game starts
-void AInteractor::BeginPlay()
+void UInteractor::BeginPlay()
 {
-	Super::BeginPlay();
 }
 
-AInteractable * AInteractor::Interact()
+AInteractable * UInteractor::GetInteractable()
 {
 	// Do a raycast in front and return the actor that is hit, if its an Interactable actor
-	if (ASubjectZero * Character = Cast<ASubjectZero>(this))
+	FHitResult HitResult = GetFirstActor();
+	if (AInteractable * Interactable = Cast<AInteractable>(HitResult.Actor.Get()))
 	{
-		FHitResult HitResult = GetFirstActor();
-		if (AInteractable * Interactable = Cast<AInteractable>(HitResult.Actor.Get()))
-		{
-			Logger::Log("Character " + Character->GetName() + " interacted with Interactable " + Interactable->GetName());
-			return Interactable;
-		}
+		Logger::Log("Character " + GetOwner()->GetName() + " interacted with Interactable " + Interactable->GetName());
+		return Interactable;
 	}
 	return nullptr;
 }
 
-const FHitResult AInteractor::GetFirstActor() 
+const FHitResult UInteractor::GetFirstActor()
 {
 	DrawDebugLine(GetWorld(), GetReachStart(), GetReachEnd(), FColor::Red, false, 2.f);
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
@@ -54,7 +46,7 @@ const FHitResult AInteractor::GetFirstActor()
 	return Hit;
 }
 
-FVector AInteractor::GetReachStart() 
+FVector UInteractor::GetReachStart()
 {
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
@@ -62,7 +54,7 @@ FVector AInteractor::GetReachStart()
 	return PlayerViewPointLocation;
 }
 
-FVector AInteractor::GetReachEnd() 
+FVector UInteractor::GetReachEnd()
 {
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
