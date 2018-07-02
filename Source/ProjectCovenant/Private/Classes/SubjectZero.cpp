@@ -905,9 +905,9 @@ void ASubjectZero::SetUse(bool Set)
 		{
 			if(InteractableHit)
 			{
-				UItem * Item = Mode->GetItem(InteractableHit->GetStaticMeshComponent());
-				if(Item) Logger::Chat("GIVE ITEM: " + Item->ItemID.ToString());
+				UItem * Item = Mode->GetItem(InteractableHit->GetStaticMeshComponent()->GetStaticMesh());
 				Mode->GiveItemToCharacter(this, Item);
+				InteractableHit->Destroy();
 			}
 		}
 	}
@@ -923,9 +923,9 @@ void ASubjectZero::ServerSetUse_Implementation(AInteractable * InteractableHit)
 	{
 		if(InteractableHit)
 		{
-			UItem * Item = Mode->GetItem(InteractableHit->GetStaticMeshComponent());
-			if(Item) Logger::Chat("GIVE ITEM: " + Item->ItemID.ToString());
+			UItem * Item = Mode->GetItem(InteractableHit->GetStaticMeshComponent()->GetStaticMesh());
 			Mode->GiveItemToCharacter(this, Item);
+			InteractableHit->Destroy();
 		}
 	}
 }
@@ -999,9 +999,7 @@ void ASubjectZero::DropItem(int Index)
 				{
 					if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 					{
-						AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(ItemToDrop), Camera->GetComponentLocation() + Camera->GetForwardVector() * 200.f, FRotator(0.f, 0.f, 0.f));
-						NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 5000.f);
-						NewWeapon->SetItem(ItemToDrop);
+						Mode->DropItem(ItemToDrop, Camera->GetComponentLocation() + Camera->GetForwardVector() * 300.f, GetVelocity() + Camera->GetForwardVector() * 5000.f);
 					}
 				}
 			}
@@ -1019,9 +1017,7 @@ void ASubjectZero::ServerDropItem_Implementation(const FItemSerialized & ItemSer
 		{
 			if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 			{
-				AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(ItemToDrop), Camera->GetComponentLocation() + Camera->GetForwardVector() * 200.f, FRotator(0.f, 0.f, 0.f));
-				NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 5000.f);
-				NewWeapon->SetItem(ItemToDrop);
+				Mode->DropItem(ItemToDrop, Camera->GetComponentLocation() + Camera->GetForwardVector() * 300.f, GetVelocity() + Camera->GetForwardVector() * 5000.f);
 			}
 		}
 	}

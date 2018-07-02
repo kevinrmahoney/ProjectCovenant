@@ -26,7 +26,7 @@ public:
 	UTexture2D * Thumbnail;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStaticMeshComponent * Mesh;
+	UStaticMesh * Mesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Description;

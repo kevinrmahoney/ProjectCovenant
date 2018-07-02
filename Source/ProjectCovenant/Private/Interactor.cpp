@@ -10,6 +10,10 @@
 // Sets default values for this component's properties
 AInteractor::AInteractor()
 {
+	SetReplicates(true);
+	SetReplicateMovement(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetSimulatePhysics(true);
 }
 
 
@@ -21,34 +25,17 @@ void AInteractor::BeginPlay()
 
 AInteractable * AInteractor::Interact()
 {
-	AInteractable * Interactable = nullptr;
+	// Do a raycast in front and return the actor that is hit, if its an Interactable actor
 	if (ASubjectZero * Character = Cast<ASubjectZero>(this))
 	{
-		Logger::Log("Character name is " + Character->GetName());
 		FHitResult HitResult = GetFirstActor();
 		if (AInteractable * Interactable = Cast<AInteractable>(HitResult.Actor.Get()))
 		{
-			Logger::Log("Interactable Name: " + Interactable->GetName());
+			Logger::Log("Character " + Character->GetName() + " interacted with Interactable " + Interactable->GetName());
 			return Interactable;
 		}
-		else
-		{
-			AActor * ActorHit = HitResult.Actor.Get();
-			if(ActorHit)
-			{
-				Logger::Log("Actor hit isnt interactable: " + ActorHit->GetName());
-			}
-			else
-			{
-				Logger::Log("Actor not hit");
-			}
-		}
 	}
-	else
-	{
-		Logger::Log("Couldn't cast character");
-	}
-	return Interactable;
+	return nullptr;
 }
 
 const FHitResult AInteractor::GetFirstActor() 

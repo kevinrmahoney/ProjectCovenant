@@ -233,6 +233,37 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 	}
 }
 
+void ABaseMode::DropItem(UItem * Item, FVector Position, FVector Velocity)
+{
+	UStaticMesh * StaticMesh = nullptr;
+
+	// Get the static mesh related to the Item
+	TArray<FName> RowNames = ItemDatabase->GetRowNames();
+	FString ContextString;
+	if(Item)
+	{
+		for(auto& Name : RowNames)
+		{
+			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+			if(Item->ItemID == Row->ItemID)
+			{
+				StaticMesh = Row->Mesh;
+			}
+		}
+	}
+
+	if(!StaticMesh)
+	{
+		Logger::Log("Couldn't find static mesh compnent for item with ID " + Item->ItemID.ToString()); 
+	}
+	else
+	{
+		AInteractable * Interactable = GetWorld()->SpawnActor<AInteractable>(Position, FRotator(0.f, 0.f, 0.f));
+		Interactable->SetMesh(StaticMesh);
+		Interactable->GetStaticMeshComponent()->AddImpulse(Velocity);
+	}
+}
+
 void ABaseMode::GiveItemToCharacter(ASubjectZero * Character, UItem * Item)
 {
 	if(Item && Character)
@@ -273,18 +304,17 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 	}
 }
 
-UItem * ABaseMode::GetItem(UStaticMeshComponent * StaticMesh)
+UItem * ABaseMode::GetItem(UStaticMesh * StaticMesh)
 {
 	TArray<FName> RowNames = ItemDatabase->GetRowNames();
 	FString ContextString;
 
 	if(StaticMesh)
 	{
-		Logger::Chat("Interacted with " + StaticMesh->GetStaticMesh()->GetName());
 		for(auto& Name : RowNames)
 		{
 			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
-			if(StaticMesh->GetStaticMesh()->GetName() == Row->Mesh->GetName())
+			if(Row && Row->Mesh && StaticMesh->GetName() == Row->Mesh->GetName())
 			{
 				UItem * NewItem = NewObject<UItem>(this, FName(*Row->Name));
 				NewItem->ItemID = Row->ItemID;

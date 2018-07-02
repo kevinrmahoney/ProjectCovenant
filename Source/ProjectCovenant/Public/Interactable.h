@@ -14,4 +14,6 @@ class PROJECTCOVENANT_API AInteractable : public AStaticMeshActor
 public:	
 	// Sets default values for this component's properties
 	AInteractable();
+
+	void SetMesh(UStaticMesh * NewMesh);
 };
