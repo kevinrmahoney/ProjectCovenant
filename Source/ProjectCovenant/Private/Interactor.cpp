@@ -8,35 +8,28 @@
 
 
 // Sets default values for this component's properties
-UInteractor::UInteractor()
+AInteractor::AInteractor()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
-
-	// ...
 }
 
 
 // Called when the game starts
-void UInteractor::BeginPlay()
+void AInteractor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
-void UInteractor::Interact()
+AInteractable * AInteractor::Interact()
 {
-	if (ASubjectZero * Character = Cast<ASubjectZero>(GetOwner()))
+	AInteractable * Interactable = nullptr;
+	if (ASubjectZero * Character = Cast<ASubjectZero>(this))
 	{
 		Logger::Log("Character name is " + Character->GetName());
 		FHitResult HitResult = GetFirstActor();
 		if (AInteractable * Interactable = Cast<AInteractable>(HitResult.Actor.Get()))
 		{
 			Logger::Log("Interactable Name: " + Interactable->GetName());
-			Interactable->Interact(Character);
+			return Interactable;
 		}
 		else
 		{
@@ -55,9 +48,10 @@ void UInteractor::Interact()
 	{
 		Logger::Log("Couldn't cast character");
 	}
+	return Interactable;
 }
 
-const FHitResult UInteractor::GetFirstActor() 
+const FHitResult AInteractor::GetFirstActor() 
 {
 	DrawDebugLine(GetWorld(), GetReachStart(), GetReachEnd(), FColor::Red, false, 2.f);
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
@@ -66,14 +60,14 @@ const FHitResult UInteractor::GetFirstActor()
 		Hit,
 		GetReachStart(),
 		GetReachEnd(),
-		FCollisionObjectQueryParams(ECollisionChannel::ECC_WorldDynamic),
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		TraceParameters
 	);
 
 	return Hit;
 }
 
-FVector UInteractor::GetReachStart() 
+FVector AInteractor::GetReachStart() 
 {
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
@@ -81,7 +75,7 @@ FVector UInteractor::GetReachStart()
 	return PlayerViewPointLocation;
 }
 
-FVector UInteractor::GetReachEnd() 
+FVector AInteractor::GetReachEnd() 
 {
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;

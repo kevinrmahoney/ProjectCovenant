@@ -3,18 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "GameFramework/Character.h"
 #include "Interactor.generated.h"
 
+class AInteractable;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECTCOVENANT_API UInteractor : public UActorComponent
+UCLASS()
+class PROJECTCOVENANT_API AInteractor : public ACharacter
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UInteractor();
+	AInteractor();
 
 protected:
 	// Called when the game starts
@@ -23,7 +24,7 @@ protected:
 	float Reach = 1000.f;
 
 public:
-	void Interact();
+	AInteractable * Interact();
 
 private:
 	const FHitResult GetFirstActor();

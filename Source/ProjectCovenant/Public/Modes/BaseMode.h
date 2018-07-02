@@ -50,6 +50,8 @@ public:
 
 	virtual void GiveItemToCharacter(ASubjectZero * Character, UItem * Item);
 
+	virtual UItem * GetItem(UStaticMeshComponent * StaticMesh);
+
 	virtual UItem * GetItem(AWeapon * ActorClass);
 
 	virtual TSubclassOf<class AActor> GetActorClass(UItem * Item);

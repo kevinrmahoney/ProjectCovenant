@@ -26,7 +26,7 @@ AWeapon::AWeapon()
 	// Disable gravity, physics and collision by default
 	GunMesh->SetEnableGravity(false);
 	GunMesh->SetSimulatePhysics(false);
-	GunMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GunMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	GunMesh->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	GunMesh->bGenerateOverlapEvents = false;
@@ -179,7 +179,7 @@ void AWeapon::Drop(FVector NewVelocity)
 	GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	GunMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	GunMesh->bGenerateOverlapEvents = true;
-	GunMesh->AddImpulse(NewVelocity);
+	//GunMesh->AddImpulse(NewVelocity);
 }
 
 void AWeapon::SetShooter(ASubjectZero * NewShooter)

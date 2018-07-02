@@ -2,18 +2,18 @@
 
 #pragma once
 
-#include "GameFramework/Character.h"
+#include "CoreMinimal.h"
+#include "Interactor.h"
 #include "Item.h"
 #include "SubjectZero.generated.h"
 
 class AWeapon;
 class UInventory;
 class UItem;
-class UInteractor;
 struct FItemSerialized;
 
 UCLASS()
-class PROJECTCOVENANT_API ASubjectZero : public ACharacter
+class PROJECTCOVENANT_API ASubjectZero : public AInteractor
 {
 	GENERATED_BODY()
 
@@ -118,9 +118,6 @@ public:
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	UCameraComponent* Camera;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UInteractor* Interactor;
 	
 private:
 	UFUNCTION()
@@ -235,7 +232,7 @@ public:
 	UFUNCTION()
 	void SetUse(bool Set);
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerSetUse(bool Set);
+	void ServerSetUse(AInteractable * Interactable);
 
 	void Slot0();
 	void Slot1();

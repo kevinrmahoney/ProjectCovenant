@@ -250,27 +250,49 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 		LightningGun->ItemID = TEXT("0");
 		GiveItemToCharacter(Character, LightningGun);
 		UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
-		Shotgun->ItemID = TEXT("1");
-		GiveItemToCharacter(Character, Shotgun);
-		UItem * Railgun = NewObject<UItem>(this, "Railgun");
-		Railgun->ItemID = TEXT("2");
-		GiveItemToCharacter(Character, Railgun);
-		UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
-		RocketLauncher->ItemID = TEXT("3");
-		GiveItemToCharacter(Character, RocketLauncher);
-		UItem * Rifle = NewObject<UItem>(this, "Rifle");
-		Rifle->ItemID = TEXT("4");
-		GiveItemToCharacter(Character, Rifle);
-		UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
-		SniperRifle->ItemID = TEXT("5");
-		GiveItemToCharacter(Character, SniperRifle);
-		UItem * Carbine = NewObject<UItem>(this, "Carbine");
-		Carbine->ItemID = TEXT("6");
-		GiveItemToCharacter(Character, Carbine);
-		UItem * Cannon = NewObject<UItem>(this, "Cannon");
-		Cannon->ItemID = TEXT("7");
-		GiveItemToCharacter(Character, Cannon);
+		//Shotgun->ItemID = TEXT("1");
+		//GiveItemToCharacter(Character, Shotgun);
+		//UItem * Railgun = NewObject<UItem>(this, "Railgun");
+		//Railgun->ItemID = TEXT("2");
+		//GiveItemToCharacter(Character, Railgun);
+		//UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+		//RocketLauncher->ItemID = TEXT("3");
+		//GiveItemToCharacter(Character, RocketLauncher);
+		//UItem * Rifle = NewObject<UItem>(this, "Rifle");
+		//Rifle->ItemID = TEXT("4");
+		//GiveItemToCharacter(Character, Rifle);
+		//UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
+		//SniperRifle->ItemID = TEXT("5");
+		//GiveItemToCharacter(Character, SniperRifle);
+		//UItem * Carbine = NewObject<UItem>(this, "Carbine");
+		//Carbine->ItemID = TEXT("6");
+		//GiveItemToCharacter(Character, Carbine);
+		//UItem * Cannon = NewObject<UItem>(this, "Cannon");
+		//Cannon->ItemID = TEXT("7");
+		//GiveItemToCharacter(Character, Cannon);
 	}
+}
+
+UItem * ABaseMode::GetItem(UStaticMeshComponent * StaticMesh)
+{
+	TArray<FName> RowNames = ItemDatabase->GetRowNames();
+	FString ContextString;
+
+	if(StaticMesh)
+	{
+		Logger::Chat("Interacted with " + StaticMesh->GetStaticMesh()->GetName());
+		for(auto& Name : RowNames)
+		{
+			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+			if(StaticMesh->GetStaticMesh()->GetName() == Row->Mesh->GetName())
+			{
+				UItem * NewItem = NewObject<UItem>(this, FName(*Row->Name));
+				NewItem->ItemID = Row->ItemID;
+				return NewItem;
+			}
+		}
+	}
+	return nullptr;
 }
 
 // Given a AWeapon, create an associated UItem based on information in the ItemDatabase
@@ -313,3 +335,4 @@ TSubclassOf<class AActor> ABaseMode::GetActorClass(UItem * Item)
 	}
 	return nullptr;
 }
+

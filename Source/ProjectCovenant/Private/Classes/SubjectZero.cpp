@@ -33,9 +33,6 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 	FirstPersonMesh->bCastDynamicShadow = false;
 	FirstPersonMesh->CastShadow = false;
 
-	// Interactor
-	Interactor = ObjectInitializer.CreateDefaultSubobject<UInteractor>(this, TEXT("Interactor"));
-
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -901,15 +898,39 @@ bool ASubjectZero::ServerSetSecondaryFire_Validate(bool Set)
 
 void ASubjectZero::SetUse(bool Set)
 {
-	Interactor->Interact();
+	AInteractable * InteractableHit = Interact();
+	if(HasAuthority())
+	{
+		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+		{
+			if(InteractableHit)
+			{
+				UItem * Item = Mode->GetItem(InteractableHit->GetStaticMeshComponent());
+				if(Item) Logger::Chat("GIVE ITEM: " + Item->ItemID.ToString());
+				Mode->GiveItemToCharacter(this, Item);
+			}
+		}
+	}
+	else
+	{
+		ServerSetUse(InteractableHit);
+	}
 }
 
-void ASubjectZero::ServerSetUse_Implementation(bool Set)
+void ASubjectZero::ServerSetUse_Implementation(AInteractable * InteractableHit)
 {
-	SetUse(Set);
+	if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+	{
+		if(InteractableHit)
+		{
+			UItem * Item = Mode->GetItem(InteractableHit->GetStaticMeshComponent());
+			if(Item) Logger::Chat("GIVE ITEM: " + Item->ItemID.ToString());
+			Mode->GiveItemToCharacter(this, Item);
+		}
+	}
 }
 
-bool ASubjectZero::ServerSetUse_Validate(bool Set)
+bool ASubjectZero::ServerSetUse_Validate(AInteractable * Interactable)
 {
 	return true;
 }
