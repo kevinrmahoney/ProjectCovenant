@@ -21,5 +21,5 @@ AInteractable::AInteractable()
 void AInteractable::SetMesh(UStaticMesh * NewMesh)
 {
 	GetStaticMeshComponent()->SetStaticMesh(NewMesh);
-	GetStaticMeshComponent()->SetMassOverrideInKg(NAME_None, 5.f, true);
+	GetStaticMeshComponent()->SetMassOverrideInKg(NAME_None, 10.f, true);
 }

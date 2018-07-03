@@ -28,13 +28,6 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//TODO: Make the recoil follow a parabolic function that effectively starts at (0,0), reaches a climax at (t/2, RecoilPower), then ends at (t,0)
-	// This takes the mathematical form of f(x) = -x^2 + (RecoilPower)x
-	// Apply this formula to both the pitch and yaw
-	// Plug in the numbers for t and Recoil pattern
-	// Adjust the player's controller based on the output
-	// Further adjust based on the player's own input (mouse movement) between frames
-
 	RecoilTime += DeltaTime;
 
 	if(Shooter)
@@ -95,7 +88,8 @@ void URecoil::Recoil(float Multiplier)
 		RecoilPitchMagnitude = FMath::RandRange(RecoilPitchMagnitudeMin, RecoilPitchMagnitudeMax) * Multiplier;
 		RecoilYawMagnitude = FMath::RandRange(RecoilYawMagnitudeMin, RecoilYawMagnitudeMax) * LeftRight * Multiplier;
 
-		SetComponentTickEnabled(true);
+		
+		// Disabling recoil for now SetComponentTickEnabled(true);
 	}
 }
 

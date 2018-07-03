@@ -142,23 +142,58 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 	Damage = Shooter ? Shooter->GetDamageMultiplier() * Damage : Damage;
 
 	bool Killed = false;
+	FString ShooterName = Shooter ? Shooter->GetPlayerName().ToString() : "Server";
+	FString VictimName = Victim ? Victim->GetPlayerName().ToString() : "Unknown";
+	FString WeaponName = Weapon ? Weapon->GetName() : "large fluffy pants";
 
 	// Deal damage to the victim, returns if the player was killed by the damage
 	if(Victim)
 	{
-		if(AHumanController * VictimController = Cast<AHumanController>(Victim->GetController()))
+		AHumanController * VictimController = Cast<AHumanController>(Victim->GetController());
+		ABasePlayerState * VictimPlayerState = Cast<ABasePlayerState>(Victim->PlayerState);
+
+		if(VictimController)
 		{
 			if(VictimController && VictimController->GodMode == false)
 			{
 				Killed = Victim->ReceiveDamage(Damage, Victim == Shooter);
 			}
 		}
+
+		if(Killed)
+		{
+			TArray<UItem*> Items = Victim->GetInventory()->GetItems();
+			for(UItem * Item : Items)
+			{
+				// If the weapon was created successfully, drop it (sets gravity, collision and physics on) and give it a slight velocity relative to the victim's velocity
+				if(Item)
+				{
+					// Spawn an actor of the type associated with the item, a random distance from the victim
+					FVector RandomOffset = FVector(FMath::FRandRange(-100.f, 100.f), FMath::FRandRange(-100.f, 100.f), 0.f);
+					SpawnInteractable(Item, Victim->GetActorLocation() + RandomOffset, Victim->GetVelocity());
+					Logger::Log("Dropping weapon " + Item->ItemID.ToString() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
+				}
+			}
+			KillPlayer(VictimController);
+		}
+		else
+		{
+			Logger::Log("Could not kill player " + Victim->GetName());
+		}
+
+		// If the player state is successfully obtained, add the damage that was dealt to the player state, and if killed, add the kill
+		if(VictimPlayerState)
+		{
+			VictimPlayerState->AddDamageTaken(Damage);
+			VictimPlayerState->TookDamage(Damage);
+			if(Killed) VictimPlayerState->AddDeath(1);
+		}
+		else
+		{
+			Logger::Error("Could not cast or obtain victim's PlayerState");
+		}
 	}
 
-	// Log the damage and if the player was killed by it
-	FString ShooterName = Shooter ? Shooter->GetPlayerName().ToString() : "Server";
-	FString VictimName = Victim ? Victim->GetPlayerName().ToString() : "Unknown";
-	FString WeaponName = Weapon ? Weapon->GetName() : "large fluffy pants";
 
 	Logger::Log(ShooterName + " has dealt " + FString::SanitizeFloat(Damage) + " to " + VictimName + " using " + WeaponName);
 	if(Killed) Logger::Log(ShooterName + " has killed " + VictimName + " using " + WeaponName);
@@ -181,73 +216,30 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 	{
 		Logger::Error("Could not cast or obtain shooter's PlayerState");
 	}
-
-	// If there was a victim of the damage
-	if(Victim)
-	{
-		ABasePlayerState * VictimPlayerState = Cast<ABasePlayerState>(Victim->PlayerState);
-		// If the player state is successfully obtained, add the damage that was dealt to the player state, and if killed, add the kill
-		if(VictimPlayerState)
-		{
-			VictimPlayerState->AddDamageTaken(Damage);
-			VictimPlayerState->TookDamage(Damage);
-			if(Killed) VictimPlayerState->AddDeath(1);
-		}
-		else
-		{
-			Logger::Error("Could not cast or obtain victim's PlayerState");
-		}
-
-		// If that victim was killed after damage was dealt
-		if(Killed)
-		{
-
-			// Kill the player, and drop his items on the ground
-			if(AHumanController * HumanController = Cast<AHumanController>(Victim->GetController()))
-			{
-				TArray<UItem*> Items = Victim->GetInventory()->GetItems();
-				for(UItem * Item : Items)
-				{
-					// If the weapon was created successfully, drop it (sets gravity, collision and physics on) and give it a slight velocity relative to the victim's velocity
-					if(Item)
-					{
-						// Spawn an actor of the type associated with the item, a random distance from the victim
-						FVector RandomOffset = FVector(FMath::FRandRange(-100.f, 100.f), FMath::FRandRange(-100.f, 100.f), 0.f);
-						SpawnInteractable(Item, Victim->GetActorLocation() + RandomOffset, Victim->GetVelocity());
-						Logger::Log("Dropping weapon " + Item->ItemID.ToString() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
-					}
-				}
-				KillPlayer(HumanController);
-			}
-			else
-			{
-				Logger::Log("Could not kill player " + Victim->GetName());
-			}
-		}
-	}
 }
 
+// Spawn an interactable based on the UItem passed
 void ABaseMode::SpawnInteractable(UItem * Item, FVector Position, FVector Velocity)
 {
-	UStaticMesh * StaticMesh = nullptr;
+	check(Item != nullptr)
 
-	// Get the static mesh related to the Item
-	TArray<FName> RowNames = ItemDatabase->GetRowNames();
-	FString ContextString;
-	if(Item)
+	UStaticMesh * StaticMesh = nullptr;						// mesh of the interactable
+	TArray<FName> RowNames = ItemDatabase->GetRowNames();	// get the row names of the item database to query later
+	FString ContextString;									// I don't know why but we need this in order to query
+
+	// Get the static mesh associated with the ItemID of Item from the item database
+	for(auto& Name : RowNames)
 	{
-		for(auto& Name : RowNames)
+		FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+		if(Item->ItemID == Row->ItemID)
 		{
-			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
-			if(Item->ItemID == Row->ItemID)
-			{
-				StaticMesh = Row->Mesh;
-			}
+			StaticMesh = Row->Mesh;
 		}
 	}
 
 	check(StaticMesh != nullptr)
 
+	// spawn an interactable with the static mesh associated with Item at Position, apply an impulse of Velocity
 	AInteractable * Interactable = GetWorld()->SpawnActor<AInteractable>(Position, FRotator(0.f, 0.f, 0.f));
 	Interactable->SetMesh(StaticMesh);
 	Interactable->GetStaticMeshComponent()->AddImpulse(Velocity);
@@ -255,101 +247,109 @@ void ABaseMode::SpawnInteractable(UItem * Item, FVector Position, FVector Veloci
 
 void ABaseMode::GiveItemToCharacter(ASubjectZero * Character, UItem * Item)
 {
-	if(Item && Character)
-	{
-		Character->AddItemToInventory(Item);
-		Logger::Log("Gave character " + Character->GetName() + " weapon " + Item->GetName());
-	}
+	check(Character != nullptr && Item != nullptr)
+	Character->AddItemToInventory(Item);
 }
 
+// Give the character an inventory to start the game with
 void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 {
-	if(Character)
-	{
-		UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
-		LightningGun->ItemID = TEXT("0");
-		GiveItemToCharacter(Character, LightningGun);
-		//UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
-		//Shotgun->ItemID = TEXT("1");
-		//GiveItemToCharacter(Character, Shotgun);
-		//UItem * Railgun = NewObject<UItem>(this, "Railgun");
-		//Railgun->ItemID = TEXT("2");
-		//GiveItemToCharacter(Character, Railgun);
-		//UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
-		//RocketLauncher->ItemID = TEXT("3");
-		//GiveItemToCharacter(Character, RocketLauncher);
-		//UItem * Rifle = NewObject<UItem>(this, "Rifle");
-		//Rifle->ItemID = TEXT("4");
-		//GiveItemToCharacter(Character, Rifle);
-		//UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
-		//SniperRifle->ItemID = TEXT("5");
-		//GiveItemToCharacter(Character, SniperRifle);
-		//UItem * Carbine = NewObject<UItem>(this, "Carbine");
-		//Carbine->ItemID = TEXT("6");
-		//GiveItemToCharacter(Character, Carbine);
-		//UItem * Cannon = NewObject<UItem>(this, "Cannon");
-		//Cannon->ItemID = TEXT("7");
-		//GiveItemToCharacter(Character, Cannon);
-	}
+	check(Character != nullptr)
+
+	UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
+	LightningGun->ItemID = TEXT("0");
+	GiveItemToCharacter(Character, LightningGun);
+	//UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
+	//Shotgun->ItemID = TEXT("1");
+	//GiveItemToCharacter(Character, Shotgun);
+	//UItem * Railgun = NewObject<UItem>(this, "Railgun");
+	//Railgun->ItemID = TEXT("2");
+	//GiveItemToCharacter(Character, Railgun);
+	//UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+	//RocketLauncher->ItemID = TEXT("3");
+	//GiveItemToCharacter(Character, RocketLauncher);
+	//UItem * Rifle = NewObject<UItem>(this, "Rifle");
+	//Rifle->ItemID = TEXT("4");
+	//GiveItemToCharacter(Character, Rifle);
+	//UItem * SniperRifle = NewObject<UItem>(this, "SniperRifle");
+	//SniperRifle->ItemID = TEXT("5");
+	//GiveItemToCharacter(Character, SniperRifle);
+	//UItem * Carbine = NewObject<UItem>(this, "Carbine");
+	//Carbine->ItemID = TEXT("6");
+	//GiveItemToCharacter(Character, Carbine);
+	//UItem * Cannon = NewObject<UItem>(this, "Cannon");
+	//Cannon->ItemID = TEXT("7");
+	//GiveItemToCharacter(Character, Cannon);
 }
 
+/* Given a StaticMesh, search the ItemDatabase for its associated ItemID and create a new UItem with it
+*/
 UItem * ABaseMode::GetItem(UStaticMesh * StaticMesh)
 {
+	check(StaticMesh != nullptr)
+
+	// get row names of the item database
 	TArray<FName> RowNames = ItemDatabase->GetRowNames();
 	FString ContextString;
 
-	if(StaticMesh)
+	// find the item in the item database that has the same mesh as StaticMesh, 
+	// get its ItemID, and create a new UItem that has that ItemID
+	for(auto& Name : RowNames)
 	{
-		for(auto& Name : RowNames)
+		FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+		if(Row && Row->Mesh && StaticMesh->GetName() == Row->Mesh->GetName())
 		{
-			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
-			if(Row && Row->Mesh && StaticMesh->GetName() == Row->Mesh->GetName())
-			{
-				UItem * NewItem = NewObject<UItem>(this, FName(*Row->Name));
-				NewItem->ItemID = Row->ItemID;
-				return NewItem;
-			}
+			UItem * NewItem = NewObject<UItem>(this, FName(*Row->Name));
+			NewItem->ItemID = Row->ItemID;
+			return NewItem;
 		}
 	}
 	return nullptr;
 }
 
-// Given a AWeapon, create an associated UItem based on information in the ItemDatabase
+/* Given a ActorClass, search the ItemDatabase for its associated ItemID and create a new UItem with it
+*/
 UItem * ABaseMode::GetItem(AWeapon * ActorClass)
 {
+	check(ActorClass != nullptr)
+
+	// get row names of the item database
 	TArray<FName> RowNames = ItemDatabase->GetRowNames();
 	FString ContextString;
 
-	if(ActorClass)
+	// find the item in the item database that has the same class as ActorClass, 
+	// get its ItemID, and create a new UItem that has that ItemID
+	for(auto& Name : RowNames)
 	{
-		for(auto& Name : RowNames)
+		FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+		if(Row && Row->ActorClass == ActorClass->GetClass())
 		{
-			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
-			if(Row && Row->ActorClass == ActorClass->GetClass())
-			{
-				UItem * NewItem = NewObject<UItem>(this, FName(*Row->Name));
-				NewItem->ItemID = Row->ItemID;
-				return NewItem;
-			}
+			UItem * NewItem = NewObject<UItem>(this, FName(*Row->Name));
+			NewItem->ItemID = Row->ItemID;
+			return NewItem;
 		}
 	}
 	return nullptr;
 }
 
+/* Given a UItem, search the ItemDatabase for its associated ActorClass and return it
+*/
 TSubclassOf<class AActor> ABaseMode::GetActorClass(UItem * Item)
 {
+	check(Item != nullptr)
+
+	// get row names of the item database
 	TArray<FName> RowNames = ItemDatabase->GetRowNames();
 	FString ContextString;
 
-	if(Item)
+	// find the item in the item database that has the same ItemID as Item, 
+	// get the class associated with that ItemID, and return that class
+	for(auto& Name : RowNames)
 	{
-		for(auto& Name : RowNames)
+		FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+		if(Item->ItemID == Row->ItemID)
 		{
-			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
-			if(Item->ItemID == Row->ItemID)
-			{
-				return Row->ActorClass;
-			}
+			return Row->ActorClass;
 		}
 	}
 	return nullptr;

@@ -28,6 +28,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FireRate;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float WeaponSwitchCooldown = 0.5f;
+
 	UPROPERTY(BlueprintReadOnly)
 	float FireRateProgress = 0.f;
 
@@ -64,9 +67,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	URecoil * RecoilComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float WeaponSwitchCooldown = 0.5f;
 
 protected:
 	// Called when the game starts or when spawned

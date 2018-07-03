@@ -261,76 +261,42 @@ void ASubjectZero::Update()
 //Equips local controller with a weapon, and sends information to the server
 void ASubjectZero::Equip(int Slot)
 {
-	// Make sure the inventory actually has an item in this slot before equipping it
-	if(Inventory && Inventory->CheckItemAt(Slot))
-	{
-		// Get the item from the inventory
-		UItem * NewItem = Inventory->GetItem(Slot);
+	check(Inventory != nullptr)
+	UItem * NewItem = Inventory->GetItem(Slot);
 
-		if(NewItem)
+	if(NewItem)
+	{
+		if(HasAuthority())
+		{
+			EquippedItemID = NewItem->ItemID;
+		}
+		else
+		{
+			Server_Equip(NewItem->ItemID);
+		}
+
+		// Make sure the inventory actually has an item in this slot before equipping it
+		if(Inventory->CheckItemAt(Slot))
 		{
 			// Destroy the current weapon before creating a new one
-			if(Weapon)
-			{
-				Weapon->Destroy();
-			}
+			if(Weapon) Weapon->Destroy();
 
-			// Update replicated variable from the server so simulated proxies are updated with new equipped item
-			if(HasAuthority() && NewItem)
+			// Get the Actor class that represents the Item
+			if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(NewItem->ItemID))
 			{
-				EquippedItemID = NewItem->GetItemID();
-			}
-
-			// Update the local controller and server copy with the new weapon
-			if(IsLocallyControlled() || HasAuthority())
-			{
-				// Check if the Item is a Weapon (TODO: This should be generalized to "EquippableItem")
-				if(UItem * ItemWeapon = Cast<UItem>(Inventory->GetItem(Slot)))
+				// Spawn the actor in the world, set the item associated with the actor to the item from the inventory
+				Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
+				if(Weapon)
 				{
-					// Get the Actor class that represents the Item
-					if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(NewItem->GetItemID()))
-					{
-						// Spawn the actor in the world, set the item associated with the actor to the item from the inventory
-						if(GetWorld())
-						{
-							Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
-							if(Weapon)
-							{
-								Weapon->SetItem(ItemWeapon);
-							}
-							else
-							{
-								Logger::Log("Weapon was not successfully spawned");
-							}
-						}
-					}
-					else
-					{
-						Logger::Log("Could not get actor class from item id " + NewItem->GetItemID().ToString());
-					}
-				}
-				else
-				{
-					Logger::Log("Could not find or cast Item to ItemWeapon ");
+					Weapon->SetItem(NewItem);
+					Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+					Weapon->SetShooter(this);
 				}
 			}
-		}
-	}
-	else
-	{
-		Logger::Error("No item in slot " + FString::FromInt(Slot));
-	}
-
-	if(Weapon)
-	{
-		// If this actor is controlled by the local client or the server, attach the weapon to the first person mesh
-		if(Role == ROLE_AutonomousProxy || Role == ROLE_Authority)
-		{
-			// Attach the weapon to the actor's third person mesh if the actor is not controlled by the local player, but another player
-			Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-
-			// Make who is considered the shooter to be this character
-			Weapon->SetShooter(this);
+			else
+			{
+				Logger::Log("Could not get actor class from item id " + NewItem->GetItemID().ToString());
+			}
 		}
 	}
 }
@@ -346,20 +312,19 @@ void ASubjectZero::Equip(int Slot)
 */
 void ASubjectZero::Server_Equip_Implementation(FName ItemID)
 {
+	check(Inventory != nullptr)
+
 	int Slot = 0;
-	if(GetInventory())
+	for(UItem * Item : Inventory->GetItems())
 	{
-		for(UItem * Item : GetInventory()->GetItems())
+		if(Item && Item->ItemID == ItemID)
 		{
-			if(Item && Item->ItemID == ItemID)
-			{
-				Equip(Slot);
-				return;
-			}
-			else
-			{
-				Slot++;
-			}
+			Equip(Slot);
+			return;
+		}
+		else
+		{
+			Slot++;
 		}
 	}
 }
@@ -372,7 +337,6 @@ bool ASubjectZero::Server_Equip_Validate(FName ItemID)
 
 void ASubjectZero::OnRep_Equip()
 {
-	Logger::Log("Simulated proxy update weapon");
 	// Destroy the current weapon before creating a new one
 	if(Weapon)
 	{
@@ -381,15 +345,11 @@ void ASubjectZero::OnRep_Equip()
 
 	if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(EquippedItemID))
 	{
-		if(GetWorld())
+		Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
+		if(Weapon)
 		{
-			Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
-
-			if(Weapon)
-			{
-				Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-				Weapon->SetShooter(this);
-			}
+			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+			Weapon->SetShooter(this);
 		}
 	}
 	else
@@ -949,50 +909,24 @@ bool ASubjectZero::ServerInteract_Validate(AInteractable * Interactable)
 
 void ASubjectZero::Slot0()
 {
-	int ID = 0;
-	Equip(ID);
-	if(Role == ROLE_AutonomousProxy)
-	{
-		if(Inventory && Inventory->CheckItemAt(ID))
-		{
-			Server_Equip(Inventory->GetItem(ID)->GetItemID());
-		}
-	}
+	Equip(0);
 }
 
 void ASubjectZero::Slot1()
 {
-	int ID = 1;
-	Equip(ID);
-	if(Role == ROLE_AutonomousProxy)
-	{
-		if(Inventory && Inventory->CheckItemAt(ID))
-		{
-			Server_Equip(Inventory->GetItem(ID)->GetItemID());
-		}
-	}
+	Equip(1);
 }
 
 
 void ASubjectZero::Slot2()
 {
-	int ID = 2;
-	Equip(ID);
-	if(Role == ROLE_AutonomousProxy)
-	{
-		if(Inventory && Inventory->CheckItemAt(ID))
-		{
-			Server_Equip(Inventory->GetItem(ID)->GetItemID());
-		}
-	}
+	Equip(2);
 }
 
 void ASubjectZero::DropItem(int Index)
 {
 	check(Inventory != nullptr)
-
-	UItem * ItemToDrop = Inventory->GetItem(Index);
-	Drop(ItemToDrop);
+	Drop(Inventory->GetItem(Index));
 }
 
 void ASubjectZero::Drop(UItem * ItemToDrop)
@@ -1012,7 +946,7 @@ void ASubjectZero::Drop(UItem * ItemToDrop)
 		EquippedItemID = FName("-1");
 		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{
-			Mode->SpawnInteractable(ItemToDrop, Camera->GetComponentLocation() + Camera->GetForwardVector() * 300.f, GetVelocity() + Camera->GetForwardVector() * 5000.f);
+			Mode->SpawnInteractable(ItemToDrop, Camera->GetComponentLocation() + Camera->GetForwardVector() * 300.f, GetVelocity() + Camera->GetForwardVector() * 10000.f);
 		}
 	}
 	else
@@ -1025,8 +959,7 @@ void ASubjectZero::Drop(UItem * ItemToDrop)
 
 void ASubjectZero::ServerDrop_Implementation(const FItemSerialized & ItemSerialized)
 {
-	UItem * ItemToDrop = UItem::UnserializeItem(ItemSerialized);
-	Drop(ItemToDrop);
+	Drop(UItem::UnserializeItem(ItemSerialized));
 }
 
 bool ASubjectZero::ServerDrop_Validate(const FItemSerialized & ItemSerialized)
@@ -1037,15 +970,12 @@ bool ASubjectZero::ServerDrop_Validate(const FItemSerialized & ItemSerialized)
 void ASubjectZero::AtomizeItem(int Index)
 {
 	check(Inventory != nullptr)
-
-	UItem * ItemToDrop = Inventory->GetItem(Index);
-	Atomize(ItemToDrop);
+	Atomize(Inventory->GetItem(Index));
 }
 
 void ASubjectZero::Atomize(UItem * ItemToDrop)
 {
-	check(ItemToDrop != nullptr)
-	check(Inventory != nullptr)
+	check(ItemToDrop != nullptr && Inventory != nullptr)
 
 	if(Weapon && Weapon->GetItem() && ItemToDrop->ItemID == Weapon->GetItem()->ItemID)
 	{
@@ -1060,9 +990,7 @@ void ASubjectZero::Atomize(UItem * ItemToDrop)
 	}
 	else
 	{
-		// Send RPC to update the client's inventory
-		FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
-		ServerAtomize(ItemSerialized);
+		ServerAtomize(UItem::SerializeItem(ItemToDrop));
 	}
 
 	delete ItemToDrop;
@@ -1070,8 +998,7 @@ void ASubjectZero::Atomize(UItem * ItemToDrop)
 
 void ASubjectZero::ServerAtomize_Implementation(const FItemSerialized & ItemSerialized)
 {
-	UItem * ItemToDrop = UItem::UnserializeItem(ItemSerialized);
-	Atomize(ItemToDrop);
+	Atomize(UItem::UnserializeItem(ItemSerialized));
 }
 
 bool ASubjectZero::ServerAtomize_Validate(const FItemSerialized & ItemSerialized)
@@ -1081,7 +1008,7 @@ bool ASubjectZero::ServerAtomize_Validate(const FItemSerialized & ItemSerialized
 
 void ASubjectZero::Reload()
 {
-	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	if(!HasAuthority())
 	{
 		ServerReload();
 	}

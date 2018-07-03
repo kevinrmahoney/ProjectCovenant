@@ -48,11 +48,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetime
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
-	GunMesh->SetMassOverrideInKg(NAME_None, 5.f);
-
 	ConstructShotVectors();
-
 	FireRateProgress = FireRate;
 
 	// Adding functions to execute through events must be done in BeginPlay()
