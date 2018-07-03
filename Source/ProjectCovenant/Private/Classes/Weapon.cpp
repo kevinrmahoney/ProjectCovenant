@@ -100,8 +100,6 @@ void AWeapon::SetItem(UItem * NewItem)
 	}
 }
 
-UItem* AWeapon::GetItem() { return Item; }
-
 void AWeapon::ConstructShotVectors()
 {
 }
