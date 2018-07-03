@@ -262,7 +262,7 @@ void ASubjectZero::Update()
 void ASubjectZero::Equip(int Slot)
 {
 	// Make sure the inventory actually has an item in this slot before equipping it
-	if(Inventory && Inventory->CheckItem(Slot))
+	if(Inventory && Inventory->CheckItemAt(Slot))
 	{
 		// Get the item from the inventory
 		UItem * NewItem = Inventory->GetItem(Slot);
@@ -274,7 +274,7 @@ void ASubjectZero::Equip(int Slot)
 		}
 
 		// Update replicated variable from the server so simulated proxies are updated with new equipped item
-		if(HasAuthority())
+		if(HasAuthority() && NewItem)
 		{
 			EquippedItemID = NewItem->GetItemID();
 		}
@@ -344,17 +344,19 @@ void ASubjectZero::Equip(int Slot)
 void ASubjectZero::Server_Equip_Implementation(FName ItemID)
 {
 	int Slot = 0;
-
-	for(UItem * Item : GetInventory()->GetItems())
+	if(GetInventory())
 	{
-		if(Item->ItemID == ItemID)
+		for(UItem * Item : GetInventory()->GetItems())
 		{
-			Equip(Slot);
-			return;
-		}
-		else
-		{
-			Slot++;
+			if(Item && Item->ItemID == ItemID)
+			{
+				Equip(Slot);
+				return;
+			}
+			else
+			{
+				Slot++;
+			}
 		}
 	}
 }
@@ -948,7 +950,10 @@ void ASubjectZero::Slot0()
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		Server_Equip(Inventory->GetItem(ID)->GetItemID());
+		if(Inventory && Inventory->CheckItemAt(ID))
+		{
+			Server_Equip(Inventory->GetItem(ID)->GetItemID());
+		}
 	}
 }
 
@@ -958,7 +963,7 @@ void ASubjectZero::Slot1()
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		if(Inventory && Inventory->CheckItem(ID))
+		if(Inventory && Inventory->CheckItemAt(ID))
 		{
 			Server_Equip(Inventory->GetItem(ID)->GetItemID());
 		}
@@ -972,7 +977,7 @@ void ASubjectZero::Slot2()
 	Equip(ID);
 	if(Role == ROLE_AutonomousProxy)
 	{
-		if(Inventory && Inventory->CheckItem(ID))
+		if(Inventory && Inventory->CheckItemAt(ID))
 		{
 			Server_Equip(Inventory->GetItem(ID)->GetItemID());
 		}
@@ -981,6 +986,8 @@ void ASubjectZero::Slot2()
 
 void ASubjectZero::DropItem(int Index)
 {
+	check(Inventory != nullptr)
+
 	UItem * ItemToDrop = Inventory->GetItem(Index);
 	Drop(ItemToDrop);
 }
@@ -990,9 +997,16 @@ void ASubjectZero::Drop(UItem * ItemToDrop)
 	check(ItemToDrop != nullptr)
 	check(Inventory != nullptr)
 
+	if(Weapon && Weapon->GetItem() && ItemToDrop->ItemID == Weapon->GetItem()->ItemID)
+	{
+		Weapon->Destroy();
+	}
+
+	Inventory->RemoveItem(ItemToDrop);
+
 	if(HasAuthority())
 	{
-		Inventory->RemoveItem(ItemToDrop);
+		EquippedItemID = FName("-1");
 		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{
 			Mode->SpawnInteractable(ItemToDrop, Camera->GetComponentLocation() + Camera->GetForwardVector() * 300.f, GetVelocity() + Camera->GetForwardVector() * 5000.f);
@@ -1000,8 +1014,6 @@ void ASubjectZero::Drop(UItem * ItemToDrop)
 	}
 	else
 	{
-		Inventory->RemoveItem(ItemToDrop);
-
 		// Send RPC to update the client's inventory
 		FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
 		ServerDrop(ItemSerialized);
@@ -1021,6 +1033,8 @@ bool ASubjectZero::ServerDrop_Validate(const FItemSerialized & ItemSerialized)
 
 void ASubjectZero::AtomizeItem(int Index)
 {
+	check(Inventory != nullptr)
+
 	UItem * ItemToDrop = Inventory->GetItem(Index);
 	Atomize(ItemToDrop);
 }
@@ -1030,18 +1044,24 @@ void ASubjectZero::Atomize(UItem * ItemToDrop)
 	check(ItemToDrop != nullptr)
 	check(Inventory != nullptr)
 
+	if(Weapon && Weapon->GetItem() && ItemToDrop->ItemID == Weapon->GetItem()->ItemID)
+	{
+		Weapon->Destroy();
+	}
+
+	Inventory->RemoveItem(ItemToDrop);
+
 	if(HasAuthority())
 	{
-		Inventory->RemoveItem(ItemToDrop);
+		EquippedItemID = FName("-1");
 	}
 	else
 	{
-		Inventory->RemoveItem(ItemToDrop);
-
 		// Send RPC to update the client's inventory
 		FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
 		ServerAtomize(ItemSerialized);
 	}
+
 	delete ItemToDrop;
 }
 
@@ -1065,7 +1085,6 @@ void ASubjectZero::Reload()
 	if(Weapon)
 	{
 		Weapon->BeginReload();
-		
 	}
 }
 

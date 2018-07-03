@@ -27,9 +27,25 @@ void UInventory::PrintList()
 	}
 }
 
-bool UInventory::CheckItem(int Num)
+bool UInventory::CheckItemAt(int Num)
 {
 	return Num < Items.Num();
+}
+
+bool UInventory::CheckItem(UItem * ItemToCheck)
+{
+	check(ItemToCheck != nullptr)
+
+	for(UItem * Item : Items)
+	{
+		if(Item->ItemID == ItemToCheck->ItemID)
+		{
+			Logger::Log("Item " + Item->ItemID.ToString() + " exists in inventory, cannot have multiple of the same item");
+			return true;
+		}
+	}
+
+	return false;
 }
 
 UItem * UInventory::GetItem(int Num)
@@ -73,7 +89,7 @@ void UInventory::RemoveItem(UItem * OldItem)
 
 void UInventory::RemoveItemAt(int Index)
 {
-	if(Index < Items.Num())
+	if(Index < Items.Num() && Index >= 0)
 	{
 		Items.RemoveAt(Index);
 	}

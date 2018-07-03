@@ -13,7 +13,7 @@ ALightningGun::ALightningGun()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	Damage = 10.f;
+	Damage = 6.f;
 	MaximumRange = 20000.f;
 	FireRate = 0.1f;
 	HeatThreshold = 100.f;
