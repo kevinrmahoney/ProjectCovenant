@@ -267,49 +267,52 @@ void ASubjectZero::Equip(int Slot)
 		// Get the item from the inventory
 		UItem * NewItem = Inventory->GetItem(Slot);
 
-		// Destroy the current weapon before creating a new one
-		if(Weapon)
+		if(NewItem)
 		{
-			Weapon->Destroy();
-		}
-
-		// Update replicated variable from the server so simulated proxies are updated with new equipped item
-		if(HasAuthority() && NewItem)
-		{
-			EquippedItemID = NewItem->GetItemID();
-		}
-
-		// Update the local controller and server copy with the new weapon
-		if(IsLocallyControlled() || HasAuthority())
-		{
-			// Check if the Item is a Weapon (TODO: This should be generalized to "EquippableItem")
-			if(UItem * ItemWeapon = Cast<UItem>(Inventory->GetItem(Slot)))
+			// Destroy the current weapon before creating a new one
+			if(Weapon)
 			{
-				// Get the Actor class that represents the Item
-				if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(NewItem->GetItemID()))
+				Weapon->Destroy();
+			}
+
+			// Update replicated variable from the server so simulated proxies are updated with new equipped item
+			if(HasAuthority() && NewItem)
+			{
+				EquippedItemID = NewItem->GetItemID();
+			}
+
+			// Update the local controller and server copy with the new weapon
+			if(IsLocallyControlled() || HasAuthority())
+			{
+				// Check if the Item is a Weapon (TODO: This should be generalized to "EquippableItem")
+				if(UItem * ItemWeapon = Cast<UItem>(Inventory->GetItem(Slot)))
 				{
-					// Spawn the actor in the world, set the item associated with the actor to the item from the inventory
-					if(GetWorld())
+					// Get the Actor class that represents the Item
+					if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(NewItem->GetItemID()))
 					{
-						Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
-						if(Weapon)
+						// Spawn the actor in the world, set the item associated with the actor to the item from the inventory
+						if(GetWorld())
 						{
-							Weapon->SetItem(ItemWeapon);
+							Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
+							if(Weapon)
+							{
+								Weapon->SetItem(ItemWeapon);
+							}
+							else
+							{
+								Logger::Log("Weapon was not successfully spawned");
+							}
 						}
-						else
-						{
-							Logger::Log("Weapon was not successfully spawned");
-						}
+					}
+					else
+					{
+						Logger::Log("Could not get actor class from item id " + NewItem->GetItemID().ToString());
 					}
 				}
 				else
 				{
-					Logger::Log("Could not get actor class from item id " + NewItem->GetItemID().ToString());
+					Logger::Log("Could not find or cast Item to ItemWeapon ");
 				}
-			}
-			else
-			{
-				Logger::Log("Could not find or cast Item to ItemWeapon ");
 			}
 		}
 	}

@@ -208,18 +208,13 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 				TArray<UItem*> Items = Victim->GetInventory()->GetItems();
 				for(UItem * Item : Items)
 				{
-					// Spawn an actor of the type associated with the item, a random distance from the victim
-					FVector RandomOffset = FVector(FMath::FRandRange(-100.f, 100.f), FMath::FRandRange(-100.f, 100.f), 0.f);
-
 					// If the weapon was created successfully, drop it (sets gravity, collision and physics on) and give it a slight velocity relative to the victim's velocity
 					if(Item)
 					{
+						// Spawn an actor of the type associated with the item, a random distance from the victim
+						FVector RandomOffset = FVector(FMath::FRandRange(-100.f, 100.f), FMath::FRandRange(-100.f, 100.f), 0.f);
 						SpawnInteractable(Item, Victim->GetActorLocation() + RandomOffset, Victim->GetVelocity());
 						Logger::Log("Dropping weapon " + Item->ItemID.ToString() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
-					}
-					else
-					{
-						Logger::Error("Failed to drop item " + GetActorClass(Item).GetDefaultObject()->GetName() + " from inventory of dead " + Victim->GetName());
 					}
 				}
 				KillPlayer(HumanController);

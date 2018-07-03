@@ -6,7 +6,7 @@
 
 UInventory::UInventory(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-
+	Items.SetNumZeroed(19);
 }
 
 void UInventory::PrintList()
@@ -29,7 +29,7 @@ void UInventory::PrintList()
 
 bool UInventory::CheckItemAt(int Num)
 {
-	return Num < Items.Num();
+	return Num < Items.Num() && Num >= 0.f && Items[Num] != nullptr;
 }
 
 bool UInventory::CheckItem(UItem * ItemToCheck)
@@ -38,9 +38,9 @@ bool UInventory::CheckItem(UItem * ItemToCheck)
 
 	for(UItem * Item : Items)
 	{
-		if(Item->ItemID == ItemToCheck->ItemID)
+		if(Item && Item->ItemID == ItemToCheck->ItemID)
 		{
-			Logger::Log("Item " + Item->ItemID.ToString() + " exists in inventory, cannot have multiple of the same item");
+			Logger::Log("Item " + Item->ItemID.ToString() + " exists in inventory");
 			return true;
 		}
 	}
@@ -63,24 +63,30 @@ UItem * UInventory::GetItem(int Num)
 
 void UInventory::AddItem(UItem * NewItem)
 {
-	for(UItem * Item : Items)
+	check(NewItem != nullptr)
+
+	if(!CheckItem(NewItem))
 	{
-		if(Item->ItemID == NewItem->ItemID)
+		for(int i = 0; i < Items.Num(); i++)
 		{
-			Logger::Log("Item " + Item->ItemID.ToString() + " exists in inventory, cannot have multiple of the same item");
-			return;
+			if(!Items[i])
+			{
+				Items[i] = NewItem;
+				return;
+			}
 		}
 	}
-	Items.Add(NewItem);
 }
 
 void UInventory::RemoveItem(UItem * OldItem)
 {
-	for(UItem * Item : Items)
+	check(OldItem != nullptr)
+
+	for(int i = 0; i < Items.Num(); i++)
 	{
-		if(Item->ItemID == OldItem->ItemID)
+		if(Items[i] && Items[i]->ItemID == OldItem->ItemID)
 		{
-			Items.Remove(Item);
+			Items[i] = nullptr;
 			return;
 		}
 	}
@@ -91,7 +97,7 @@ void UInventory::RemoveItemAt(int Index)
 {
 	if(Index < Items.Num() && Index >= 0)
 	{
-		Items.RemoveAt(Index);
+		Items[Index] = nullptr;
 	}
 	else
 	{
