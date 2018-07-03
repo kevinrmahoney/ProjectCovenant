@@ -46,7 +46,7 @@ public:
 
 	virtual void PostLogin(APlayerController * NewPlayer);
 
-	virtual void DropItem(UItem * Item, FVector Position, FVector Velocity);
+	virtual void SpawnInteractable(UItem * Item, FVector Position, FVector Velocity);
 
 	virtual void GiveStartingInventory(ASubjectZero * Character);
 

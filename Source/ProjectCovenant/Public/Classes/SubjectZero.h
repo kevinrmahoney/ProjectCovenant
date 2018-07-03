@@ -245,13 +245,17 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DropItem(int Index);
+	UFUNCTION(BlueprintCallable)
+	void Drop(UItem * Item);
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerDropItem(const FItemSerialized & ItemSerialized);
+	void ServerDrop(const FItemSerialized & ItemSerialized);
 
 	UFUNCTION(BlueprintCallable)
-	void DestroyItem(int Index);
+	void AtomizeItem(int Index);
+	UFUNCTION(BlueprintCallable)
+	void Atomize(UItem * Item);
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerDestroyItem(const FItemSerialized & ItemSerialized);
+	void ServerAtomize(const FItemSerialized & ItemSerialized);
 
 	UFUNCTION()
 	void Reload();

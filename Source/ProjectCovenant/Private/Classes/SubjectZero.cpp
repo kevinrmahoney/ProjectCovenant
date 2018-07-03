@@ -11,6 +11,7 @@
 #include "Deathmatch.h"
 #include "Inventory.h"
 #include "Interactor.h"
+#include "Interactable.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -981,97 +982,76 @@ void ASubjectZero::Slot2()
 void ASubjectZero::DropItem(int Index)
 {
 	UItem * ItemToDrop = Inventory->GetItem(Index);
-	if(Role == ROLE_AutonomousProxy)
-	{
-		if(Inventory && ItemToDrop)
-		{
-			// Add the item to the server's inventory
-			Inventory->RemoveItem(ItemToDrop);
-
-			// Send RPC to update the client's inventory
-			FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
-			ServerDropItem(ItemSerialized);
-		}
-	}
-	else if(Role == ROLE_Authority)
-	{
-		if(Inventory && ItemToDrop)
-		{
-			if(IsLocallyControlled())
-			{
-				// Add item to client's inventory
-				Inventory->RemoveItem(ItemToDrop);
-				if(ItemToDrop)
-				{
-					if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
-					{
-						Mode->DropItem(ItemToDrop, Camera->GetComponentLocation() + Camera->GetForwardVector() * 300.f, GetVelocity() + Camera->GetForwardVector() * 5000.f);
-					}
-				}
-			}
-		}
-	}
+	Drop(ItemToDrop);
 }
 
-void ASubjectZero::ServerDropItem_Implementation(const FItemSerialized & ItemSerialized)
+void ASubjectZero::Drop(UItem * ItemToDrop)
 {
-	if(Role == ROLE_Authority)
+	check(ItemToDrop != nullptr)
+	check(Inventory != nullptr)
+
+	if(HasAuthority())
 	{
-		UItem * ItemToDrop = UItem::UnserializeItem(ItemSerialized);
 		Inventory->RemoveItem(ItemToDrop);
-		if(ItemToDrop)
+		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{
-			if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
-			{
-				Mode->DropItem(ItemToDrop, Camera->GetComponentLocation() + Camera->GetForwardVector() * 300.f, GetVelocity() + Camera->GetForwardVector() * 5000.f);
-			}
+			Mode->SpawnInteractable(ItemToDrop, Camera->GetComponentLocation() + Camera->GetForwardVector() * 300.f, GetVelocity() + Camera->GetForwardVector() * 5000.f);
 		}
+	}
+	else
+	{
+		Inventory->RemoveItem(ItemToDrop);
+
+		// Send RPC to update the client's inventory
+		FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
+		ServerDrop(ItemSerialized);
 	}
 }
 
-bool ASubjectZero::ServerDropItem_Validate(const FItemSerialized & ItemSerialized)
+void ASubjectZero::ServerDrop_Implementation(const FItemSerialized & ItemSerialized)
+{
+	UItem * ItemToDrop = UItem::UnserializeItem(ItemSerialized);
+	Drop(ItemToDrop);
+}
+
+bool ASubjectZero::ServerDrop_Validate(const FItemSerialized & ItemSerialized)
 {
 	return true;
 }
 
-void ASubjectZero::DestroyItem(int Index)
+void ASubjectZero::AtomizeItem(int Index)
 {
-	UItem * ItemToDestroy = Inventory->GetItem(Index);
-	if(Role == ROLE_AutonomousProxy)
-	{
-		if(Inventory && ItemToDestroy)
-		{
-			// Add the item to the server's inventory
-			Inventory->RemoveItem(ItemToDestroy);
-
-			// Send RPC to update the client's inventory
-			FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDestroy);
-			ServerDestroyItem(ItemSerialized);
-		}
-	}
-	else if(Role == ROLE_Authority)
-	{
-		if(Inventory && ItemToDestroy)
-		{
-			if(IsLocallyControlled())
-			{
-				// Add item to client's inventory
-				Inventory->RemoveItem(ItemToDestroy);
-			}
-		}
-	}
+	UItem * ItemToDrop = Inventory->GetItem(Index);
+	Atomize(ItemToDrop);
 }
 
-void ASubjectZero::ServerDestroyItem_Implementation(const FItemSerialized & ItemSerialized)
+void ASubjectZero::Atomize(UItem * ItemToDrop)
 {
-	if(Role == ROLE_Authority)
+	check(ItemToDrop != nullptr)
+	check(Inventory != nullptr)
+
+	if(HasAuthority())
 	{
-		UItem * Item = UItem::UnserializeItem(ItemSerialized);
-		Inventory->RemoveItem(Item);
+		Inventory->RemoveItem(ItemToDrop);
 	}
+	else
+	{
+		Inventory->RemoveItem(ItemToDrop);
+
+		// Send RPC to update the client's inventory
+		FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
+		ServerAtomize(ItemSerialized);
+	}
+	delete ItemToDrop;
 }
 
-bool ASubjectZero::ServerDestroyItem_Validate(const FItemSerialized & ItemSerialized)
+void ASubjectZero::ServerAtomize_Implementation(const FItemSerialized & ItemSerialized)
+{
+	UItem * ItemToDrop = UItem::UnserializeItem(ItemSerialized);
+	Atomize(ItemToDrop);
+}
+
+bool ASubjectZero::ServerAtomize_Validate(const FItemSerialized & ItemSerialized)
 {
 	return true;
 }

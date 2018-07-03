@@ -7,6 +7,7 @@
 #include "BasePlayerState.h"
 #include "Item.h"
 #include "BaseMode.h"
+#include "Interactable.h"
 #include "Inventory.h"
 
 ABaseMode::ABaseMode()
@@ -213,7 +214,7 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 					// If the weapon was created successfully, drop it (sets gravity, collision and physics on) and give it a slight velocity relative to the victim's velocity
 					if(Item)
 					{
-						DropItem(Item, Victim->GetActorLocation() + RandomOffset, Victim->GetVelocity());
+						SpawnInteractable(Item, Victim->GetActorLocation() + RandomOffset, Victim->GetVelocity());
 						Logger::Log("Dropping weapon " + Item->ItemID.ToString() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
 					}
 					else
@@ -231,7 +232,7 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 	}
 }
 
-void ABaseMode::DropItem(UItem * Item, FVector Position, FVector Velocity)
+void ABaseMode::SpawnInteractable(UItem * Item, FVector Position, FVector Velocity)
 {
 	UStaticMesh * StaticMesh = nullptr;
 
@@ -273,7 +274,7 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 		UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
 		LightningGun->ItemID = TEXT("0");
 		GiveItemToCharacter(Character, LightningGun);
-		UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
+		//UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
 		//Shotgun->ItemID = TEXT("1");
 		//GiveItemToCharacter(Character, Shotgun);
 		//UItem * Railgun = NewObject<UItem>(this, "Railgun");

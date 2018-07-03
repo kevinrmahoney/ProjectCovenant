@@ -11,11 +11,12 @@ ASniper::ASniper()
 	PrimaryActorTick.bCanEverTick = true;
 
 	AimDownSightsFieldOfView = 10.f;
-	Damage = 150.f;
+	Damage = 120.f;
 	FireRate = 2.f;
 	Reload = 2.f;
 	AmmoMax = 1.f;
 	Ammo = AmmoMax;
+	ProjectileSpeed = 12000.f;
 }
 
 void ASniper::AimDownSights(bool IsAimDownSights)

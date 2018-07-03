@@ -14,7 +14,7 @@ AInteractable::AInteractable()
 	GetStaticMeshComponent()->SetIsReplicated(true);
 	GetStaticMeshComponent()->SetEnableGravity(true);
 	GetStaticMeshComponent()->SetSimulatePhysics(true);
-	GetStaticMeshComponent()->SetCollisionProfileName(FName("PhysicsActor"));
+	GetStaticMeshComponent()->SetCollisionProfileName(FName("Interactable"));
 	GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 }
 

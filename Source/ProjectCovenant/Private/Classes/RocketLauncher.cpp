@@ -14,6 +14,7 @@ ARocketLauncher::ARocketLauncher()
 	Reload = 2.f;
 	AmmoMax = 4.f;
 	Ammo = AmmoMax;
+	ProjectileSpeed = 2000.f;
 }
 
 FVector ARocketLauncher::GetAimDownSightsLocation()

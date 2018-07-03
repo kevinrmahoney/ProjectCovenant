@@ -10,11 +10,13 @@ APlasmaCannon::APlasmaCannon()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	Damage = 50.f;
-	FireRate = 0.5f;
-	HeatThreshold = 100.f;
+	Damage = 75.f;
+	FireRate = 0.3f;
+	HeatThreshold = 150.f;
 	OverHeatPenalty = 100.f;
-	HeatGeneratedPerShot = 20.f;
+	HeatGeneratedPerShot = 0.f;
+	ProjectileSpeed = 3000.f;
+	HeatRateWhileCharging = 50.f;
 
 	ShotVectors.Add(FVector(20000.f, 0.f, 0.f));
 }

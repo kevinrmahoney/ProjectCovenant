@@ -32,14 +32,14 @@ AInteractable * UInteractor::GetInteractable()
 
 const FHitResult UInteractor::GetFirstActor()
 {
-	DrawDebugLine(GetWorld(), GetReachStart(), GetReachEnd(), FColor::Red, false, 2.f);
+	//DrawDebugLine(GetWorld(), GetReachStart(), GetReachEnd(), FColor::Red, false, 2.f);
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
 	FHitResult Hit;
 	GetWorld()->LineTraceSingleByObjectType(
 		Hit,
 		GetReachStart(),
 		GetReachEnd(),
-		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_GameTraceChannel4),
 		TraceParameters
 	);
 

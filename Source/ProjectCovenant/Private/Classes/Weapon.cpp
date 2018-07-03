@@ -23,7 +23,7 @@ AWeapon::AWeapon()
 	GunMesh->SetOnlyOwnerSee(false);
 	GunMesh->SetOwnerNoSee(false);
 
-	// Disable gravity, physics and collision by default
+	// Disable gravity, physics and collision
 	GunMesh->SetEnableGravity(false);
 	GunMesh->SetSimulatePhysics(false);
 	GunMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
