@@ -109,6 +109,8 @@ public:
 
 	virtual void BeginReload();
 
+	virtual UItem * GetItem();
+
 	virtual void SetItem(UItem * NewItem);
 	
 	virtual UItem* GetItem();

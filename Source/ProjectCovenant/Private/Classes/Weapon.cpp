@@ -78,6 +78,11 @@ void AWeapon::Destroyed()
 	Super::Destroyed();
 }
 
+UItem * AWeapon::GetItem()
+{
+	return Item;
+}
+
 void AWeapon::SetItem(UItem * NewItem)
 {
 	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
@@ -159,7 +164,6 @@ void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 				if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 				{
 					Logger::Log("Destroying weapon " + GetName() + " after collision with " + Character->GetName());
-					Logger::Log((OtherActor->GetActorLocation() - GetActorLocation()).ToString());
 					Mode->GiveItemToCharacter(Character, Mode->GetItem(this));
 					Destroy();
 				}
