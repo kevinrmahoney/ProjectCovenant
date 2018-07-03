@@ -39,10 +39,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool IsReloading = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
 	TSubclassOf<AProjectile> Projectile;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
 	float ProjectileSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

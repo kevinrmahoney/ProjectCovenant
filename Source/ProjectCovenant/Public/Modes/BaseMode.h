@@ -46,9 +46,13 @@ public:
 
 	virtual void PostLogin(APlayerController * NewPlayer);
 
+	virtual void SpawnInteractable(UItem * Item, FVector Position, FVector Velocity);
+
 	virtual void GiveStartingInventory(ASubjectZero * Character);
 
 	virtual void GiveItemToCharacter(ASubjectZero * Character, UItem * Item);
+
+	virtual UItem * GetItem(UStaticMesh * StaticMesh);
 
 	virtual UItem * GetItem(AWeapon * ActorClass);
 

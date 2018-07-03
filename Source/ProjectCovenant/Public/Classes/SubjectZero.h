@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include "GameFramework/Character.h"
+#include "CoreMinimal.h"
+#include "Interactor.h"
 #include "Item.h"
 #include "SubjectZero.generated.h"
 
@@ -29,6 +30,9 @@ public:
 	float AimDownSightsFieldOfView = 70.f;
 
 private:
+	UPROPERTY()
+	UInteractor * Interactor;
+
 	UPROPERTY()
 	AWeapon * Weapon;
 
@@ -117,7 +121,7 @@ public:
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	UCameraComponent* Camera;
-
+	
 private:
 	UFUNCTION()
 	void Update();
@@ -229,9 +233,11 @@ public:
 	void ServerSetSecondaryFire(bool Set);
 
 	UFUNCTION()
-	void SetUse(bool Set);
+	void SetInteract(bool Set);
+	UFUNCTION()
+	void Interact(AInteractable * Interactable);
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerSetUse(bool Set);
+	void ServerInteract(AInteractable * Interactable);
 
 	void Slot0();
 	void Slot1();
@@ -239,13 +245,17 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DropItem(int Index);
+	UFUNCTION(BlueprintCallable)
+	void Drop(UItem * Item);
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerDropItem(const FItemSerialized & ItemSerialized);
+	void ServerDrop(const FItemSerialized & ItemSerialized);
 
 	UFUNCTION(BlueprintCallable)
-	void DestroyItem(int Index);
+	void AtomizeItem(int Index);
+	UFUNCTION(BlueprintCallable)
+	void Atomize(UItem * Item);
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerDestroyItem(const FItemSerialized & ItemSerialized);
+	void ServerAtomize(const FItemSerialized & ItemSerialized);
 
 	UFUNCTION()
 	void Reload();

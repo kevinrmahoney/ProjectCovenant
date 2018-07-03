@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "Recoil.h"
 #include "Weapon.generated.h"
 
@@ -108,13 +107,13 @@ public:
 
 	virtual void Fire();
 
-	virtual void Drop(FVector Velocity = FVector(0.f, 0.f, 0.f));
-
 	virtual void BeginReload();
 
 	virtual UItem * GetItem();
 
 	virtual void SetItem(UItem * NewItem);
+	
+	virtual UItem* GetItem();
 
 	virtual void SetTrigger(bool T);
 

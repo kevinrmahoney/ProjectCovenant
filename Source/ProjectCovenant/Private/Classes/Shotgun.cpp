@@ -9,7 +9,7 @@ AShotgun::AShotgun()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	Damage = 100.f;
+	Damage = 80.f;
 	MaximumRange = 20000.f;
 	FireRate = 1.f;
 	HeatThreshold = 100.f;

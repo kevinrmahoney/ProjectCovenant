@@ -1,6 +1,9 @@
 ---,ActorClass,Name,ItemID,Thumbnail,Description
-0,"BlueprintGeneratedClass'/Game/Blueprints/Weapons/HitscanWeapon_BP.HitscanWeapon_BP_C'","Lightning Gun","0","Texture2D'/Game/Textures/Thumbnails/lightninggun.lightninggun'",""
+0,"BlueprintGeneratedClass'/Game/Blueprints/Weapons/LightningGun_BP.LightningGun_BP_C'","Lightning Gun","0","Texture2D'/Game/Textures/Thumbnails/lightninggun.lightninggun'",""
 1,"BlueprintGeneratedClass'/Game/Blueprints/Weapons/Shotgun_BP.Shotgun_BP_C'","Shotgun","1","Texture2D'/Game/Textures/Thumbnails/shotgun.shotgun'",""
 2,"BlueprintGeneratedClass'/Game/Blueprints/Weapons/Railgun_BP.Railgun_BP_C'","Railgun","2","Texture2D'/Game/Textures/Thumbnails/railgun.railgun'",""
 3,"BlueprintGeneratedClass'/Game/Blueprints/Weapons/RocketLauncher_BP.RocketLauncher_BP_C'","Rocket Launcher","3","Texture2D'/Game/Textures/Thumbnails/rocketlauncher.rocketlauncher'",""
 4,"BlueprintGeneratedClass'/Game/Blueprints/Weapons/Rifle_BP.Rifle_BP_C'","Rifle","4","Texture2D'/Game/Textures/Thumbnails/rifle.rifle'",""
+5,"BlueprintGeneratedClass'/Game/Blueprints/Weapons/Sniper_BP.Sniper_BP_C'","Sniper Rifle","5","Texture2D'/Game/Textures/Thumbnails/sniperthumbnail.sniperthumbnail'",""
+6,"BlueprintGeneratedClass'/Game/Blueprints/Weapons/PlasmaCarbine_BP.PlasmaCarbine_BP_C'","Plasma Carbine","6","Texture2D'/Game/Textures/Thumbnails/plasmarifle.plasmarifle'",""
+7,"BlueprintGeneratedClass'/Game/Blueprints/Weapons/PlasmaCannon_BP.PlasmaCannon_BP_C'","Plasma Cannon","7","Texture2D'/Game/Textures/Thumbnails/plasmacannon.plasmacannon'",""

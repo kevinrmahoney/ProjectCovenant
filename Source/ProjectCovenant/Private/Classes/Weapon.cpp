@@ -23,11 +23,12 @@ AWeapon::AWeapon()
 	GunMesh->SetOnlyOwnerSee(false);
 	GunMesh->SetOwnerNoSee(false);
 
-	// Disable gravity, physics and collision by default
+	// Disable gravity, physics and collision
 	GunMesh->SetEnableGravity(false);
 	GunMesh->SetSimulatePhysics(false);
-	GunMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GunMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GunMesh->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	GunMesh->bGenerateOverlapEvents = false;
 
 	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"), false);
@@ -99,6 +100,8 @@ void AWeapon::SetItem(UItem * NewItem)
 	}
 }
 
+UItem* AWeapon::GetItem() { return Item; }
+
 void AWeapon::ConstructShotVectors()
 {
 }
@@ -167,20 +170,6 @@ void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 			}
 		}
 	}
-}
-
-void AWeapon::Drop(FVector NewVelocity)
-{
-	SetReplicates(true);
-	SetReplicateMovement(true);
-	GunMesh->SetIsReplicated(true);
-	GunMesh->SetEnableGravity(true);
-	GunMesh->SetSimulatePhysics(true);
-	GunMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GunMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	GunMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-	GunMesh->bGenerateOverlapEvents = true;
-	GunMesh->AddImpulse(NewVelocity);
 }
 
 void AWeapon::SetShooter(ASubjectZero * NewShooter)

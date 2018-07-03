@@ -112,7 +112,7 @@ private:
 	void InputSlot0();
 	void InputSlot1();
 	void InputSlot2();
-	void InputUsePress();
+	void InputInteractPress();
 	void InputScoreboardPress();
 	void InputScoreboardRelease();
 	void InputReload();

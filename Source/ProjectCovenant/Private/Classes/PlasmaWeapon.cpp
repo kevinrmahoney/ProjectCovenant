@@ -110,6 +110,7 @@ void APlasmaWeapon::Fire()
 		{
 			NewProjectile->SetWeapon(this);
 			NewProjectile->SetDamage(Damage);
+			NewProjectile->SetSpeed(ProjectileSpeed);
 		}
 	}
 }

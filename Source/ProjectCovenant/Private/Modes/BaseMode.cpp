@@ -7,6 +7,7 @@
 #include "BasePlayerState.h"
 #include "Item.h"
 #include "BaseMode.h"
+#include "Interactable.h"
 #include "Inventory.h"
 
 ABaseMode::ABaseMode()
@@ -209,13 +210,12 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 				{
 					// Spawn an actor of the type associated with the item, a random distance from the victim
 					FVector RandomOffset = FVector(FMath::FRandRange(-100.f, 100.f), FMath::FRandRange(-100.f, 100.f), 0.f);
-					AWeapon * DroppedWeapon = GetWorld()->SpawnActor<AWeapon>(GetActorClass(Item), Victim->GetActorLocation() + RandomOffset,FRotator(0.f, 0.f, 0.f));
 
 					// If the weapon was created successfully, drop it (sets gravity, collision and physics on) and give it a slight velocity relative to the victim's velocity
-					if(DroppedWeapon)
+					if(Item)
 					{
-						Logger::Log("Dropping weapon " + DroppedWeapon->GetName() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
-						DroppedWeapon->Drop(Victim->GetVelocity());
+						SpawnInteractable(Item, Victim->GetActorLocation() + RandomOffset, Victim->GetVelocity());
+						Logger::Log("Dropping weapon " + Item->ItemID.ToString() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
 					}
 					else
 					{
@@ -230,6 +230,32 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 			}
 		}
 	}
+}
+
+void ABaseMode::SpawnInteractable(UItem * Item, FVector Position, FVector Velocity)
+{
+	UStaticMesh * StaticMesh = nullptr;
+
+	// Get the static mesh related to the Item
+	TArray<FName> RowNames = ItemDatabase->GetRowNames();
+	FString ContextString;
+	if(Item)
+	{
+		for(auto& Name : RowNames)
+		{
+			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+			if(Item->ItemID == Row->ItemID)
+			{
+				StaticMesh = Row->Mesh;
+			}
+		}
+	}
+
+	check(StaticMesh != nullptr)
+
+	AInteractable * Interactable = GetWorld()->SpawnActor<AInteractable>(Position, FRotator(0.f, 0.f, 0.f));
+	Interactable->SetMesh(StaticMesh);
+	Interactable->GetStaticMeshComponent()->AddImpulse(Velocity);
 }
 
 void ABaseMode::GiveItemToCharacter(ASubjectZero * Character, UItem * Item)
@@ -272,6 +298,27 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 	}
 }
 
+UItem * ABaseMode::GetItem(UStaticMesh * StaticMesh)
+{
+	TArray<FName> RowNames = ItemDatabase->GetRowNames();
+	FString ContextString;
+
+	if(StaticMesh)
+	{
+		for(auto& Name : RowNames)
+		{
+			FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
+			if(Row && Row->Mesh && StaticMesh->GetName() == Row->Mesh->GetName())
+			{
+				UItem * NewItem = NewObject<UItem>(this, FName(*Row->Name));
+				NewItem->ItemID = Row->ItemID;
+				return NewItem;
+			}
+		}
+	}
+	return nullptr;
+}
+
 // Given a AWeapon, create an associated UItem based on information in the ItemDatabase
 UItem * ABaseMode::GetItem(AWeapon * ActorClass)
 {
@@ -312,3 +359,4 @@ TSubclassOf<class AActor> ABaseMode::GetActorClass(UItem * Item)
 	}
 	return nullptr;
 }
+

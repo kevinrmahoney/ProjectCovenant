@@ -11,11 +11,12 @@ APlasmaCarbine::APlasmaCarbine()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	AimDownSightsFieldOfView = 20.f;
-	Damage = 50.f;
-	FireRate = 0.5f;
+	Damage = 30.f;
+	FireRate = 0.3f;
 	HeatThreshold = 120.f;
 	OverHeatPenalty = 50.f;
 	HeatGeneratedPerShot = 20.f;
+	ProjectileSpeed = 20000.f;
 
 	ShotVectors.Add(FVector(20000.f, 0.f, 0.f));
 }

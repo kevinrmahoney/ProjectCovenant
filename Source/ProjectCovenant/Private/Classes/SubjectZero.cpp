@@ -10,6 +10,8 @@
 #include "Shotgun.h"
 #include "Deathmatch.h"
 #include "Inventory.h"
+#include "Interactor.h"
+#include "Interactable.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -24,6 +26,9 @@ ASubjectZero::ASubjectZero(const FObjectInitializer& ObjectInitializer)
 	Camera->RelativeLocation = FVector(0.f, 0, StandingHeight);
 	// Allow the pawn to control rotation
 	Camera->bUsePawnControlRotation = true;
+
+	// Create the interactor
+	Interactor = ObjectInitializer.CreateDefaultSubobject<UInteractor>(this, TEXT("Interactor"));
 
 	// Mesh
 	FirstPersonMesh = ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("FirstPersonMesh"));
@@ -895,17 +900,44 @@ bool ASubjectZero::ServerSetSecondaryFire_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetUse(bool Set)
+void ASubjectZero::SetInteract(bool Set)
 {
-
+	if(Set)
+	{
+		AInteractable * InteractableHit = Interactor->GetInteractable();
+		if(InteractableHit)
+		{
+			Interact(InteractableHit);
+		}
+	}
 }
 
-void ASubjectZero::ServerSetUse_Implementation(bool Set)
+void ASubjectZero::Interact(AInteractable * InteractableHit)
 {
-	SetUse(Set);
+	check(InteractableHit != nullptr)
+
+	if(HasAuthority())
+	{
+		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+		{
+			UItem * Item = Mode->GetItem(InteractableHit->GetStaticMeshComponent()->GetStaticMesh());
+			Mode->GiveItemToCharacter(this, Item);
+			InteractableHit->Destroy();
+		}
+	}
+	else
+	{
+		ServerInteract(InteractableHit);
+	}
 }
 
-bool ASubjectZero::ServerSetUse_Validate(bool Set)
+
+void ASubjectZero::ServerInteract_Implementation(AInteractable * InteractableHit)
+{
+	Interact(InteractableHit);
+}
+
+bool ASubjectZero::ServerInteract_Validate(AInteractable * Interactable)
 {
 	return true;
 }
@@ -950,99 +982,76 @@ void ASubjectZero::Slot2()
 void ASubjectZero::DropItem(int Index)
 {
 	UItem * ItemToDrop = Inventory->GetItem(Index);
-	if(Role == ROLE_AutonomousProxy)
-	{
-		if(Inventory && ItemToDrop)
-		{
-			// Add the item to the server's inventory
-			Inventory->RemoveItem(ItemToDrop);
-
-			// Send RPC to update the client's inventory
-			FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
-			ServerDropItem(ItemSerialized);
-		}
-	}
-	else if(Role == ROLE_Authority)
-	{
-		if(Inventory && ItemToDrop)
-		{
-			if(IsLocallyControlled())
-			{
-				// Add item to client's inventory
-				Inventory->RemoveItem(ItemToDrop);
-				if(ItemToDrop)
-				{
-					if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
-					{
-						AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(ItemToDrop), Camera->GetComponentLocation() + Camera->GetForwardVector() * 200.f, FRotator(0.f, 0.f, 0.f));
-						NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 5000.f);
-					}
-				}
-			}
-		}
-	}
+	Drop(ItemToDrop);
 }
 
-void ASubjectZero::ServerDropItem_Implementation(const FItemSerialized & ItemSerialized)
+void ASubjectZero::Drop(UItem * ItemToDrop)
 {
-	if(Role == ROLE_Authority)
+	check(ItemToDrop != nullptr)
+	check(Inventory != nullptr)
+
+	if(HasAuthority())
 	{
-		UItem * Item = UItem::UnserializeItem(ItemSerialized);
-		Inventory->RemoveItem(Item);
-		if(Item)
+		Inventory->RemoveItem(ItemToDrop);
+		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{
-			if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
-			{
-				AWeapon * NewWeapon = GetWorld()->SpawnActor<AWeapon>(Mode->GetActorClass(Item), GetActorLocation() + Camera->GetForwardVector() * 100.f, FRotator(0.f, 0.f, 0.f));
-				NewWeapon->Drop(GetVelocity() + Camera->GetForwardVector() * 1000.f);
-			}
+			Mode->SpawnInteractable(ItemToDrop, Camera->GetComponentLocation() + Camera->GetForwardVector() * 300.f, GetVelocity() + Camera->GetForwardVector() * 5000.f);
 		}
+	}
+	else
+	{
+		Inventory->RemoveItem(ItemToDrop);
+
+		// Send RPC to update the client's inventory
+		FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
+		ServerDrop(ItemSerialized);
 	}
 }
 
-bool ASubjectZero::ServerDropItem_Validate(const FItemSerialized & ItemSerialized)
+void ASubjectZero::ServerDrop_Implementation(const FItemSerialized & ItemSerialized)
+{
+	UItem * ItemToDrop = UItem::UnserializeItem(ItemSerialized);
+	Drop(ItemToDrop);
+}
+
+bool ASubjectZero::ServerDrop_Validate(const FItemSerialized & ItemSerialized)
 {
 	return true;
 }
 
-void ASubjectZero::DestroyItem(int Index)
+void ASubjectZero::AtomizeItem(int Index)
 {
-	UItem * ItemToDestroy = Inventory->GetItem(Index);
-	if(Role == ROLE_AutonomousProxy)
-	{
-		if(Inventory && ItemToDestroy)
-		{
-			// Add the item to the server's inventory
-			Inventory->RemoveItem(ItemToDestroy);
-
-			// Send RPC to update the client's inventory
-			FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDestroy);
-			ServerDestroyItem(ItemSerialized);
-		}
-	}
-	else if(Role == ROLE_Authority)
-	{
-		if(Inventory && ItemToDestroy)
-		{
-			if(IsLocallyControlled())
-			{
-				// Add item to client's inventory
-				Inventory->RemoveItem(ItemToDestroy);
-			}
-		}
-	}
+	UItem * ItemToDrop = Inventory->GetItem(Index);
+	Atomize(ItemToDrop);
 }
 
-void ASubjectZero::ServerDestroyItem_Implementation(const FItemSerialized & ItemSerialized)
+void ASubjectZero::Atomize(UItem * ItemToDrop)
 {
-	if(Role == ROLE_Authority)
+	check(ItemToDrop != nullptr)
+	check(Inventory != nullptr)
+
+	if(HasAuthority())
 	{
-		UItem * Item = UItem::UnserializeItem(ItemSerialized);
-		Inventory->RemoveItem(Item);
+		Inventory->RemoveItem(ItemToDrop);
 	}
+	else
+	{
+		Inventory->RemoveItem(ItemToDrop);
+
+		// Send RPC to update the client's inventory
+		FItemSerialized ItemSerialized = UItem::SerializeItem(ItemToDrop);
+		ServerAtomize(ItemSerialized);
+	}
+	delete ItemToDrop;
 }
 
-bool ASubjectZero::ServerDestroyItem_Validate(const FItemSerialized & ItemSerialized)
+void ASubjectZero::ServerAtomize_Implementation(const FItemSerialized & ItemSerialized)
+{
+	UItem * ItemToDrop = UItem::UnserializeItem(ItemSerialized);
+	Atomize(ItemToDrop);
+}
+
+bool ASubjectZero::ServerAtomize_Validate(const FItemSerialized & ItemSerialized)
 {
 	return true;
 }

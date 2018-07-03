@@ -9,11 +9,12 @@ ARifle::ARifle()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	Damage = 30.f;
+	Damage = 20.f;
 	FireRate = 0.2f;
 	Reload = 2.f;
 	AmmoMax = 20.f;
 	Ammo = AmmoMax;
+	ProjectileSpeed = 6000.f;
 }
 
 FVector ARifle::GetAimDownSightsLocation()
