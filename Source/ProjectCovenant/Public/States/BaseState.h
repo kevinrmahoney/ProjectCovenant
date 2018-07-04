@@ -15,6 +15,8 @@ class PROJECTCOVENANT_API ABaseState : public AGameState
 	GENERATED_BODY()
 
 public:
+	ABaseState();
+
 	void BeginPlay() override;
 
 	void Tick(float DeltaTime) override;
@@ -30,4 +32,22 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void GameOverScreen();
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UDataTable * ItemDatabase;
+
+	UFUNCTION(BlueprintCallable)
+	UItem * GetItemFromStaticMesh(UStaticMesh * StaticMesh);
+
+	UFUNCTION(BlueprintCallable)
+	UItem * GetItemFromActorClass(AActor * ActorClass);
+
+	UFUNCTION(BlueprintCallable)
+	TSubclassOf<class AActor> GetActorClassFromItem(UItem * Item);
+
+	UFUNCTION(BlueprintCallable)
+	UStaticMesh * GetMeshFromItem(UItem * Item);
+
+	UFUNCTION(BlueprintCallable)
+	UTexture2D * GetThumbnailFromItem(UItem * Item);
 };

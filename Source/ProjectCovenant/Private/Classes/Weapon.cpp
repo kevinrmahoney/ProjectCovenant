@@ -6,6 +6,7 @@
 #include "SubjectZero.h"
 #include "Weapon.h"
 #include "BaseMode.h"
+#include "BaseState.h"
 
 
 // Sets default values
@@ -155,11 +156,16 @@ void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 		{
 			if(Character != Shooter)
 			{
-				if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+				ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode());
+				if(Mode)
 				{
-					Logger::Log("Destroying weapon " + GetName() + " after collision with " + Character->GetName());
-					Mode->GiveItemToCharacter(Character, Mode->GetItem(this));
-					Destroy();
+					ABaseState * State = Cast<ABaseState>(Mode->GameState);
+					if(State)
+					{
+						Logger::Log("Destroying weapon " + GetName() + " after collision with " + Character->GetName());
+						Mode->GiveItemToCharacter(Character, State->GetItemFromActorClass(this));
+						Destroy();
+					}
 				}
 			}
 		}

@@ -29,9 +29,6 @@ public:
 	UPROPERTY()
 	TArray<ASubjectZero*> Characters;
 
-	UPROPERTY(EditDefaultsOnly)
-	UDataTable * ItemDatabase;
-
 	TMap<FString, float> HitBoxDamage;
 
 	virtual void SpawnPlayer(AHumanController * Controller);
@@ -51,12 +48,6 @@ public:
 	virtual void GiveStartingInventory(ASubjectZero * Character);
 
 	virtual void GiveItemToCharacter(ASubjectZero * Character, UItem * Item);
-
-	virtual UItem * GetItem(UStaticMesh * StaticMesh);
-
-	virtual UItem * GetItem(AWeapon * ActorClass);
-
-	virtual TSubclassOf<class AActor> GetActorClass(UItem * Item);
 
 private:
 	TArray<AActor*> SpawnPoints;

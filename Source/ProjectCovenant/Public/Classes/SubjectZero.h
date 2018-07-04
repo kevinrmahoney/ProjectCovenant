@@ -105,8 +105,8 @@ private:
 	float MaxArmor = 100.f;
 	float MaxShield = 100.f;
 	float MaxFuel = 1000.f;
-	float StandingHeight = 75.f;
-	float CrouchingHeight = 15.f;
+	float StandingHeight = 88.f;
+	float CrouchingHeight = 66.f;
 
 	bool Left = false;
 	bool Right = false;
@@ -336,7 +336,4 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayJetpackSound();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	TSubclassOf<class AActor> GetActorFromItemID(FName ItemID);
 };

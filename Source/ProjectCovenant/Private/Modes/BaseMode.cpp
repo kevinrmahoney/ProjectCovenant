@@ -7,6 +7,7 @@
 #include "BasePlayerState.h"
 #include "Item.h"
 #include "BaseMode.h"
+#include "BaseState.h"
 #include "Interactable.h"
 #include "Inventory.h"
 
@@ -223,18 +224,10 @@ void ABaseMode::SpawnInteractable(UItem * Item, FVector Position, FVector Veloci
 {
 	check(Item != nullptr)
 
-	UStaticMesh * StaticMesh = nullptr;						// mesh of the interactable
-	TArray<FName> RowNames = ItemDatabase->GetRowNames();	// get the row names of the item database to query later
-	FString ContextString;									// I don't know why but we need this in order to query
-
-	// Get the static mesh associated with the ItemID of Item from the item database
-	for(auto& Name : RowNames)
+	UStaticMesh * StaticMesh = nullptr;
+	if(ABaseState * State = Cast<ABaseState>(GameState))
 	{
-		FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
-		if(Item->ItemID == Row->ItemID)
-		{
-			StaticMesh = Row->Mesh;
-		}
+		StaticMesh = State->GetMeshFromItem(Item);
 	}
 
 	check(StaticMesh != nullptr)
@@ -281,77 +274,3 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 	//Cannon->ItemID = TEXT("7");
 	//GiveItemToCharacter(Character, Cannon);
 }
-
-/* Given a StaticMesh, search the ItemDatabase for its associated ItemID and create a new UItem with it
-*/
-UItem * ABaseMode::GetItem(UStaticMesh * StaticMesh)
-{
-	check(StaticMesh != nullptr)
-
-	// get row names of the item database
-	TArray<FName> RowNames = ItemDatabase->GetRowNames();
-	FString ContextString;
-
-	// find the item in the item database that has the same mesh as StaticMesh, 
-	// get its ItemID, and create a new UItem that has that ItemID
-	for(auto& Name : RowNames)
-	{
-		FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
-		if(Row && Row->Mesh && StaticMesh->GetName() == Row->Mesh->GetName())
-		{
-			UItem * NewItem = NewObject<UItem>(this, FName(*Row->Name));
-			NewItem->ItemID = Row->ItemID;
-			return NewItem;
-		}
-	}
-	return nullptr;
-}
-
-/* Given a ActorClass, search the ItemDatabase for its associated ItemID and create a new UItem with it
-*/
-UItem * ABaseMode::GetItem(AWeapon * ActorClass)
-{
-	check(ActorClass != nullptr)
-
-	// get row names of the item database
-	TArray<FName> RowNames = ItemDatabase->GetRowNames();
-	FString ContextString;
-
-	// find the item in the item database that has the same class as ActorClass, 
-	// get its ItemID, and create a new UItem that has that ItemID
-	for(auto& Name : RowNames)
-	{
-		FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
-		if(Row && Row->ActorClass == ActorClass->GetClass())
-		{
-			UItem * NewItem = NewObject<UItem>(this, FName(*Row->Name));
-			NewItem->ItemID = Row->ItemID;
-			return NewItem;
-		}
-	}
-	return nullptr;
-}
-
-/* Given a UItem, search the ItemDatabase for its associated ActorClass and return it
-*/
-TSubclassOf<class AActor> ABaseMode::GetActorClass(UItem * Item)
-{
-	check(Item != nullptr)
-
-	// get row names of the item database
-	TArray<FName> RowNames = ItemDatabase->GetRowNames();
-	FString ContextString;
-
-	// find the item in the item database that has the same ItemID as Item, 
-	// get the class associated with that ItemID, and return that class
-	for(auto& Name : RowNames)
-	{
-		FItemStruct * Row = ItemDatabase->FindRow<FItemStruct>(Name, ContextString);
-		if(Item->ItemID == Row->ItemID)
-		{
-			return Row->ActorClass;
-		}
-	}
-	return nullptr;
-}
-

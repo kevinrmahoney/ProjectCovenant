@@ -5,6 +5,7 @@
 #include "SubjectZero.h"
 #include "Item.h"
 #include "BaseMode.h"
+#include "BaseState.h"
 
 
 // Sets default values
@@ -59,9 +60,11 @@ void AWeaponPickup::GivePlayerWeapon(ASubjectZero * player)
 	{
 		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
 		{
-			UItem * WeaponItem = NewObject<UItem>(this, FName(*PickupWeapon->GetChildActorClass().GetDefaultObject()->GetName()));
-			WeaponItem->ItemID = GetItemID(PickupWeapon->GetChildActorClass());
-			Mode->GiveItemToCharacter(player, WeaponItem);
+			if(ABaseState * State = Cast<ABaseState>(Mode->GameState))
+			{
+				UItem * Item = State->GetItemFromActorClass(PickupWeapon->GetChildActorClass().GetDefaultObject());
+				Mode->GiveItemToCharacter(player, Item);
+			}
 		}
 	}
 }

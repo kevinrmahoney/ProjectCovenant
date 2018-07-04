@@ -12,6 +12,7 @@
 #include "Inventory.h"
 #include "Interactor.h"
 #include "Interactable.h"
+#include "BaseState.h"
 #include "ProjectCovenantInstance.h"
 
 
@@ -136,21 +137,21 @@ void ASubjectZero::Tick(float DeltaTime)
 	if(Crouching)
 	{
 		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		Camera->SetRelativeLocation(FVector(0.f, 0, CrouchingHeight));
-		GetCapsuleComponent()->SetCapsuleHalfHeight(66.f);
-		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -66.f));
+		Camera->SetRelativeLocation(FVector(0.f, 0, 15.f));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -CrouchingHeight));
 	}
 	else
 	{
 		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		Camera->SetRelativeLocation(FVector(0.f, 0, StandingHeight));
-		GetCapsuleComponent()->SetCapsuleHalfHeight(88.f);
-		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
+		Camera->SetRelativeLocation(FVector(0.f, 0, 75.f));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(StandingHeight);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -StandingHeight));
 	}
 	
 	// Set the trigger as pulled or not pulled
 
-	if (Weapon)
+	if(Weapon)
 	{
 		Weapon->AimDownSights(AimDownSights);
 		Weapon->SetTrigger(IsTriggerPulled);
@@ -281,21 +282,25 @@ void ASubjectZero::Equip(int Slot)
 			// Destroy the current weapon before creating a new one
 			if(Weapon) Weapon->Destroy();
 
-			// Get the Actor class that represents the Item
-			if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(NewItem->ItemID))
+			ABaseState * State = Cast<ABaseState>(GetWorld()->GetGameState());
+			if(State)
 			{
-				// Spawn the actor in the world, set the item associated with the actor to the item from the inventory
-				Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
-				if(Weapon)
+				// Get the Actor class that represents the Item
+				if(TSubclassOf<class AActor> ActorClass = State->GetActorClassFromItem(NewItem))
 				{
-					Weapon->SetItem(NewItem);
-					Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-					Weapon->SetShooter(this);
+					// Spawn the actor in the world, set the item associated with the actor to the item from the inventory
+					Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
+					if(Weapon)
+					{
+						Weapon->SetItem(NewItem);
+						Weapon->AttachToComponent(FirstPersonMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+						Weapon->SetShooter(this);
+					}
 				}
-			}
-			else
-			{
-				Logger::Log("Could not get actor class from item id " + NewItem->GetItemID().ToString());
+				else
+				{
+					Logger::Log("Could not get actor class from item id " + NewItem->GetItemID().ToString());
+				}
 			}
 		}
 	}
@@ -342,19 +347,26 @@ void ASubjectZero::OnRep_Equip()
 	{
 		Weapon->Destroy();
 	}
+	ABaseState * State = Cast<ABaseState>(GetWorld()->GetGameState());
+	if(State)
+	{
+		UItem * Item = NewObject<UItem>();
+		Item->ItemID = EquippedItemID;
 
-	if(TSubclassOf<class AActor> ActorClass = GetActorFromItemID(EquippedItemID))
-	{
-		Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
-		if(Weapon)
+		if(TSubclassOf<class AActor> ActorClass = State->GetActorClassFromItem(Item))
 		{
-			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
-			Weapon->SetShooter(this);
+			Weapon = GetWorld()->SpawnActor<AWeapon>(ActorClass);
+			if(Weapon)
+			{
+				Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("TriggerFinger"));
+				Weapon->SetShooter(this);
+			}
 		}
-	}
-	else
-	{
-		Logger::Log("Could not spawn actor on simulated proxy: " + EquippedItemID.ToString());
+		else
+		{
+			Logger::Log("Could not spawn actor on simulated proxy: " + EquippedItemID.ToString());
+		}
+		delete Item;
 	}
 }
 
@@ -883,11 +895,15 @@ void ASubjectZero::Interact(AInteractable * InteractableHit)
 
 	if(HasAuthority())
 	{
-		if(ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode()))
+		ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode());
+		if(Mode)
 		{
-			UItem * Item = Mode->GetItem(InteractableHit->GetStaticMeshComponent()->GetStaticMesh());
-			Mode->GiveItemToCharacter(this, Item);
-			InteractableHit->Destroy();
+			ABaseState * State = Cast<ABaseState>(Mode->GameState);
+			if(State)
+			{
+				Mode->GiveItemToCharacter(this, State->GetItemFromStaticMesh(InteractableHit->GetStaticMeshComponent()->GetStaticMesh()));
+				InteractableHit->Destroy();
+			}
 		}
 	}
 	else
@@ -981,7 +997,6 @@ void ASubjectZero::Atomize(UItem * ItemToDrop)
 	{
 		Weapon->Destroy();
 	}
-
 	Inventory->RemoveItem(ItemToDrop);
 
 	if(HasAuthority())

@@ -32,9 +32,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GivePlayerWeapon(ASubjectZero * player);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	FName GetItemID(TSubclassOf<class AActor> WeaponClass);
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UBoxComponent * BoxComponent;
 
