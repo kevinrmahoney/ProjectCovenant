@@ -72,6 +72,8 @@ Spawn location rotates over the course of the game
 */
 void ABaseMode::SpawnPlayer(AHumanController * Controller)
 {
+	checkf(SubjectZeroBP != nullptr, TEXT("SubjectZeroBP not set in BaseMode!"))
+
 	Logger::Log("Attempting to spawn player " + Controller->GetNetOwningPlayer()->GetName() + " as a SubjectZero");
 	if(Controller)
 	{
@@ -80,12 +82,12 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 			ASubjectZero * NewPawn;
 			if(SpawnPoints.Num())
 			{
-				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
+				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBP, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
 				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " (" + NewPawn->GetActorLocation().ToString() + ")");
 			}
 			else
 			{
-				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBlueprint, FVector::ZeroVector, FRotator::ZeroRotator);
+				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBP, FVector::ZeroVector, FRotator::ZeroRotator);
 				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " (" + NewPawn->GetActorLocation().ToString() + ")");
 			}
 			Characters.Add(NewPawn);
@@ -104,13 +106,15 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 
 void ABaseMode::KillPlayer(AHumanController * Controller)
 {
+	checkf(SpectatorBP != nullptr, TEXT("SpectatorBP not set in BaseMode!"))
+
 	if(Controller)
 	{
 		if(GetWorld())
 		{
 			if(APawn * OldPawn = Controller->AcknowledgedPawn)
 			{
-				ASpectator * NewPawn = GetWorld()->SpawnActor<ASpectator>(OldPawn->GetActorLocation(), OldPawn->GetActorRotation());
+				ASpectator * NewPawn = GetWorld()->SpawnActor<ASpectator>(SpectatorBP, OldPawn->GetActorLocation(), OldPawn->GetActorRotation());
 				Controller->Possess(NewPawn);
 				if(ASubjectZero * SubjectZero = Cast<ASubjectZero>(OldPawn))
 				{

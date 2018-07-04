@@ -24,7 +24,10 @@ public:
 	ABaseMode();
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class ASubjectZero> SubjectZeroBlueprint;
+	TSubclassOf<class ASubjectZero> SubjectZeroBP;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ASpectator> SpectatorBP;
 
 	UPROPERTY()
 	TArray<ASubjectZero*> Characters;

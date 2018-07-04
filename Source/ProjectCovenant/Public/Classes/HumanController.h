@@ -28,10 +28,12 @@ public:
 
 	void UnPossess() override;
 
-	UPROPERTY()
+	void SetPawn(APawn * NewPawn) override;
+
+	UPROPERTY(BlueprintReadOnly)
 	ASubjectZero * SubjectZero;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	ASpectator * Spectator;
 
 	UFUNCTION(BlueprintCallable)
@@ -45,11 +47,14 @@ public:
 
 	bool GodMode = false;
 
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class UUserWidget> HUD;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<class UUserWidget> SpectatorHUD;
 
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class UUserWidget> Scoreboard;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<class UUserWidget> SubjectZeroHUD;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<class UUserWidget> ScoreboardWidget;
 
 	UPROPERTY(BlueprintReadWrite)
 	UUserWidget * PlayerHUD;
@@ -72,6 +77,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ToggleInventory(bool Toggle);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void InitializeHUD();
+
 protected:
 	void BeginPlay();
 	void SetupInputComponent() override;
@@ -85,8 +93,6 @@ private:
 
 	UPROPERTY()
 	APawn * PossessedPawn;
-
-	void InitializeHUD();
 
 	void InputYaw(float Value);
 	void InputPitch(float Value);

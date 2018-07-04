@@ -24,7 +24,6 @@ void AHumanController::BeginPlay()
 
 	if(IsLocalController())
 	{
-		InitializeHUD();
 		UGameInstance * Instance = GetGameInstance();
 		GameInstance = Cast<UProjectCovenantInstance>(Instance);
 		if(GameInstance)
@@ -130,18 +129,29 @@ void AHumanController::Possess(APawn* aPawn)
 		SubjectZero = NewSubjectZero;
 		Spectator = nullptr;
 		UpdateHUD();
-	} 
+	}
 	else if(ASpectator * NewSpectator = Cast<ASpectator>(AcknowledgedPawn))
 	{
 		Logger::Log("Spawning as Spectator");
 		Spectator = NewSpectator;
 		SubjectZero = nullptr;
+		UpdateHUD();
 	}
 }
 
 void AHumanController::UnPossess()
 {
 	Super::UnPossess();
+}
+
+void AHumanController::SetPawn(APawn * NewPawn)
+{
+	Super::SetPawn(NewPawn);
+
+	if(IsLocalController())
+	{
+		InitializeHUD();
+	}
 }
 
 ASubjectZero * AHumanController::GetSubjectZero()
@@ -164,36 +174,8 @@ bool AHumanController::Server_Set_Name_Validate(FName Name)
 	return true;
 }
 
-void AHumanController::InitializeHUD()
+void AHumanController::InitializeHUD_Implementation()
 {
-	if(HUD)
-	{
-		PlayerHUD = CreateWidget<UUserWidget>(this, HUD);
-		if(PlayerHUD)
-		{
-			PlayerHUD->AddToViewport();
-			Logger::Log("Added HUD to viewport");
-		}
-		else
-		{
-			Logger::Error("Main widget failed to create");
-		}
-	}
-	else
-	{
-		Logger::Error("HUD failed to create");
-	}
-
-	Logger::Log("Initializing Scoreboard");
-	if(Scoreboard)
-	{
-		PlayerScoreboard = CreateWidget<UUserWidget>(this, Scoreboard);
-		if(PlayerScoreboard)
-		{
-			PlayerScoreboard->AddToViewport();
-			PlayerScoreboard->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
 }
 
 void AHumanController::InputYaw(float Value) 
@@ -479,10 +461,13 @@ void AHumanController::InputInteractPress()
 
 void AHumanController::InputScoreboardPress()
 {
-	PlayerScoreboard->SetVisibility(ESlateVisibility::Visible);
-	if(UScoreboardWidget * ScoreboardWidget = Cast<UScoreboardWidget>(PlayerScoreboard))
+	if(PlayerScoreboard)
 	{
-		ScoreboardWidget->Update();
+		PlayerScoreboard->SetVisibility(ESlateVisibility::Visible);
+		if(UScoreboardWidget * Scoreboard = Cast<UScoreboardWidget>(PlayerScoreboard))
+		{
+			Scoreboard->Update();
+		}
 	}
 }
 

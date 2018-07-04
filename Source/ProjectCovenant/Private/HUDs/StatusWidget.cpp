@@ -4,5 +4,7 @@
 #include "StatusWidget.h"
 
 
-
-
+void UStatusWidget::Update_Implementation()
+{
+	return;
+}

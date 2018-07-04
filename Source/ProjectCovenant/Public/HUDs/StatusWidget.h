@@ -13,8 +13,10 @@ UCLASS()
 class PROJECTCOVENANT_API UStatusWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
-	
+
+public:
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Update();
 	
 	
 };

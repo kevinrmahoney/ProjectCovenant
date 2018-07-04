@@ -409,6 +409,7 @@ void ASubjectZero::Jetpack()
 				if(Role == ROLE_Authority)
 				{
 					Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+					TryJetpack = TryJetpack && Fuel > 0.f;
 				}
 				Burst = false;
 			}
@@ -531,11 +532,6 @@ void ASubjectZero::Restart()
 	if(IsLocallyControlled())
 	{
 		RequestStartingInventory();
-
-		if(AHumanController * HumanController = Cast<AHumanController>(Controller))
-		{
-			HumanController->UpdateHUD();
-		}
 	}
 }
 
@@ -584,14 +580,7 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 			// Add the item to the server's inventory
 			Inventory->AddItem(Item);
 
-			if(IsLocallyControlled())
-			{
-				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
-				{
-					HumanController->UpdateHUD();
-				}
-			}
-			else
+			if(!IsLocallyControlled())
 			{
 				// Send RPC to update the client's inventory
 				FItemSerialized ItemSerialized = UItem::SerializeItem(Item);
@@ -607,11 +596,6 @@ void ASubjectZero::AddItemToInventory(UItem * Item)
 			{
 				// Add item to client's inventory
 				Inventory->AddItem(Item);
-
-				if(AHumanController * HumanController = Cast<AHumanController>(Controller))
-				{
-					HumanController->UpdateHUD();
-				}
 			}
 		}
 	}
