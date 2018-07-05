@@ -70,7 +70,8 @@ void AWeapon::Destroyed()
 
 	if(Item)
 	{
-		Item->LastShotTimeStamp = GetWorld()->GetRealTimeSeconds();
+		Item->LastShotTimeStamp = GetWorld()->GetRealTimeSeconds() - FireRateProgress;
+		Item->UnequipTimeStamp = GetWorld()->GetRealTimeSeconds();
 	}
 	Super::Destroyed();
 }
@@ -87,7 +88,8 @@ void AWeapon::SetItem(UItem * NewItem)
 		if(NewItem)
 		{
 			Item = NewItem;
-			FireRateProgress = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, FireRate);
+
+			FireRateProgress = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, FireRate;
 		}
 		else
 		{

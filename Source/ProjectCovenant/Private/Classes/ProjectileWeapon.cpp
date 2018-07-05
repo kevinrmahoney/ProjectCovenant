@@ -40,22 +40,13 @@ void AProjectileWeapon::SetItem(UItem * NewItem)
 			// Calculate how long its been since the last shot
 			Item = NewItem;
 			float TimeSinceLastShot = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp;
-
-			// WeaponSwitchCooldown represents a global cooldown for switching weapons. Wait at least this amount of time
-			// before allowing the gun to shoot. Wait a greater amount of time if the TimeSinceLastShot is longer
-			FireRateProgress = FireRateProgress + TimeSinceLastShot;
-
+			float TimeSinceUnequip = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->UnequipTimeStamp;
+			
 			Ammo = Item->Ammo;
+			FireRateProgress = TimeSinceLastShot;
 
 			// Based on the newly set variables, recalculate weapon's variables accounting for the time since the weapon has been shot.
-			WeaponSwitchCooldownProgress = -TimeSinceLastShot;
-			Update(TimeSinceLastShot);
-
-			// Make sure weapon waits the global weapon switch cooldown
-			if(FireRate - FireRateProgress < WeaponSwitchCooldown)
-			{
-				FireRateProgress = FireRate - WeaponSwitchCooldown;
-			}
+			WeaponSwitchCooldownProgress = 0.f;
 		}
 		else
 		{

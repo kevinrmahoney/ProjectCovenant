@@ -40,17 +40,18 @@ void AHitscanWeapon::SetItem(UItem * NewItem)
 			// Calculate how long its been since the last shot
 			Item = NewItem;
 			float TimeSinceLastShot = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp;
+			float TimeSinceUnequip = UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->UnequipTimeStamp;
 
-			// WeaponSwitchCooldown represents a global cooldown for switching weapons. Wait at least this amount of time
-			// before allowing the gun to shoot. Wait a greater amount of time if the TimeSinceLastShot is longer
-			FireRateProgress = FireRateProgress + TimeSinceLastShot;
+			FireRateProgress = TimeSinceLastShot;
+			CooldownPauseTimer = TimeSinceLastShot;
 
 			Heat = Item->Heat;
 			IsCoolingDown = Item->IsCoolingDown;
+
+			Heat = FMath::Max(Heat - CooldownRate * TimeSinceUnequip, 0.f);
 		
 			// Based on the newly set variables, recalculate weapon's variables accounting for the time since the weapon has been shot.
-			WeaponSwitchCooldownProgress = -TimeSinceLastShot;
-			Update(TimeSinceLastShot);
+			WeaponSwitchCooldownProgress = 0.f;
 		}
 		else
 		{
@@ -69,9 +70,10 @@ void AHitscanWeapon::Update(float DeltaTime)
 {
 	FireRateProgress = FireRateProgress + DeltaTime;
 	WeaponSwitchCooldownProgress = WeaponSwitchCooldownProgress + DeltaTime;
+	CooldownPauseTimer = CooldownPauseTimer + DeltaTime;
 
 	// If being forced to cooldown or cooling down after a shot
-	if(IsCoolingDown || FireRateProgress >= FireRate + CooldownPause)
+	if(IsCoolingDown || CooldownPauseTimer >= FireRate + CooldownPause)
 	{ 
 		Heat = FMath::Max(Heat - CooldownRate * DeltaTime, 0.f);
 	}
@@ -94,6 +96,7 @@ void AHitscanWeapon::Fire()
 
 	// Reset FireRateProgress and add heat
 	FireRateProgress = 0.f;
+	CooldownPauseTimer = 0.f;
 	Heat = Heat + HeatGeneratedPerShot;
 
 	// If heat added is greater than the heat threshold,

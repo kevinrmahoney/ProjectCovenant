@@ -71,6 +71,9 @@ public:
 	float LastShotTimeStamp = 0.f;
 
 	UPROPERTY()
+	float UnequipTimeStamp = 0.f;
+
+	UPROPERTY()
 	bool IsCoolingDown = 0.f;
 
 	UPROPERTY()
@@ -78,9 +81,6 @@ public:
 
 	UPROPERTY()
 	float Ammo = 0.f;
-
-	UFUNCTION()
-	void SetLastShotTimeStamp(UWorld * World);
 
 	UFUNCTION(BlueprintCallable)
 	virtual FName GetItemID();
