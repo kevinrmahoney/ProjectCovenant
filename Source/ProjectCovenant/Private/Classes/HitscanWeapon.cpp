@@ -70,12 +70,9 @@ void AHitscanWeapon::Update(float DeltaTime)
 	FireRateProgress = FireRateProgress + DeltaTime;
 	WeaponSwitchCooldownProgress = WeaponSwitchCooldownProgress + DeltaTime;
 
-	if(Shooter) Logger::Chat(FireRateProgress);
-
 	// If being forced to cooldown or cooling down after a shot
 	if(IsCoolingDown || FireRateProgress >= FireRate + CooldownPause)
 	{ 
-		Logger::Chat("HELLO?????");
 		Heat = FMath::Max(Heat - CooldownRate * DeltaTime, 0.f);
 	}
 
