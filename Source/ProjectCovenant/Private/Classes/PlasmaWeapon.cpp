@@ -50,13 +50,8 @@ void APlasmaWeapon::SetItem(UItem * NewItem)
 			IsCoolingDown = NewItem->IsCoolingDown;
 
 			// Based on the newly set variables, recalculate weapon's variables accounting for the time since the weapon has been shot.
+			WeaponSwitchCooldownProgress = -TimeSinceLastShot;
 			Update(TimeSinceLastShot);
-
-			// Make sure weapon waits the global weapon switch cooldown
-			if(FireRate - FireRateProgress < WeaponSwitchCooldown)
-			{
-				FireRateProgress = FireRate - WeaponSwitchCooldown;
-			}
 		}
 		else
 		{
@@ -68,6 +63,7 @@ void APlasmaWeapon::SetItem(UItem * NewItem)
 void APlasmaWeapon::Update(float DeltaTime)
 {
 	FireRateProgress = FireRateProgress + DeltaTime;
+	WeaponSwitchCooldownProgress = WeaponSwitchCooldownProgress + DeltaTime;
 
 	// If being forced to cooldown or cooling down after a shot
 	if(IsCoolingDown || FireRateProgress >= FireRate + CooldownPause)
@@ -84,7 +80,7 @@ void APlasmaWeapon::Update(float DeltaTime)
 
 bool APlasmaWeapon::CanFire()
 {
-	return FireRateProgress >= FireRate && !IsCoolingDown;
+	return FireRateProgress >= FireRate && !IsCoolingDown && Super::CanFire();
 }
 
 void APlasmaWeapon::Fire()

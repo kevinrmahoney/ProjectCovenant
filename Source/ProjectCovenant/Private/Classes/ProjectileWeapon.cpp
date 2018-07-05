@@ -48,6 +48,7 @@ void AProjectileWeapon::SetItem(UItem * NewItem)
 			Ammo = Item->Ammo;
 
 			// Based on the newly set variables, recalculate weapon's variables accounting for the time since the weapon has been shot.
+			WeaponSwitchCooldownProgress = -TimeSinceLastShot;
 			Update(TimeSinceLastShot);
 
 			// Make sure weapon waits the global weapon switch cooldown
@@ -72,6 +73,7 @@ void AProjectileWeapon::Tick(float DeltaTime)
 void AProjectileWeapon::Update(float DeltaTime)
 {
 	FireRateProgress = FireRateProgress + DeltaTime;
+	WeaponSwitchCooldownProgress = WeaponSwitchCooldownProgress + DeltaTime;
 
 	if(IsReloading)
 	{
@@ -86,7 +88,7 @@ void AProjectileWeapon::Update(float DeltaTime)
 
 bool AProjectileWeapon::CanFire()
 {
-	return Ammo > 0.f && !IsReloading && FireRateProgress >= FireRate;
+	return Ammo > 0.f && !IsReloading && FireRateProgress >= FireRate && Super::CanFire();
 }
 
 void AProjectileWeapon::Fire()

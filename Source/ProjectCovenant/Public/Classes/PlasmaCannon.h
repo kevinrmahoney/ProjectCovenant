@@ -17,6 +17,8 @@ class PROJECTCOVENANT_API APlasmaCannon : public APlasmaWeapon
 public:
 	APlasmaCannon();
 
+	void Destroyed() override;
+
 	bool IsCharging = false;
 
 	//(X=1.575968,Y=11.798502,Z=-153.145187)

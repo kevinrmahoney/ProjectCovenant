@@ -31,6 +31,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float WeaponSwitchCooldown = 0.5f;
 
+	UPROPERTY(BlueprintReadWrite)
+	float WeaponSwitchCooldownProgress = 0.f;
+
 	UPROPERTY(BlueprintReadOnly)
 	float FireRateProgress = 0.f;
 

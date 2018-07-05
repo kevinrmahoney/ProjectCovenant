@@ -21,9 +21,20 @@ APlasmaCannon::APlasmaCannon()
 	ShotVectors.Add(FVector(20000.f, 0.f, 0.f));
 }
 
+void APlasmaCannon::Destroyed()
+{
+	IsCharging = false;
+	if(CanFire())
+	{
+		Fire();
+	}
+	Super::Destroyed();
+}
+
 void APlasmaCannon::Update(float DeltaTime)
 {
 	FireRateProgress = FireRateProgress + DeltaTime;
+	WeaponSwitchCooldownProgress = WeaponSwitchCooldownProgress + DeltaTime;
 
 	// If being forced to cooldown or cooling down after a shot
 	if(IsCoolingDown || FireRateProgress >= FireRate + CooldownPause && !IsCharging)

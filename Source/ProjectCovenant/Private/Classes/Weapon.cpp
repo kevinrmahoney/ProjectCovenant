@@ -88,7 +88,6 @@ void AWeapon::SetItem(UItem * NewItem)
 		{
 			Item = NewItem;
 			FireRateProgress = FMath::Min(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - Item->LastShotTimeStamp, FireRate);
-			FireRateProgress = FireRateProgress - WeaponSwitchCooldown;
 		}
 		else
 		{
@@ -125,7 +124,7 @@ void AWeapon::Update(float DeltaTime)
 
 bool AWeapon::CanFire()
 {
-	return false;
+	return WeaponSwitchCooldownProgress >= WeaponSwitchCooldown;
 }
 
 void AWeapon::Fire()

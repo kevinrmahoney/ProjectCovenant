@@ -49,13 +49,8 @@ void AHitscanWeapon::SetItem(UItem * NewItem)
 			IsCoolingDown = Item->IsCoolingDown;
 		
 			// Based on the newly set variables, recalculate weapon's variables accounting for the time since the weapon has been shot.
+			WeaponSwitchCooldownProgress = -TimeSinceLastShot;
 			Update(TimeSinceLastShot);
-
-			// Make sure weapon waits the global weapon switch cooldown
-			if(FireRate - FireRateProgress < WeaponSwitchCooldown)
-			{
-				FireRateProgress = FireRate - WeaponSwitchCooldown;
-			}
 		}
 		else
 		{
@@ -73,10 +68,14 @@ void AHitscanWeapon::Tick(float DeltaTime)
 void AHitscanWeapon::Update(float DeltaTime)
 {
 	FireRateProgress = FireRateProgress + DeltaTime;
+	WeaponSwitchCooldownProgress = WeaponSwitchCooldownProgress + DeltaTime;
+
+	if(Shooter) Logger::Chat(FireRateProgress);
 
 	// If being forced to cooldown or cooling down after a shot
 	if(IsCoolingDown || FireRateProgress >= FireRate + CooldownPause)
 	{ 
+		Logger::Chat("HELLO?????");
 		Heat = FMath::Max(Heat - CooldownRate * DeltaTime, 0.f);
 	}
 
@@ -89,7 +88,7 @@ void AHitscanWeapon::Update(float DeltaTime)
 
 bool AHitscanWeapon::CanFire()
 {
-	return FireRateProgress >= FireRate && !IsCoolingDown;
+	return FireRateProgress >= FireRate && !IsCoolingDown && Super::CanFire();
 }
 
 void AHitscanWeapon::Fire()
