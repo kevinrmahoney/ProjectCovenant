@@ -24,7 +24,7 @@ APlasmaCannon::APlasmaCannon()
 void APlasmaCannon::Destroyed()
 {
 	IsCharging = false;
-	if(CanFire())
+	if(Trigger && CanFire())
 	{
 		Fire();
 	}
