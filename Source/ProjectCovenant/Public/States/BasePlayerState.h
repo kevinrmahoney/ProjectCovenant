@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerState.h"
 #include "BasePlayerState.generated.h"
 
+class UProjectCovenantInstance;
+
 /**
  * 
  */
@@ -21,6 +23,15 @@ public:
 	
 	UPROPERTY(Replicated)
 	FString Name = "Unknown";
+
+	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere)
+	USkeletalMesh * ThirdPersonSkin;
+
+	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere)
+	USkeletalMesh * FirstPersonSkin;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UProjectCovenantInstance * Instance;
 
 	UPROPERTY(Replicated)
 	int Kills = 0;

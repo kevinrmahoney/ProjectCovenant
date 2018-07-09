@@ -80,21 +80,35 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 		if(GetWorld())
 		{
 			ASubjectZero * NewPawn;
+			FVector SpawnLocation = FVector::ZeroVector;
+			FRotator SpawnRotation = FRotator::ZeroRotator;
+
 			if(SpawnPoints.Num())
 			{
-				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBP, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
-				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " (" + NewPawn->GetActorLocation().ToString() + ")");
+				SpawnLocation = SpawnPoints[SpawnCount]->GetActorLocation();
+				SpawnRotation = SpawnPoints[SpawnCount]->GetActorRotation();
 			}
-			else
-			{
-				NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBP, FVector::ZeroVector, FRotator::ZeroRotator);
-				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " (" + NewPawn->GetActorLocation().ToString() + ")");
-			}
-			Characters.Add(NewPawn);
 
-			APawn * OldPawn = Controller->GetPawn();
-			Controller->Possess(NewPawn);
-			if(OldPawn) OldPawn->Destroy();
+			NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBP, SpawnLocation, SpawnRotation);
+
+			if(NewPawn)
+			{
+				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " (" + SpawnLocation.ToString() + ")");
+				if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Controller->PlayerState))
+				{
+					if(PlayerState->ThirdPersonSkin && PlayerState->FirstPersonSkin)
+					{
+						NewPawn->SetSkin(PlayerState->ThirdPersonSkin, PlayerState->FirstPersonSkin);
+						Logger::Log("Spawned with skins: " + PlayerState->ThirdPersonSkin->GetName());
+					}
+				}
+			
+				Characters.Add(NewPawn);
+
+				APawn * OldPawn = Controller->GetPawn();
+				Controller->Possess(NewPawn);
+				if(OldPawn) OldPawn->Destroy();
+			}
 		}
 	}
 

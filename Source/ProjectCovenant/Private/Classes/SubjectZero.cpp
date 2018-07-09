@@ -515,6 +515,12 @@ bool ASubjectZero::ReceiveDamageOverTime(float DamageAmount, bool Overlapped) {
 	return true;
 }
 
+void ASubjectZero::SetSkin(USkeletalMesh * TPMesh, USkeletalMesh * FPMesh)
+{
+	GetMesh()->SetSkeletalMesh(TPMesh);
+	FirstPersonMesh->SetSkeletalMesh(FPMesh);
+}
+
 void ASubjectZero::Kill()
 {
 	GetMesh()->SetAllBodiesSimulatePhysics(true);

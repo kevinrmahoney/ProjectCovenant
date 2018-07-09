@@ -21,6 +21,12 @@ public:
 
 	UProjectCovenantInstance(const FObjectInitializer & ObjectIn);
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	USkeletalMesh * ThirdPersonSkin;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	USkeletalMesh * FirstPersonSkin;
+
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool SetProfileName(FName NewProfileName);
 

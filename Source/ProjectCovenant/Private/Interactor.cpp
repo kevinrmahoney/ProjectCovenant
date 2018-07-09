@@ -16,6 +16,7 @@ UInteractor::UInteractor()
 // Called when the game starts
 void UInteractor::BeginPlay()
 {
+	Super::BeginPlay();
 }
 
 AInteractable * UInteractor::GetInteractable()

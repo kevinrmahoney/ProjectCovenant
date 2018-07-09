@@ -3,13 +3,23 @@
 #include "ProjectCovenant.h"
 #include "UnrealNetwork.h"
 #include "BasePlayerState.h"
+#include "ProjectCovenantInstance.h"
 
 void ABasePlayerState::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
+
 	if(HasAuthority())
 	{
 		Logger::Log("PlayerState: BasePlayerState" + GetName());
+
+		if(Instance)
+		{
+			FirstPersonSkin = Instance->FirstPersonSkin;
+			ThirdPersonSkin = Instance->ThirdPersonSkin;
+		}
 	}
 }
 
@@ -22,6 +32,8 @@ void ABasePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & Ou
 	DOREPLIFETIME(ABasePlayerState, DamageDealt);
 	DOREPLIFETIME(ABasePlayerState, DamageTaken);
 	DOREPLIFETIME(ABasePlayerState, CurrentPing);
+	DOREPLIFETIME(ABasePlayerState, ThirdPersonSkin);
+	DOREPLIFETIME(ABasePlayerState, FirstPersonSkin);
 }
 
 void ABasePlayerState::Tick(float DeltaTime)

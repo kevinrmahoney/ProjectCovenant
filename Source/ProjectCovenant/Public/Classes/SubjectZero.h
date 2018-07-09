@@ -12,6 +12,22 @@ class UInventory;
 class UItem;
 struct FItemSerialized;
 
+USTRUCT(BlueprintType)
+struct FSkin : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMesh * ThirdPersonSkin;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMesh * FirstPersonSkin;
+};
+
 UCLASS()
 class PROJECTCOVENANT_API ASubjectZero : public ACharacter
 {
@@ -169,6 +185,8 @@ public:
 	void IncreaseFuel(float amount);
 
 	void DamageBoost(float Multiplier, float Duration);
+
+	void SetSkin(USkeletalMesh * TPMesh, USkeletalMesh * FPMesh);
   
 	void Kill();
 
