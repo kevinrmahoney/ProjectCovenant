@@ -9,18 +9,7 @@ void ABasePlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
-
-	if(HasAuthority())
-	{
-		Logger::Log("PlayerState: BasePlayerState" + GetName());
-
-		if(Instance)
-		{
-			FirstPersonSkin = Instance->FirstPersonSkin;
-			ThirdPersonSkin = Instance->ThirdPersonSkin;
-		}
-	}
+	Logger::Log("PlayerState: BasePlayerState" + GetName());
 }
 
 void ABasePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -32,8 +21,6 @@ void ABasePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & Ou
 	DOREPLIFETIME(ABasePlayerState, DamageDealt);
 	DOREPLIFETIME(ABasePlayerState, DamageTaken);
 	DOREPLIFETIME(ABasePlayerState, CurrentPing);
-	DOREPLIFETIME(ABasePlayerState, ThirdPersonSkin);
-	DOREPLIFETIME(ABasePlayerState, FirstPersonSkin);
 }
 
 void ABasePlayerState::Tick(float DeltaTime)

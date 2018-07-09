@@ -24,12 +24,6 @@ public:
 	UPROPERTY(Replicated)
 	FString Name = "Unknown";
 
-	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere)
-	USkeletalMesh * ThirdPersonSkin;
-
-	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere)
-	USkeletalMesh * FirstPersonSkin;
-
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UProjectCovenantInstance * Instance;
 

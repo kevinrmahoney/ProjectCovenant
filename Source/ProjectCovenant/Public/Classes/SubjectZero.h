@@ -337,6 +337,19 @@ public:
 	UFUNCTION()
 	void AddItemToInventory(UItem * Item);
 
+	UFUNCTION()
+	void RequestPreferredSkin();
+	UFUNCTION(Client, Reliable)
+	void ClientRequestPreferredSkin();
+
+	UFUNCTION()
+	void SetPreferredSkin(USkeletalMesh * ThirdPersonSkin, USkeletalMesh * FirstPersonSkin);
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetPreferredSkin(USkeletalMesh * ThirdPersonSkin, USkeletalMesh * FirstPersonSkin);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetPreferredSkin(USkeletalMesh * ThirdPersonSkin, USkeletalMesh * FirstPersonSkin);
+
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackUsed() const;
 

@@ -14,7 +14,6 @@
 
 AHumanController::AHumanController()
 {
-
 }
 
 void AHumanController::BeginPlay()

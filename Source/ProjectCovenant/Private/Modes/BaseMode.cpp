@@ -43,6 +43,11 @@ void ABaseMode::BeginPlay()
 void ABaseMode::PostLogin(APlayerController * NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
+
+	if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(NewPlayer->PlayerState))
+	{
+	}
+
 	Logger::Chat("Welcome " + NewPlayer->GetNetOwningPlayer()->GetName());
 	Logger::Log(NewPlayer->GetNetOwningPlayer()->GetName() + " has joined the game.");
 
@@ -94,20 +99,14 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 			if(NewPawn)
 			{
 				Logger::Log("Spawned player " + Controller->GetNetOwningPlayer()->GetName() + " (" + SpawnLocation.ToString() + ")");
-				if(ABasePlayerState * PlayerState = Cast<ABasePlayerState>(Controller->PlayerState))
-				{
-					if(PlayerState->ThirdPersonSkin && PlayerState->FirstPersonSkin)
-					{
-						NewPawn->SetSkin(PlayerState->ThirdPersonSkin, PlayerState->FirstPersonSkin);
-						Logger::Log("Spawned with skins: " + PlayerState->ThirdPersonSkin->GetName());
-					}
-				}
 			
 				Characters.Add(NewPawn);
 
 				APawn * OldPawn = Controller->GetPawn();
 				Controller->Possess(NewPawn);
 				if(OldPawn) OldPawn->Destroy();
+
+				NewPawn->RequestPreferredSkin();
 			}
 		}
 	}

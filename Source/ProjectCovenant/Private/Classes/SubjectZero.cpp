@@ -517,8 +517,10 @@ bool ASubjectZero::ReceiveDamageOverTime(float DamageAmount, bool Overlapped) {
 
 void ASubjectZero::SetSkin(USkeletalMesh * TPMesh, USkeletalMesh * FPMesh)
 {
-	GetMesh()->SetSkeletalMesh(TPMesh);
-	FirstPersonMesh->SetSkeletalMesh(FPMesh);
+	if(TPMesh) GetMesh()->SetSkeletalMesh(TPMesh);
+	if(FPMesh) FirstPersonMesh->SetSkeletalMesh(FPMesh);
+
+	if(TPMesh) Logger::Log("Player " + GetName() + " equipped skin " + TPMesh->GetName());
 }
 
 void ASubjectZero::Kill()
@@ -1064,6 +1066,77 @@ void ASubjectZero::CalculateMovement()
 		}
 		Movement.Z = Jumping ? 1.f : 0.f;
 	}
+}
+
+/* RequestPreferredSkin()
+	Request what the preferred skin is, as saved on each client's game instance,
+	then perform an action to equip the skin
+*/
+void ASubjectZero::RequestPreferredSkin()
+{
+	// If locally controlled, then a game instance should exist
+	if(IsLocallyControlled())
+	{
+		if(UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance()))
+		{
+			SetPreferredSkin(Instance->ThirdPersonSkin, Instance->FirstPersonSkin);
+		}
+	}
+	// If not locally controlled, send an RPC to the client requesting it
+	else
+	{
+		ClientRequestPreferredSkin();
+	}
+}
+
+/* ClientRequestPreferredSkin_Implementation()
+	Request the preferred skin from the client's side
+*/
+void ASubjectZero::ClientRequestPreferredSkin_Implementation()
+{
+	if(IsLocallyControlled())
+	{
+		RequestPreferredSkin();
+	}
+}
+
+/* SetPreferredSkin()
+	Set the skin to the preferred skin taken from the client.
+*/
+void ASubjectZero::SetPreferredSkin(USkeletalMesh * ThirdPersonSkin, USkeletalMesh * FirstPersonSkin)
+{
+	// If the server, then set the skin and multicast to all clients the new skin for the character
+	if(HasAuthority())
+	{
+		SetSkin(ThirdPersonSkin, FirstPersonSkin);
+		MulticastSetPreferredSkin(ThirdPersonSkin, FirstPersonSkin);
+	}
+	// If not the server, tell the server to do it
+	else
+	{
+		ServerSetPreferredSkin(ThirdPersonSkin, FirstPersonSkin);
+	}
+}
+
+/* ServerSetPreferredSkin_Implementation()
+	Set the preferred skin to the skins received from the client call to the server
+*/
+void ASubjectZero::ServerSetPreferredSkin_Implementation(USkeletalMesh * ThirdPersonSkin, USkeletalMesh * FirstPersonSkin)
+{
+	SetPreferredSkin(ThirdPersonSkin, FirstPersonSkin);
+}
+
+/* ServerSetPreferredSkin_Validate()
+	Detect if the skin is even available to the client
+*/
+bool ASubjectZero::ServerSetPreferredSkin_Validate(USkeletalMesh * ThirdPersonSkin, USkeletalMesh * FirstPersonSkin)
+{
+	return true;
+}
+
+void ASubjectZero::MulticastSetPreferredSkin_Implementation(USkeletalMesh * ThirdPersonSkin, USkeletalMesh * FirstPersonSkin)
+{
+	SetSkin(ThirdPersonSkin, FirstPersonSkin);
 }
 
 // Getters
