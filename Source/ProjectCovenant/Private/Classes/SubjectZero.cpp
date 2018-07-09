@@ -1134,6 +1134,9 @@ bool ASubjectZero::ServerSetPreferredSkin_Validate(USkeletalMesh * ThirdPersonSk
 	return true;
 }
 
+/* MulticastSetPreferredSkin_Implementation()
+	Send the setting of the skin to each client for this character
+*/
 void ASubjectZero::MulticastSetPreferredSkin_Implementation(USkeletalMesh * ThirdPersonSkin, USkeletalMesh * FirstPersonSkin)
 {
 	SetSkin(ThirdPersonSkin, FirstPersonSkin);
