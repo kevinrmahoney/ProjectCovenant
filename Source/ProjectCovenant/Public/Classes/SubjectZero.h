@@ -11,6 +11,7 @@ class AWeapon;
 class UInventory;
 class UItem;
 struct FItemSerialized;
+class IInteractableObject;
 
 USTRUCT(BlueprintType)
 struct FSkin : public FTableRowBase
@@ -253,10 +254,10 @@ public:
 	UFUNCTION()
 	void SetInteract(bool Set);
 	UFUNCTION()
-	void Interact(AInteractable * Interactable);
+	void InteractWith(TScriptInterface<IInteractableObject> Interactable);
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerInteract(AInteractable * Interactable);
-
+	void ServerInteractWith(UObject * Interactable);
+	
 	void Slot0();
 	void Slot1();
 	void Slot2();

@@ -873,44 +873,36 @@ void ASubjectZero::SetInteract(bool Set)
 {
 	if(Set)
 	{
-		AInteractable * InteractableHit = Interactor->GetInteractable();
-		if(InteractableHit)
+		IInteractableObject * InteractableObject = Interactor->GetInteractableObject();
+		if(InteractableObject)
 		{
-			Interact(InteractableHit);
+			InteractWith(InteractableObject->_getUObject());
 		}
 	}
 }
 
-void ASubjectZero::Interact(AInteractable * InteractableHit)
+void ASubjectZero::InteractWith(TScriptInterface<IInteractableObject> InteractableHit)
 {
-	check(InteractableHit != nullptr)
-
-	if(HasAuthority())
+	if(InteractableHit)
 	{
-		ABaseMode * Mode = Cast<ABaseMode>(GetWorld()->GetAuthGameMode());
-		if(Mode)
+		if(HasAuthority())
 		{
-			ABaseState * State = Cast<ABaseState>(Mode->GameState);
-			if(State)
-			{
-				Mode->GiveItemToCharacter(this, State->GetItemFromStaticMesh(InteractableHit->GetStaticMeshComponent()->GetStaticMesh()));
-				InteractableHit->Destroy();
-			}
+			InteractableHit->Interact(this);
+		}
+		else
+		{
+			ServerInteractWith(InteractableHit.GetObjectRef());
 		}
 	}
-	else
-	{
-		ServerInteract(InteractableHit);
-	}
 }
 
-
-void ASubjectZero::ServerInteract_Implementation(AInteractable * InteractableHit)
+void ASubjectZero::ServerInteractWith_Implementation(UObject * InteractableHit)
 {
-	Interact(InteractableHit);
+
+	InteractWith(Cast<IInteractableObject>(InteractableHit)->_getUObject());
 }
 
-bool ASubjectZero::ServerInteract_Validate(AInteractable * Interactable)
+bool ASubjectZero::ServerInteractWith_Validate(UObject * Interactable)
 {
 	return true;
 }

@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Interactable.h"
+#include "InteractableObject.h"
 #include "DropPod.generated.h"
 
 UCLASS()
-class PROJECTCOVENANT_API ADropPod : public APawn
+class PROJECTCOVENANT_API ADropPod : public APawn, public IInteractableObject
 {
 	GENERATED_BODY()
 
@@ -39,4 +40,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
+	virtual void Interact(ASubjectZero * Interactor) override;
+
 };

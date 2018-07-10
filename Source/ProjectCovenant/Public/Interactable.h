@@ -2,12 +2,13 @@
 
 #pragma once
 
+#include "InteractableObject.h"
 #include "Interactable.generated.h"
 
 class ASubjectZero;
 
 UCLASS()
-class PROJECTCOVENANT_API AInteractable : public AStaticMeshActor
+class PROJECTCOVENANT_API AInteractable : public AStaticMeshActor, public IInteractableObject
 {
 	GENERATED_BODY()
 
@@ -16,4 +17,6 @@ public:
 	AInteractable();
 
 	void SetMesh(UStaticMesh * NewMesh);
+
+	virtual void Interact(ASubjectZero * Interactor) override;
 };

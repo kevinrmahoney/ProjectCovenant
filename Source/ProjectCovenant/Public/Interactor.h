@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "InteractableObject.h"
 #include "Interactor.generated.h"
 
 class AInteractable;
@@ -25,6 +26,8 @@ protected:
 
 public:
 	AInteractable * GetInteractable();
+
+	IInteractableObject * GetInteractableObject();
 
 private:
 	const FHitResult GetFirstActor();

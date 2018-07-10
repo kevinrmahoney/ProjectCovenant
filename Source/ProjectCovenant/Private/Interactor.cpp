@@ -5,6 +5,7 @@
 #include "Weapon.h"
 #include "Interactable.h"
 #include "Interactor.h"
+#include "InteractableObject.h"
 
 
 // Sets default values for this component's properties
@@ -19,14 +20,13 @@ void UInteractor::BeginPlay()
 	Super::BeginPlay();
 }
 
-AInteractable * UInteractor::GetInteractable()
+IInteractableObject * UInteractor::GetInteractableObject()
 {
 	// Do a raycast in front and return the actor that is hit, if its an Interactable actor
 	FHitResult HitResult = GetFirstActor();
-	if (AInteractable * Interactable = Cast<AInteractable>(HitResult.Actor.Get()))
+	if(IInteractableObject * InteractableObject = Cast<IInteractableObject>(HitResult.Actor.Get()))
 	{
-		Logger::Log("Character " + GetOwner()->GetName() + " interacted with Interactable " + Interactable->GetName());
-		return Interactable;
+		return InteractableObject;
 	}
 	return nullptr;
 }

@@ -52,3 +52,7 @@ void ADropPod::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+void ADropPod::Interact(ASubjectZero * Interactor)
+{
+}
