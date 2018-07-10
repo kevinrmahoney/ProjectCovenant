@@ -51,7 +51,7 @@ void ASubjectZero::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
 	GetCharacterMovement()->AirControl = NormalAirControl;
 	GetCharacterMovement()->MaxAcceleration = GroundAcceleration;
-	GetCharacterMovement()->GravityScale = 1.f;
+	GetCharacterMovement()->GravityScale = NormalGravityScale;
 	GetCharacterMovement()->JumpZVelocity = JumpSpeed;
 	GetCharacterMovement()->GetPhysicsVolume()->TerminalVelocity = 10000.f;
 
@@ -214,7 +214,7 @@ void ASubjectZero::Update()
 	// Update pitch from controller
 	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
 	{
-		Pitch = GetController()->GetControlRotation().Pitch;
+		if(GetController()) Pitch = GetController()->GetControlRotation().Pitch;
 	}
 
 	if(Role == ROLE_Authority)

@@ -104,8 +104,9 @@ private:
 	FVector HipfireLocation = FVector(-15.419446f, 10.841988f, -152.856400f);
 
 	// constants
+	float NormalGravityScale = 1.f;
 	float NormalAirControl = 0.5f;
-	float JumpSpeed = 500.f;
+	float JumpSpeed = 700.f;
 	float JetpackSpeedScale = 1.f;
 	float StandingSprintSpeed = 600.f;
 	float StandingRunSpeed = 400.f;

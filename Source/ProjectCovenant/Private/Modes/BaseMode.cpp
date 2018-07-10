@@ -92,6 +92,7 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 			{
 				SpawnLocation = SpawnPoints[SpawnCount]->GetActorLocation();
 				SpawnRotation = SpawnPoints[SpawnCount]->GetActorRotation();
+				SpawnRotation.Pitch = 0.f;
 			}
 
 			NewPawn = GetWorld()->SpawnActor<ASubjectZero>(SubjectZeroBP, SpawnLocation, SpawnRotation);
@@ -192,6 +193,8 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 					Logger::Log("Dropping weapon " + Item->ItemID.ToString() + " from death of " + Victim->GetName() + " (" + Victim->GetActorLocation().ToString() + ")");
 				}
 			}
+
+			// TODO: This wont kill players that dont have a controlled SubjectZero. Turn this into a method call on the chracter itself.
 			KillPlayer(VictimController);
 		}
 		else

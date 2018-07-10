@@ -42,4 +42,19 @@ public:
 	
 	virtual void Interact(ASubjectZero * Interactor) override;
 
+	void InputYaw(float Value);
+	void InputPitch(float Value);
+	void InputForwardPress();
+	void InputForwardRelease();
+	void InputBackwardPress();
+	void InputBackwardRelease();
+	void InputLeftPress();
+	void InputLeftRelease();
+	void InputRightPress();
+	void InputRightRelease();
+	void InputJumpPress();
+	void InputJumpRelease();
+	void InputCrouchPress();
+	void InputCrouchRelease();
+	void InputInteractPress();
 };
