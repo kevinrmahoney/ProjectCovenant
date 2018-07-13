@@ -36,8 +36,6 @@ void AHumanController::BeginPlay()
 void AHumanController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SubjectZero = Cast<ASubjectZero>(AcknowledgedPawn);
-	Spectator = Cast<ASpectator>(AcknowledgedPawn);
 }
 
 void AHumanController::SetupInputComponent()
@@ -45,6 +43,7 @@ void AHumanController::SetupInputComponent()
 	Super::SetupInputComponent();
 	if(InputComponent)
 	{
+		Logger::Log(InputComponent->GetName());
 		InputComponent->BindAxis("Yaw", this, &AHumanController::InputYaw);
 		InputComponent->BindAxis("Pitch", this, &AHumanController::InputPitch);
 		InputComponent->BindAction("Jump", IE_Pressed, this, &AHumanController::InputJumpPress);
@@ -75,6 +74,10 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Reload", IE_Pressed, this, &AHumanController::InputReload);
 		InputComponent->BindAction("QuickInventory", IE_Pressed, this, &AHumanController::InputQuickOpenInventory);
 		InputComponent->BindAction("QuickInventory", IE_Released, this, &AHumanController::InputQuickCloseInventory);
+		for(int i = 0; i < InputComponent->GetNumActionBindings(); i++)
+		{
+			Logger::Log(InputComponent->GetActionBinding(i).ActionName.ToString());
+		}
 	}
 }
 
@@ -149,6 +152,8 @@ void AHumanController::SetPawn(APawn * NewPawn)
 
 	if(IsLocalController())
 	{
+		SubjectZero = Cast<ASubjectZero>(NewPawn);
+		Spectator = Cast<ASpectator>(NewPawn);
 		InitializeHUD();
 	}
 }

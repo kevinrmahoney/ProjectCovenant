@@ -8,6 +8,8 @@
 #include "InteractableObject.h"
 #include "DropPod.generated.h"
 
+class ASubjectZero;
+
 UCLASS()
 class PROJECTCOVENANT_API ADropPod : public APawn, public IInteractableObject
 {
@@ -17,8 +19,11 @@ public:
 	// Sets default values for this pawn's properties
 	ADropPod();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USceneComponent * Base;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	UBoxComponent * CollisionBox;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	UBoxComponent * InteractionBox;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	UStaticMeshComponent * DropPodMesh;
@@ -28,6 +33,12 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	UCameraComponent * Camera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USceneComponent * OccupantSocket;
+
+	UPROPERTY()
+	ASubjectZero * Occupant;
 
 protected:
 	// Called when the game starts or when spawned
@@ -42,6 +53,24 @@ public:
 	
 	virtual void Interact(ASubjectZero * Interactor) override;
 
+private:
+	FVector Movement = FVector::ZeroVector;
+	FVector Velocity = FVector::ZeroVector;
+
+	float Acceleration = 20.f;
+	float MaxSpeed = 100.f;
+	float TerminalVelocity = -10000.f;
+
+	bool HasLanded = false;
+
+	UFUNCTION()
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+
+	void Enter();
+	void Leave();
 	void InputYaw(float Value);
 	void InputPitch(float Value);
 	void InputForwardPress();

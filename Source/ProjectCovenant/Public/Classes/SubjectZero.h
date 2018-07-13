@@ -65,6 +65,7 @@ private:
 	UInventory * Inventory;
 
 	bool Grounded = false;
+	bool IsInPod = false;
 
 	float Time;
 	float TimeSinceJetpack = 0.f;
@@ -148,7 +149,10 @@ private:
 	void Move();
 
 	UFUNCTION()
-	void Jetpack();
+	void Jetpack(FVector Input);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerJetpack(FVector Input);
 
 	UFUNCTION()
 	void ApplyAirResistance();
@@ -173,6 +177,9 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	bool ReceiveDamage(float Damage, bool SelfDamage = false);
 
@@ -351,6 +358,11 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSetPreferredSkin(USkeletalMesh * ThirdPersonSkin, USkeletalMesh * FirstPersonSkin);
+
+	UFUNCTION()
+	void SetIsInPod(bool NewIsInPod);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastIsInPod(bool NewIsInPod);
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackUsed() const;

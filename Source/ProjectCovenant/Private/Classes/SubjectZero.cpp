@@ -90,39 +90,36 @@ void ASubjectZero::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
-	Update();
-	CalculateMovement();
-
-	// Comment / Uncomment this when finding a weapon's aim down sights and hipfire location
-	//AimDownSights = true;
-
-	if(Grounded)
-	{
-		if(Jumping)
-		{
-			Jump();
-		}
-		else
-		{
-			Move();
-		}
-	}
-	else
-	{
-		if(TryJetpack && Fuel > 0.f && Movement != FVector::ZeroVector && !IsJetpackDisabled)
-		{
-			Movement.Z = Jumping;
-			Jetpack();
-		}
-		else
-		{
-			Move();
-		}
-		ApplyAirResistance();
-	}
-
 	if(IsLocallyControlled())
 	{
+		Update();
+		CalculateMovement();
+
+		if(Grounded)
+		{
+			if(Jumping)
+			{
+				Jump();
+			}
+			else
+			{
+				Move();
+			}
+		}
+		else
+		{
+			if(TryJetpack && Fuel > 0.f && Movement != FVector::ZeroVector && !IsJetpackDisabled)
+			{
+				Movement.Z = Jumping;
+				Jetpack(Movement);
+			}
+			else
+			{
+				Move();
+			}
+			ApplyAirResistance();
+		}
+
 		if(AimDownSights)
 		{
 			Camera->FieldOfView = AimDownSightsFieldOfView;
@@ -131,37 +128,46 @@ void ASubjectZero::Tick(float DeltaTime)
 		{
 			Camera->FieldOfView = DefaultFieldOfView;
 		}
-	}
-
-	PlayJetpackSound();
-	if(Crouching)
-	{
-		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		Camera->SetRelativeLocation(FVector(0.f, 0, 15.f));
-		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight);
-		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -CrouchingHeight));
-	}
-	else
-	{
-		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		Camera->SetRelativeLocation(FVector(0.f, 0, 75.f));
-		GetCapsuleComponent()->SetCapsuleHalfHeight(StandingHeight);
-		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -StandingHeight));
-	}
 	
-	// Set the trigger as pulled or not pulled
-
-	if(Weapon)
-	{
-		Weapon->AimDownSights(AimDownSights);
-		Weapon->SetTrigger(IsTriggerPulled);
+		PlayJetpackSound();
+		if(Crouching)
+		{
+			Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			Camera->SetRelativeLocation(FVector(0.f, 0, 15.f));
+			GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight);
+			GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -CrouchingHeight));
+		}
+		else
+		{
+			Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			Camera->SetRelativeLocation(FVector(0.f, 0, 75.f));
+			GetCapsuleComponent()->SetCapsuleHalfHeight(StandingHeight);
+			GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -StandingHeight));
+		}
+	
+		// Set the trigger as pulled or not pulled
+		if(Weapon)
+		{
+			Weapon->AimDownSights(AimDownSights);
+			Weapon->SetTrigger(IsTriggerPulled);
+		}
 	}
+}
+
+// Called to bind functionality to input
+void ASubjectZero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 void ASubjectZero::Move()
 {
+	if(AimDownSights)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
+	}
 	// Update movement speeds depending on the character's stance
-	if(Sprinting && !Crouching)
+	else if(Sprinting && !Crouching)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
 	}
@@ -176,11 +182,6 @@ void ASubjectZero::Move()
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
-	}
-
-	if(AimDownSights)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
 	}
 
 	// Only move the character if you are locally controlling it (AddMovementInput takes care of networking)
@@ -217,7 +218,7 @@ void ASubjectZero::Update()
 		if(GetController()) Pitch = GetController()->GetControlRotation().Pitch;
 	}
 
-	if(Role == ROLE_Authority)
+	if(HasAuthority())
 	{
 		// Update time-sensitive states
 		// Shield recharge
@@ -256,6 +257,82 @@ void ASubjectZero::Update()
 		FRotator NewRotation = Camera->RelativeRotation;
 		NewRotation.Pitch = Pitch;
 		Camera->SetRelativeRotation(NewRotation);
+	}
+}
+
+void ASubjectZero::Jetpack(FVector Input)
+{
+	if(!HasAuthority())
+	{
+		ServerJetpack(Input);
+	}
+
+	if(Fuel > 0.f && !IsJetpackDisabled)
+	{
+		FRotator Rotation = Controller->GetControlRotation();
+		Rotation.Pitch = 0;
+
+		FVector RotatedMovement = Rotation.RotateVector(Input);
+		FVector AddedVelocity = FVector::ZeroVector;
+
+		float FuelUsed = 0.f;
+
+		// TODO: Lots of duplicate code here, needs refactoring (create "impulse" method to add velocity to CharacterMovement, other refactoring)
+		if(Burst && Fuel > MaxFuel * 0.25f)
+		{
+			// Create a vector that represents the movement of the character within the world
+			if(RotatedMovement != FVector(0.f, 0.f, 1.f))
+			{
+				RotatedMovement.Z = 0.f;
+				RotatedMovement.Normalize();
+			}
+
+			AddedVelocity = RotatedMovement * JetpackBurstImpulse;
+
+			FuelUsed = MaxFuel * 0.25f;
+
+			Burst = false;
+		}
+		else
+		{
+			// Create a vector that represents the movement of the character within the world
+			AddedVelocity = Time * FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
+			FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f));
+		}
+
+		GetCharacterMovement()->Velocity += AddedVelocity;
+
+		if(FuelUsed > 0.f)
+		{
+			TimeSinceJetpack = 0.f;
+			JetpackUsed = true;
+		}
+
+		TryJetpack = TryJetpack && Fuel > 0.f;
+
+		Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
+	}
+
+}
+
+void ASubjectZero::ServerJetpack_Implementation(FVector Input)
+{
+	Jetpack(Input);
+}
+
+bool ASubjectZero::ServerJetpack_Validate(FVector Input)
+{
+	return true;
+}
+
+void ASubjectZero::ApplyAirResistance()
+{
+	if(IsLocallyControlled() || HasAuthority())
+	{
+		float Magnitude = Velocity.Size();
+		FVector Direction = Velocity.GetSafeNormal();
+		FVector Force = -1.f * Direction * (Magnitude * Magnitude) * AirResistanceConstant * Time;
+		GetCharacterMovement()->Velocity += Force;
 	}
 }
 
@@ -367,85 +444,6 @@ void ASubjectZero::OnRep_Equip()
 			Logger::Log("Could not spawn actor on simulated proxy: " + EquippedItemID.ToString());
 		}
 		delete Item;
-	}
-}
-
-void ASubjectZero::Jetpack()
-{
-	if(IsLocallyControlled() || Role == ROLE_Authority)
-	{
-		if(Fuel > 0.f && !IsJetpackDisabled)
-		{
-			FRotator Rotation = Controller->GetControlRotation();
-			Rotation.Pitch = 0;
-
-			FVector RotatedMovement = Rotation.RotateVector(Movement);
-
-			// TODO: Lots of duplicate code here, needs refactoring (create "impulse" method to add velocity to CharacterMovement, other refactoring)
-			if(Burst && Fuel > MaxFuel * 0.25f)
-			{
-				// Create a vector that represents the movement of the character within the world
-				if(RotatedMovement == FVector(0.f, 0.f, 1.f))
-				{
-					RotatedMovement = FVector(0.f, 0.f, 1.f);
-				}
-				else
-				{
-					RotatedMovement.Z = 0.f;
-					RotatedMovement.Normalize();
-				}
-
-				FVector Force = RotatedMovement * JetpackBurstImpulse;
-				GetCharacterMovement()->Velocity += Force;
-
-				float FuelUsed = MaxFuel * 0.25f;
-
-				if(FuelUsed > 0.f)
-				{
-					TimeSinceJetpack = 0.f;
-					JetpackUsed = true;
-				}
-
-				if(Role == ROLE_Authority)
-				{
-					Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
-					TryJetpack = TryJetpack && Fuel > 0.f;
-				}
-				Burst = false;
-			}
-			else
-			{
-				// Create a vector that represents the movement of the character within the world
-				FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
-				Force = Force * Time;
-
-				GetCharacterMovement()->Velocity += Force;
-
-				float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f));
-
-				if(FuelUsed > 0.f)
-				{
-					TimeSinceJetpack = 0.f;
-					JetpackUsed = true;
-				}
-
-				if(Role == ROLE_Authority)
-				{
-					Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
-				}
-			}
-		}
-	}
-}
-
-void ASubjectZero::ApplyAirResistance()
-{
-	if(IsLocallyControlled() || Role == ROLE_Authority)
-	{
-		float Magnitude = Velocity.Size();
-		FVector Direction = Velocity.GetSafeNormal();
-		FVector Force = -1.f * Direction * (Magnitude * Magnitude) * AirResistanceConstant * Time;
-		GetCharacterMovement()->Velocity += Force;
 	}
 }
 
@@ -1124,6 +1122,31 @@ void ASubjectZero::ServerSetPreferredSkin_Implementation(USkeletalMesh * ThirdPe
 bool ASubjectZero::ServerSetPreferredSkin_Validate(USkeletalMesh * ThirdPersonSkin, USkeletalMesh * FirstPersonSkin)
 {
 	return true;
+}
+
+void ASubjectZero::SetIsInPod(bool NewIsInPod)
+{
+	Logger::Chat("SetIsInPod");
+
+	if(HasAuthority()) MulticastIsInPod(NewIsInPod);
+
+	IsInPod = NewIsInPod;
+
+	if(IsInPod)
+	{
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetCapsuleComponent()->SetEnableGravity(false);
+		SetActorRotation(GetActorForwardVector().Rotation());
+		GetCharacterMovement()->Velocity = FVector::ZeroVector;
+		GetCharacterMovement()->GravityScale = 0.f;
+		GetMesh()->SetEnableGravity(false);
+	}
+}
+
+void ASubjectZero::MulticastIsInPod_Implementation(bool NewIsInPod)
+{
+	Logger::Chat("MulticastIsInPod_Implementation");
+	if(!HasAuthority()) SetIsInPod(NewIsInPod);
 }
 
 /* MulticastSetPreferredSkin_Implementation()

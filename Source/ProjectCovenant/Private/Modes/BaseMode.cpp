@@ -91,7 +91,7 @@ void ABaseMode::SpawnPlayer(AHumanController * Controller)
 			if(SpawnPoints.Num())
 			{
 				SpawnLocation = SpawnPoints[SpawnCount]->GetActorLocation();
-				SpawnRotation = SpawnPoints[SpawnCount]->GetActorRotation();
+				SpawnRotation = SpawnPoints[SpawnCount]->GetActorForwardVector().Rotation();
 				SpawnRotation.Pitch = 0.f;
 			}
 
