@@ -2,7 +2,6 @@
 
 #include "ProjectCovenant.h"
 #include "RocketLauncher.h"
-#include "ItemWeapon.h"
 #include "SubjectZero.h"
 
 ARocketLauncher::ARocketLauncher()

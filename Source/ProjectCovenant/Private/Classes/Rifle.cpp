@@ -2,7 +2,6 @@
 
 #include "ProjectCovenant.h"
 #include "Rifle.h"
-#include "ItemWeapon.h"
 #include "SubjectZero.h"
 
 ARifle::ARifle()

@@ -2,7 +2,6 @@
 
 #include "ProjectCovenant.h"
 #include "Shotgun.h"
-#include "ItemWeapon.h"
 #include "SubjectZero.h"
 
 AShotgun::AShotgun()

@@ -53,6 +53,8 @@ public:
 	
 	virtual void Interact(ASubjectZero * Interactor) override;
 
+	void ApplyAirResistance();
+
 private:
 	FVector Movement = FVector::ZeroVector;
 	FVector Velocity = FVector::ZeroVector;
@@ -60,6 +62,7 @@ private:
 	float Acceleration = 20.f;
 	float MaxSpeed = 100.f;
 	float TerminalVelocity = -10000.f;
+	float AirResistanceConstant = 0.00004f;
 
 	bool HasLanded = false;
 

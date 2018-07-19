@@ -2,7 +2,6 @@
 
 #include "ProjectCovenant.h"
 #include "Sniper.h"
-#include "ItemWeapon.h"
 #include "SubjectZero.h"
 #include "HumanController.h"
 

@@ -6,7 +6,6 @@
 #include "SubjectZero.h"
 #include "HumanController.h"
 #include "UnrealNetwork.h"
-#include "ItemWeapon.h"
 #include "BaseMode.h"
 
 // Sets default values

@@ -4,7 +4,6 @@
 #include "Classes/SubjectZero.h"
 #include "UnrealNetwork.h"
 #include "Item.h"
-#include "ItemWeapon.h"
 #include "Weapon.h"
 #include "Railgun.h"
 #include "Shotgun.h"
@@ -65,11 +64,11 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 {
 	// The follow variables are replicated from server to the clients
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASubjectZero, Health)
-	DOREPLIFETIME(ASubjectZero, Armor)
-	DOREPLIFETIME(ASubjectZero, Shield)
-	DOREPLIFETIME(ASubjectZero, Fuel)
-	DOREPLIFETIME(ASubjectZero, IsJetpackDisabled)
+	DOREPLIFETIME_CONDITION(ASubjectZero, Health, COND_AutonomousOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, Armor, COND_AutonomousOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, Shield, COND_AutonomousOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, Fuel, COND_AutonomousOnly)
+	DOREPLIFETIME_CONDITION(ASubjectZero, IsJetpackDisabled, COND_AutonomousOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Pitch, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, EquippedItemID, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
@@ -90,10 +89,65 @@ void ASubjectZero::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Time = DeltaTime;
 
+	Grounded = !GetCharacterMovement()->IsFalling();
+	JetpackUsed = false;
+	if(Grounded || AimDownSights) TryJetpack = false;
+	if(GetController()) Pitch = GetController()->GetControlRotation().Pitch;
+
+	if(HasAuthority())
+	{
+		// Damage boost
+		if(DamageMultiplierDuration > 0.f)
+		{
+			DamageMultiplierDuration = DamageMultiplierDuration - Time;
+			if(DamageMultiplierDuration <= 0.f)
+			{
+				DamageMultiplier = 1.f;
+			}
+		}
+	}
+
+	if(!IsLocallyControlled())
+	{
+		// Update pitch of camera (which is the anchor of equipped weapon)
+		FRotator NewRotation = Camera->RelativeRotation;
+		NewRotation.Pitch = Pitch;
+		Camera->SetRelativeRotation(NewRotation);
+	}
+
+	Update();
+
 	if(IsLocallyControlled())
 	{
-		Update();
-		CalculateMovement();
+		if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
+		{
+			if(Backward && !Forward)
+			{
+				Movement.X = -1.f;
+			}
+			else if(Forward && !Backward)
+			{
+				Movement.X = 1.f;
+			}
+			else
+			{
+				Movement.X = 0.f;
+			}
+
+			if(Left && !Right)
+			{
+				Movement.Y = -1.f;
+			}
+			else if(Right && !Left)
+			{
+				Movement.Y = 1.f;
+			}
+			else
+			{
+				Movement.Y = 0.f;
+			}
+			Movement.Z = Jumping ? 1.f : 0.f;
+		}
 
 		if(Grounded)
 		{
@@ -128,29 +182,8 @@ void ASubjectZero::Tick(float DeltaTime)
 		{
 			Camera->FieldOfView = DefaultFieldOfView;
 		}
-	
+
 		PlayJetpackSound();
-		if(Crouching)
-		{
-			Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-			Camera->SetRelativeLocation(FVector(0.f, 0, 15.f));
-			GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight);
-			GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -CrouchingHeight));
-		}
-		else
-		{
-			Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-			Camera->SetRelativeLocation(FVector(0.f, 0, 75.f));
-			GetCapsuleComponent()->SetCapsuleHalfHeight(StandingHeight);
-			GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -StandingHeight));
-		}
-	
-		// Set the trigger as pulled or not pulled
-		if(Weapon)
-		{
-			Weapon->AimDownSights(AimDownSights);
-			Weapon->SetTrigger(IsTriggerPulled);
-		}
 	}
 }
 
@@ -158,32 +191,43 @@ void ASubjectZero::Tick(float DeltaTime)
 void ASubjectZero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	AHumanController * Human = Cast<AHumanController>(GetController());
+	if(Human && PlayerInputComponent)
+	{
+		PlayerInputComponent->BindAxis("Yaw", this, &ASubjectZero::SetYaw);
+		PlayerInputComponent->BindAxis("Pitch", this, &ASubjectZero::SetPitch);
+		PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASubjectZero::StartJump);
+		PlayerInputComponent->BindAction("Jump", IE_Released, this, &ASubjectZero::StopJump);
+		PlayerInputComponent->BindAction("Burst", IE_DoubleClick, this, &ASubjectZero::SetBurst);
+		PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASubjectZero::StartSprinting);
+		PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASubjectZero::StopSprinting);
+		PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASubjectZero::StartCrouching);
+		PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASubjectZero::StopCrouching);
+		PlayerInputComponent->BindAction("Forward", IE_Pressed, this, &ASubjectZero::StartMovingForward);
+		PlayerInputComponent->BindAction("Forward", IE_Released, this, &ASubjectZero::StopMovingForward);
+		PlayerInputComponent->BindAction("Backward", IE_Pressed, this, &ASubjectZero::StartMovingBackward);
+		PlayerInputComponent->BindAction("Backward", IE_Released, this, &ASubjectZero::StopMovingBackward);
+		PlayerInputComponent->BindAction("Left", IE_Pressed, this, &ASubjectZero::StartMovingLeft);
+		PlayerInputComponent->BindAction("Left", IE_Released, this, &ASubjectZero::StopMovingLeft);
+		PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ASubjectZero::StartMovingRight);
+		PlayerInputComponent->BindAction("Right", IE_Released, this, &ASubjectZero::StopMovingRight);
+		PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASubjectZero::StartFiring);
+		PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASubjectZero::StopFiring);
+		PlayerInputComponent->BindAction("SecondaryFire", IE_Pressed, this, &ASubjectZero::StartSecondaryFiring);
+		PlayerInputComponent->BindAction("SecondaryFire", IE_Released, this, &ASubjectZero::StopSecondaryFiring);
+		PlayerInputComponent->BindAction("Slot 1", IE_Pressed, this, &ASubjectZero::EquipFirstWeapon);
+		PlayerInputComponent->BindAction("Slot 2", IE_Pressed, this, &ASubjectZero::EquipSecondWeapon);
+		PlayerInputComponent->BindAction("Slot 3", IE_Pressed, this, &ASubjectZero::EquipThirdWeapon);
+		PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ASubjectZero::StartInteracting);
+		PlayerInputComponent->BindAction("Use", IE_Released, this, &ASubjectZero::StopInteracting);
+		PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASubjectZero::Reload);
+		GetController()->InputComponent = PlayerInputComponent;
+	}
 }
 
 void ASubjectZero::Move()
 {
-	if(AimDownSights)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
-	}
-	// Update movement speeds depending on the character's stance
-	else if(Sprinting && !Crouching)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
-	}
-	else if(Sprinting && Crouching)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
-	}
-	else if(!Sprinting && Crouching)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
-	}
-	else
-	{
-		GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
-	}
-
 	// Only move the character if you are locally controlling it (AddMovementInput takes care of networking)
 	if(IsLocallyControlled())
 	{
@@ -206,17 +250,7 @@ void ASubjectZero::Move()
 
 void ASubjectZero::Update()
 {
-	Grounded = !GetCharacterMovement()->IsFalling();
 	Velocity = GetVelocity();
-	JetpackUsed = false;
-
-	if(Grounded || AimDownSights) TryJetpack = false;
-
-	// Update pitch from controller
-	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
-	{
-		if(GetController()) Pitch = GetController()->GetControlRotation().Pitch;
-	}
 
 	if(HasAuthority())
 	{
@@ -236,27 +270,57 @@ void ASubjectZero::Update()
 			IsJetpackDisabled = false;
 		}
 
-		// Damage boost
-		if(DamageMultiplierDuration > 0.f)
-		{
-			DamageMultiplierDuration = DamageMultiplierDuration - Time;
-			if(DamageMultiplierDuration <= 0.f)
-			{
-				DamageMultiplier = 1.f;
-			}
-		}
-
 		// Jetpack
 		TimeSinceJetpack += Time;
+
 		if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
 		{
 			Fuel = FMath::Min(MaxFuel, Fuel + (FuelOverTime * Time));
 		}
+	}
 
-		// Update pitch of camera (which is the anchor of equipped weapon)
-		FRotator NewRotation = Camera->RelativeRotation;
-		NewRotation.Pitch = Pitch;
-		Camera->SetRelativeRotation(NewRotation);
+	if(AimDownSights)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = AimDownSightsSpeed;
+	}
+	// Update movement speeds depending on the character's stance
+	else if(Sprinting && !Crouching)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
+	}
+	else if(Sprinting && Crouching)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
+	}
+	else if(!Sprinting && Crouching)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
+	}
+
+	if(Crouching)
+	{
+		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		Camera->SetRelativeLocation(FVector(0.f, 0, 15.f));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -CrouchingHeight));
+	}
+	else
+	{
+		Camera->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		Camera->SetRelativeLocation(FVector(0.f, 0, 75.f));
+		GetCapsuleComponent()->SetCapsuleHalfHeight(StandingHeight);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -StandingHeight));
+	}
+
+	// Set the trigger as pulled or not pulled
+	if(Weapon)
+	{
+		Weapon->AimDownSights(AimDownSights);
+		Weapon->SetTrigger(IsTriggerPulled);
 	}
 }
 
@@ -267,7 +331,7 @@ void ASubjectZero::Jetpack(FVector Input)
 		ServerJetpack(Input);
 	}
 
-	if(Fuel > 0.f && !IsJetpackDisabled)
+	if(Fuel > 0.f)
 	{
 		FRotator Rotation = Controller->GetControlRotation();
 		Rotation.Pitch = 0;
@@ -638,53 +702,48 @@ void ASubjectZero::DamageBoost(float BoostMultiplier, float BoostDuration)
 
 void ASubjectZero::SetYaw(float Set)
 {
-	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set);
-}
-
-void ASubjectZero::ServerSetYaw_Implementation(float Set)
-{
-
-}
-
-bool ASubjectZero::ServerSetYaw_Validate(float Set)
-{
-	return true;
+	UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
+	float Sensitivity = 1.f;
+	if(Instance)
+	{
+		Sensitivity = Instance->GetSensitivity();
+	}
+	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 }
 
 void ASubjectZero::SetPitch(float Set)
 {
-	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
+	UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
+	float Sensitivity = 1.f;
+	if(Instance)
+	{
+		Sensitivity = Instance->GetSensitivity();
+	}
+	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
+}
+
+void ASubjectZero::StartCrouching()
+{
+	Crouching = true;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		//ServerSetPitch(Controller->GetControlRotation().Pitch);
+		ServerSetCrouch(Crouching);
 	}
 }
 
-void ASubjectZero::ServerSetPitch_Implementation(float NewPitch)
+void ASubjectZero::StopCrouching()
 {
-	FRotator NewRotation = Controller->GetControlRotation();
-	NewRotation.Pitch = NewPitch;
-	Controller->SetControlRotation(NewRotation);
-	Pitch = NewPitch;
-}
-
-bool ASubjectZero::ServerSetPitch_Validate(float NewPitch)
-{
-	return true;
-}
-
-void ASubjectZero::SetCrouch(bool Set)
-{
+	Crouching = false;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		ServerSetCrouch(Set);
+		ServerSetCrouch(Crouching);
 	}
-	Crouching = Set;
 }
 
 void ASubjectZero::ServerSetCrouch_Implementation(bool Set)
 {
-	SetCrouch(Set);
+	if(Set) StartCrouching();
+	else StopCrouching();
 }
 
 bool ASubjectZero::ServerSetCrouch_Validate(bool Set)
@@ -692,18 +751,28 @@ bool ASubjectZero::ServerSetCrouch_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetSprint(bool Set)
+void ASubjectZero::StartSprinting()
 {
+	Sprinting = true;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		ServerSetSprint(Set);
+		ServerSetSprint(Sprinting);
 	}
-	Sprinting = Set;
+}
+
+void ASubjectZero::StopSprinting()
+{
+	Sprinting = false;
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetSprint(Sprinting);
+	}
 }
 
 void ASubjectZero::ServerSetSprint_Implementation(bool Set)
 {
-	SetSprint(Set);
+	if(Set) StartSprinting();
+	else StopSprinting();
 }
 
 bool ASubjectZero::ServerSetSprint_Validate(bool Set)
@@ -711,22 +780,32 @@ bool ASubjectZero::ServerSetSprint_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetJump(bool Set)
+void ASubjectZero::StartJump()
 {
+	Jumping = true;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		ServerSetJump(Set);
+		ServerSetJump(Jumping);
 	}
-	Jumping = Set;
 	if(!Grounded && Jumping)
 	{
 		TryJetpack = true;
 	}
 }
 
+void ASubjectZero::StopJump()
+{
+	Jumping = false;
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetJump(Jumping);
+	}
+}
+
 void ASubjectZero::ServerSetJump_Implementation(bool Set)
 {
-	SetJump(Set);
+	if(Set) StartJump();
+	else StopJump();
 }
 
 bool ASubjectZero::ServerSetJump_Validate(bool Set)
@@ -734,37 +813,47 @@ bool ASubjectZero::ServerSetJump_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetBurst(bool Set)
+void ASubjectZero::SetBurst()
 {
+	Burst = true;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		ServerSetBurst(Set);
+		ServerSetBurst();
 	}
-	Burst = Set;
 }
 
-void ASubjectZero::ServerSetBurst_Implementation(bool Set)
+void ASubjectZero::ServerSetBurst_Implementation()
 {
-	SetBurst(Set);
+	SetBurst();
 }
 
-bool ASubjectZero::ServerSetBurst_Validate(bool Set)
+bool ASubjectZero::ServerSetBurst_Validate()
 {
 	return true;
 }
 
-void ASubjectZero::SetMoveLeft(bool Set)
+void ASubjectZero::StartMovingLeft()
 {
+	Left = true;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		ServerSetMoveLeft(Set);
+		ServerSetMoveLeft(Left);
 	}
-	Left = Set;
+}
+
+void ASubjectZero::StopMovingLeft()
+{
+	Left = false;
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetMoveLeft(Left);
+	}
 }
 
 void ASubjectZero::ServerSetMoveLeft_Implementation(bool Set)
 {
-	SetMoveLeft(Set);
+	if(Set) StartMovingLeft();
+	else StopMovingLeft();
 }
 
 bool ASubjectZero::ServerSetMoveLeft_Validate(bool Set)
@@ -772,18 +861,28 @@ bool ASubjectZero::ServerSetMoveLeft_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetMoveRight(bool Set)
+void ASubjectZero::StartMovingRight()
 {
+	Right = true;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		ServerSetMoveRight(Set);
+		ServerSetMoveRight(Right);
 	}
-	Right = Set;
+}
+
+void ASubjectZero::StopMovingRight()
+{
+	Right = false;
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetMoveRight(Right);
+	}
 }
 
 void ASubjectZero::ServerSetMoveRight_Implementation(bool Set)
 {
-	SetMoveRight(Set);
+	if(Set) StartMovingRight();
+	else StopMovingRight();
 }
 
 bool ASubjectZero::ServerSetMoveRight_Validate(bool Set)
@@ -791,18 +890,28 @@ bool ASubjectZero::ServerSetMoveRight_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetMoveForward(bool Set)
+void ASubjectZero::StartMovingForward()
 {
+	Forward = true;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		ServerSetMoveForward(Set);
+		ServerSetMoveForward(Forward);
 	}
-	Forward = Set;
+}
+
+void ASubjectZero::StopMovingForward()
+{
+	Forward = false;
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetMoveForward(Forward);
+	}
 }
 
 void ASubjectZero::ServerSetMoveForward_Implementation(bool Set)
 {
-	SetMoveForward(Set);
+	if(Set) StartMovingForward();
+	else StopMovingForward();
 }
 
 bool ASubjectZero::ServerSetMoveForward_Validate(bool Set)
@@ -810,18 +919,28 @@ bool ASubjectZero::ServerSetMoveForward_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetMoveBackward(bool Set)
+void ASubjectZero::StartMovingBackward()
 {
+	Backward = true;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		ServerSetMoveBackward(Set);
+		ServerSetMoveBackward(Backward);
 	}
-	Backward = Set;
+}
+
+void ASubjectZero::StopMovingBackward()
+{
+	Backward = false;
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetMoveBackward(Backward);
+	}
 }
 
 void ASubjectZero::ServerSetMoveBackward_Implementation(bool Set)
 {
-	SetMoveBackward(Set);
+	if(Set) StartMovingBackward();
+	else StopMovingBackward();
 }
 
 bool ASubjectZero::ServerSetMoveBackward_Validate(bool Set)
@@ -829,18 +948,28 @@ bool ASubjectZero::ServerSetMoveBackward_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetFire(bool Set)
+void ASubjectZero::StartFiring()
 {
+	IsTriggerPulled = true;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		ServerSetFire(Set);
+		ServerSetFire(IsTriggerPulled);
 	}
-	IsTriggerPulled = Set;
+}
+
+void ASubjectZero::StopFiring()
+{
+	IsTriggerPulled = false;
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetFire(IsTriggerPulled);
+	}
 }
 
 void ASubjectZero::ServerSetFire_Implementation(bool Set)
 {
-	SetFire(Set);
+	if(Set) StartFiring();
+	else StopFiring();
 }
 
 bool ASubjectZero::ServerSetFire_Validate(bool Set)
@@ -848,18 +977,28 @@ bool ASubjectZero::ServerSetFire_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetSecondaryFire(bool Set)
+void ASubjectZero::StartSecondaryFiring()
 {
+	AimDownSights = true;
 	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
 	{
-		ServerSetSecondaryFire(Set);
+		ServerSetSecondaryFire(AimDownSights);
 	}
-	AimDownSights = Set;
+}
+
+void ASubjectZero::StopSecondaryFiring()
+{
+	AimDownSights = false;
+	if(Role == ROLE_AutonomousProxy && IsLocallyControlled())
+	{
+		ServerSetSecondaryFire(AimDownSights);
+	}
 }
 
 void ASubjectZero::ServerSetSecondaryFire_Implementation(bool Set)
 {
-	SetSecondaryFire(Set);
+	if(Set) StartSecondaryFiring();
+	else StopSecondaryFiring();
 }
 
 bool ASubjectZero::ServerSetSecondaryFire_Validate(bool Set)
@@ -867,15 +1006,21 @@ bool ASubjectZero::ServerSetSecondaryFire_Validate(bool Set)
 	return true;
 }
 
-void ASubjectZero::SetInteract(bool Set)
+void ASubjectZero::StartInteracting()
 {
-	if(Set)
+	IInteractableObject * InteractableObject = Interactor->GetInteractableObject();
+	if(InteractableObject)
 	{
-		IInteractableObject * InteractableObject = Interactor->GetInteractableObject();
-		if(InteractableObject)
-		{
-			InteractWith(InteractableObject->_getUObject());
-		}
+		InteractWith(InteractableObject->_getUObject());
+	}
+}
+
+void ASubjectZero::StopInteracting()
+{
+	IInteractableObject * InteractableObject = Interactor->GetInteractableObject();
+	if(InteractableObject)
+	{
+		InteractWith(InteractableObject->_getUObject());
 	}
 }
 
@@ -905,18 +1050,17 @@ bool ASubjectZero::ServerInteractWith_Validate(UObject * Interactable)
 	return true;
 }
 
-void ASubjectZero::Slot0()
+void ASubjectZero::EquipFirstWeapon()
 {
 	Equip(0);
 }
 
-void ASubjectZero::Slot1()
+void ASubjectZero::EquipSecondWeapon()
 {
 	Equip(1);
 }
 
-
-void ASubjectZero::Slot2()
+void ASubjectZero::EquipThirdWeapon()
 {
 	Equip(2);
 }
@@ -1027,35 +1171,7 @@ bool ASubjectZero::ServerReload_Validate()
 
 void ASubjectZero::CalculateMovement()
 {
-	if(Role == ROLE_Authority || Role == ROLE_AutonomousProxy)
-	{
-		if(Backward && !Forward)
-		{
-			Movement.X = -1.f;
-		}
-		else if(Forward && !Backward)
-		{
-			Movement.X = 1.f;
-		}
-		else
-		{
-			Movement.X = 0.f;
-		}
-
-		if(Left && !Right)
-		{
-			Movement.Y = -1.f;
-		}
-		else if(Right && !Left)
-		{
-			Movement.Y = 1.f;
-		}
-		else
-		{
-			Movement.Y = 0.f;
-		}
-		Movement.Z = Jumping ? 1.f : 0.f;
-	}
+	
 }
 
 /* RequestPreferredSkin()
@@ -1177,6 +1293,7 @@ bool ASubjectZero::IsJetpackActive() const { return TryJetpack; }
 bool ASubjectZero::IsSprinting() const { return Sprinting; }
 bool ASubjectZero::IsCrouching() const { return Crouching; }
 bool ASubjectZero::IsAimingDownSights() const { return AimDownSights; }
+bool ASubjectZero::GetIsInPod() const { return IsInPod; }
 
 // Getters
 FName ASubjectZero::GetPlayerName() const {

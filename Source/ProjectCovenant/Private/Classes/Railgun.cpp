@@ -3,7 +3,6 @@
 #include "ProjectCovenant.h"
 #include "Railgun.h"
 #include "BasePlayerState.h"
-#include "ItemWeapon.h"
 #include "SubjectZero.h"
 
 // Sets default values

@@ -69,6 +69,7 @@ void ADropPod::Tick(float DeltaTime)
 			//Velocity.Z = FMath::Max(Velocity.Z - Acceleration * 0.5f, TerminalVelocity);
 			AddActorLocalOffset(Velocity * DeltaTime);
 		}
+		ApplyAirResistance();
 	}
 }
 
@@ -137,7 +138,20 @@ void ADropPod::Leave()
 		Occupant->GetCharacterMovement()->GravityScale = 1.f;
 		Occupant->GetMesh()->SetEnableGravity(true);
 		GetController()->Possess(Occupant);
+		Occupant->SetIsInPod(false);
 		Occupant = nullptr;
+	}
+}
+
+void ADropPod::ApplyAirResistance()
+{
+	if(IsLocallyControlled() || HasAuthority())
+	{
+		//float Magnitude = GetMovementComponent()->Velocity.Size();
+		//FVector Direction = GetMovementComponent()->Velocity.GetSafeNormal();
+		//FVector Force = -1.f * Direction * (Magnitude * Magnitude) * AirResistanceConstant * (GetWorld()->DeltaTimeSeconds);
+		//GetMovementComponent()->Velocity += Force;
+		Velocity = FVector(100.f, 0.f, 0.f);
 	}
 }
 

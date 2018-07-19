@@ -5,7 +5,6 @@
 #include "BasePlayerState.h"
 #include "SubjectZero.h"
 #include "HumanController.h"
-#include "ItemWeapon.h"
 #include "BaseMode.h"
 
 // Sets default values

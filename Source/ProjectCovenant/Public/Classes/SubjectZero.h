@@ -201,74 +201,90 @@ public:
 
 	UFUNCTION()
 	void SetYaw(float Set);
-	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerSetYaw(float Set);
 
 	UFUNCTION()
 	void SetPitch(float Set);
-	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerSetPitch(float Set);
 
 	UFUNCTION()
-	void SetCrouch(bool Set);
+	void StartCrouching();
+	UFUNCTION()
+	void StopCrouching();
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetCrouch(bool Set);
 
 	UFUNCTION()
-	void SetSprint(bool Set);
+	void StartSprinting();
+	UFUNCTION()
+	void StopSprinting();
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetSprint(bool Set);
 
 	UFUNCTION()
-	void SetJump(bool Set);
+	void StartJump();
+	UFUNCTION()
+	void StopJump();
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetJump(bool Set);
 
 	UFUNCTION()
-	void SetBurst(bool Set);
+	void SetBurst();
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerSetBurst(bool Set);
+	void ServerSetBurst();
 
 	UFUNCTION()
-	void SetMoveLeft(bool Set);
+	void StartMovingLeft();
+	UFUNCTION()
+	void StopMovingLeft();
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetMoveLeft(bool Set);
 
 	UFUNCTION()
-	void SetMoveRight(bool Set);
+	void StartMovingRight();
+	UFUNCTION()
+	void StopMovingRight();
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetMoveRight(bool Set);
 
 	UFUNCTION()
-	void SetMoveForward(bool Set);
+	void StartMovingForward();
+	UFUNCTION()
+	void StopMovingForward();
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetMoveForward(bool Set);
 
 	UFUNCTION()
-	void SetMoveBackward(bool Set);
+	void StartMovingBackward();
+	UFUNCTION()
+	void StopMovingBackward();
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetMoveBackward(bool Set);
 
 	UFUNCTION()
-	void SetFire(bool Set);
+	void StartFiring();
+	UFUNCTION()
+	void StopFiring();
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetFire(bool Set);
 
 	UFUNCTION()
-	void SetSecondaryFire(bool Set);
+	void StartSecondaryFiring();
+	UFUNCTION()
+	void StopSecondaryFiring();
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerSetSecondaryFire(bool Set);
 
 	UFUNCTION()
-	void SetInteract(bool Set);
+	void StartInteracting();
+	UFUNCTION()
+	void StopInteracting();
 	UFUNCTION()
 	void InteractWith(TScriptInterface<IInteractableObject> Interactable);
 	UFUNCTION(Reliable, Server, WithValidation)
 	void ServerInteractWith(UObject * Interactable);
 	
-	void Slot0();
-	void Slot1();
-	void Slot2();
+	void EquipFirstWeapon();
+	void EquipSecondWeapon();
+	void EquipThirdWeapon();
 
 	UFUNCTION(BlueprintCallable)
 	void DropItem(int Index);
@@ -330,6 +346,9 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	float GetPitch() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	bool GetIsInPod() const;
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	UInventory * GetInventory() const;

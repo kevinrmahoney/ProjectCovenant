@@ -14,10 +14,12 @@ class PROJECTCOVENANT_API ASpectator : public ASpectatorPawn
 {
 	GENERATED_BODY()
 
-	public:
+public:
 	ASpectator();
 
 	void Tick(float DeltaTime) override;
+
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void Move();
 	void Spawn();
@@ -27,28 +29,26 @@ class PROJECTCOVENANT_API ASpectator : public ASpectatorPawn
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Spawn();
 
+	// Rotation binds
 	void SetYaw(float Set);
 	void SetPitch(float Set);
-	void SetCrouch(bool Set);
-	void SetSprint(bool Set);
-	void SetJump(bool Set);
-	void SetMoveLeft(bool Set);
-	void SetMoveRight(bool Set);
-	void SetMoveForward(bool Set);
-	void SetMoveBackward(bool Set);
-	void SetFire(bool Set);
-	void SetSecondaryFire(bool Set);
-	void SetInteract(bool Set);
-	void Slot0();
-	void Slot1();
-	void Slot2();
-	void Slot3();
-	void Slot4();
-	void Slot5();
-	void Slot6();
-	void Slot7();
-	void Slot8();
-	void Slot9();
+
+	// Translation binds (up, down, left, right, forward, backward)
+	void StartMovingUp();
+	void StopMovingUp();
+	void StartMovingDown();
+	void StopMovingDown();
+	void StartMovingForward();
+	void StopMovingForward();
+	void StartMovingBackward();
+	void StopMovingBackward();
+	void StartMovingLeft();
+	void StopMovingLeft();
+	void StartMovingRight();
+	void StopMovingRight();
+
+	// Respawn bind
+	void Respawn();
 
 private:
 	FVector Movement = FVector::ZeroVector;

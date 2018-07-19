@@ -5,6 +5,7 @@
 #include "UnrealNetwork.h"
 #include "Practice.h"
 #include "Deathmatch.h"
+#include "ProjectCovenantInstance.h"
 
 ASpectator::ASpectator()
 {
@@ -53,6 +54,33 @@ void ASpectator::Tick(float DeltaTime)
 		Movement.Z = 0.f;
 	}
 	Move();
+}
+
+// Called to bind functionality to input
+void ASpectator::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	AHumanController * Human = Cast<AHumanController>(GetController());
+	if(Human && PlayerInputComponent)
+	{
+		PlayerInputComponent->BindAxis("Yaw", this, &ASpectator::SetYaw);
+		PlayerInputComponent->BindAxis("Pitch", this, &ASpectator::SetPitch);
+		PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASpectator::StartMovingUp);
+		PlayerInputComponent->BindAction("Jump", IE_Released, this, &ASpectator::StopMovingUp);
+		PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASpectator::StartMovingDown);
+		PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASpectator::StopMovingDown);
+		PlayerInputComponent->BindAction("Forward", IE_Pressed, this, &ASpectator::StartMovingForward);
+		PlayerInputComponent->BindAction("Forward", IE_Released, this, &ASpectator::StopMovingForward);
+		PlayerInputComponent->BindAction("Backward", IE_Pressed, this, &ASpectator::StartMovingBackward);
+		PlayerInputComponent->BindAction("Backward", IE_Released, this, &ASpectator::StopMovingBackward);
+		PlayerInputComponent->BindAction("Left", IE_Pressed, this, &ASpectator::StartMovingLeft);
+		PlayerInputComponent->BindAction("Left", IE_Released, this, &ASpectator::StopMovingLeft);
+		PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ASpectator::StartMovingRight);
+		PlayerInputComponent->BindAction("Right", IE_Released, this, &ASpectator::StopMovingRight);
+		PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ASpectator::Respawn);
+		GetController()->InputComponent = PlayerInputComponent;
+	}
 }
 
 void ASpectator::Move()
@@ -110,108 +138,86 @@ bool ASpectator::Server_Spawn_Validate()
 
 void ASpectator::SetYaw(float Set)
 {
-	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set);
+	UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
+	float Sensitivity = 1.f;
+	if(Instance)
+	{
+		Sensitivity = Instance->GetSensitivity();
+	}
+	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 }
 void ASpectator::SetPitch(float Set)
 {
-	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set);
+	UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
+	float Sensitivity = 1.f;
+	if(Instance)
+	{
+		Sensitivity = Instance->GetSensitivity();
+	}
+	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 }
 
-void ASpectator::SetCrouch(bool Set)
+void ASpectator::StartMovingDown()
 {
-	Down = Set;
+	Down = true;
 }
 
-void ASpectator::SetSprint(bool Set)
+void ASpectator::StopMovingDown()
 {
-	Sprinting = Set;
+	Down = false;
 }
 
-void ASpectator::SetJump(bool Set)
+void ASpectator::StartMovingUp()
 {
-	Up = Set;
+	Up = true;
 }
 
-void ASpectator::SetMoveLeft(bool Set)
+void ASpectator::StopMovingUp()
 {
-	Left = Set;
+	Up = false;
 }
 
-void ASpectator::SetMoveRight(bool Set)
+void ASpectator::StartMovingLeft()
 {
-	Right= Set;
+	Left = true;
 }
 
-void ASpectator::SetMoveForward(bool Set)
+void ASpectator::StopMovingLeft()
 {
-	Forward = Set;
+	Left = false;
 }
 
-void ASpectator::SetMoveBackward(bool Set)
+void ASpectator::StartMovingRight()
 {
-	Backward = Set;
+	Right= true;
 }
 
-void ASpectator::SetFire(bool Set)
+void ASpectator::StopMovingRight()
 {
+	Right = false;
 }
 
-void ASpectator::SetSecondaryFire(bool Set)
+void ASpectator::StartMovingForward()
 {
-
+	Forward = true;
 }
 
-void ASpectator::SetInteract(bool Set)
+void ASpectator::StopMovingForward()
+{
+	Forward = false;
+}
+
+void ASpectator::StartMovingBackward()
+{
+	Backward = true;
+}
+
+void ASpectator::StopMovingBackward()
+{
+	Backward = false;
+}
+
+void ASpectator::Respawn()
 {
 	Spawn();
-}
-
-void ASpectator::Slot0()
-{
-
-}
-
-void ASpectator::Slot1()
-{
-
-}
-
-void ASpectator::Slot2()
-{
-
-}
-
-void ASpectator::Slot3()
-{
-
-}
-
-void ASpectator::Slot4()
-{
-
-}
-
-void ASpectator::Slot5()
-{
-
-}
-
-void ASpectator::Slot6()
-{
-
-}
-
-void ASpectator::Slot7()
-{
-
-}
-
-void ASpectator::Slot8()
-{
-
-}
-
-void ASpectator::Slot9()
-{
-
 }
