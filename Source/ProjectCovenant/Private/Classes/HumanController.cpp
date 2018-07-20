@@ -43,7 +43,6 @@ void AHumanController::SetupInputComponent()
 	Super::SetupInputComponent();
 	if(InputComponent)
 	{
-
 		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
 		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
 		InputComponent->BindAction("QuickInventory", IE_Pressed, this, &AHumanController::InputQuickOpenInventory);

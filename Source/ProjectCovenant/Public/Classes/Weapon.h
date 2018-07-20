@@ -96,7 +96,7 @@ protected:
 
 	void Destroyed() override;
 
-	float AimDownSightsFieldOfView = 90.f;
+	float AimDownSightsFieldOfView = 70.f;
 
 public:
 	// Called every frame

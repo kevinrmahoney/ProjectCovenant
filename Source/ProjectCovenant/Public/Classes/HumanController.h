@@ -119,9 +119,11 @@ private:
 	void InputSlot1();
 	void InputSlot2();
 	void InputInteractPress();
+	void InputReload();
+
+public:
 	void InputScoreboardPress();
 	void InputScoreboardRelease();
-	void InputReload();
 	void InputQuickOpenInventory();
 	void InputQuickCloseInventory();
 };

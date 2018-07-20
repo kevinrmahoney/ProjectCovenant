@@ -217,11 +217,13 @@ void AWeapon::AimDownSights(bool IsAimDownSights)
 	{
 		if (IsAimDownSights)
 		{
+			if(Shooter->Camera) Shooter->Camera->FieldOfView = AimDownSightsFieldOfView;
 			Shooter->FirstPersonMesh->SetRelativeLocation(GetAimDownSightsLocation());
 			Shooter->FirstPersonMesh->SetRelativeRotation(GetAimDownSightsRotation());
 		}
 		else
 		{
+			if(Shooter->Camera) Shooter->Camera->FieldOfView = Shooter->DefaultFieldOfView;
 			Shooter->FirstPersonMesh->SetRelativeLocation(GetHipFireLocation());
 			Shooter->FirstPersonMesh->SetRelativeRotation(GetHipFireRotation());
 		}

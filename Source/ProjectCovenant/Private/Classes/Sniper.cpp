@@ -20,8 +20,6 @@ ASniper::ASniper()
 
 void ASniper::AimDownSights(bool IsAimDownSights)
 {
-	Super::AimDownSights(IsAimDownSights);
-
 	if(Shooter && Shooter->IsLocallyControlled())
 	{
 		if(IsAimDownSights)

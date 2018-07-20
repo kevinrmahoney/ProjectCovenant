@@ -174,15 +174,6 @@ void ASubjectZero::Tick(float DeltaTime)
 			ApplyAirResistance();
 		}
 
-		if(AimDownSights)
-		{
-			Camera->FieldOfView = AimDownSightsFieldOfView;
-		}
-		else
-		{
-			Camera->FieldOfView = DefaultFieldOfView;
-		}
-
 		PlayJetpackSound();
 	}
 }
@@ -192,11 +183,14 @@ void ASubjectZero::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	Logger::Chat("SetupPlayerInputComponent");
-
 	AHumanController * Human = Cast<AHumanController>(GetController());
 	if(Human && PlayerInputComponent)
 	{
+		PlayerInputComponent->BindAction("Scoreboard", IE_Pressed, Human, &AHumanController::InputScoreboardPress);
+		PlayerInputComponent->BindAction("Scoreboard", IE_Released, Human, &AHumanController::InputScoreboardRelease);
+		PlayerInputComponent->BindAction("QuickInventory", IE_Pressed, Human, &AHumanController::InputQuickOpenInventory);
+		PlayerInputComponent->BindAction("QuickInventory", IE_Released, Human, &AHumanController::InputQuickCloseInventory);
+
 		PlayerInputComponent->BindAxis("Yaw", this, &ASubjectZero::SetYaw);
 		PlayerInputComponent->BindAxis("Pitch", this, &ASubjectZero::SetPitch);
 		PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASubjectZero::StartJump);
