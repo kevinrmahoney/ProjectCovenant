@@ -192,6 +192,8 @@ void ASubjectZero::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	Logger::Chat("SetupPlayerInputComponent");
+
 	AHumanController * Human = Cast<AHumanController>(GetController());
 	if(Human && PlayerInputComponent)
 	{
@@ -1242,8 +1244,6 @@ bool ASubjectZero::ServerSetPreferredSkin_Validate(USkeletalMesh * ThirdPersonSk
 
 void ASubjectZero::SetIsInPod(bool NewIsInPod)
 {
-	Logger::Chat("SetIsInPod");
-
 	if(HasAuthority()) MulticastIsInPod(NewIsInPod);
 
 	IsInPod = NewIsInPod;
@@ -1261,7 +1261,6 @@ void ASubjectZero::SetIsInPod(bool NewIsInPod)
 
 void ASubjectZero::MulticastIsInPod_Implementation(bool NewIsInPod)
 {
-	Logger::Chat("MulticastIsInPod_Implementation");
 	if(!HasAuthority()) SetIsInPod(NewIsInPod);
 }
 

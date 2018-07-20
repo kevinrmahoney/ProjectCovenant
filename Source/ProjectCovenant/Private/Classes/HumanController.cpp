@@ -123,7 +123,9 @@ void AHumanController::SetPawn(APawn * NewPawn)
 	if(IsLocalController())
 	{
 		SubjectZero = Cast<ASubjectZero>(NewPawn);
+		if(SubjectZero) SubjectZero->SetupPlayerInputComponent(InputComponent);
 		Spectator = Cast<ASpectator>(NewPawn);
+		if(Spectator) Spectator->SetupPlayerInputComponent(InputComponent);
 		InitializeHUD();
 	}
 }

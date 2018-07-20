@@ -105,10 +105,6 @@ void AProjectileWeapon::BeginReload()
 		IsReloading = true;
 		ReloadProgress = 0.f;
 	}
-	else
-	{
-		Logger::Chat("Cant reload");
-	}
 }
 
 float AProjectileWeapon::GetAmmo()

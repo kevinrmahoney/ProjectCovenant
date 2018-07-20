@@ -53,18 +53,41 @@ public:
 	
 	virtual void Interact(ASubjectZero * Interactor) override;
 
-	void ApplyAirResistance();
-
 private:
 	FVector Movement = FVector::ZeroVector;
+
+	UPROPERTY(Replicated)
 	FVector Velocity = FVector::ZeroVector;
 
+	float DropAcceleration = 10.f;
 	float Acceleration = 20.f;
-	float MaxSpeed = 100.f;
+	float MaxSpeed = 10000.f;
 	float TerminalVelocity = -10000.f;
 	float AirResistanceConstant = 0.00004f;
 
+	UPROPERTY(Replicated)
 	bool HasLanded = false;
+
+	UFUNCTION()
+	void Move(float Time);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetMovement(FVector NewMovement);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetRotation(FRotator NewRotation);
+
+	UPROPERTY(Replicated, ReplicatedUsing = UpdateLocation)
+	FVector ReplicatedLocation;
+
+	UPROPERTY(Replicated, ReplicatedUsing = UpdateRotation)
+	FRotator ReplicatedRotation;
+
+	UFUNCTION()
+	void UpdateLocation();
+
+	UFUNCTION()
+	void UpdateRotation();
 
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -74,6 +97,10 @@ private:
 
 	void Enter();
 	void Leave();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerLeave();
+
 	void InputYaw(float Value);
 	void InputPitch(float Value);
 	void InputForwardPress();

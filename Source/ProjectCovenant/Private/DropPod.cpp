@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ProjectCovenant.h"
+#include "UnrealNetwork.h"
 #include "DropPod.h"
 #include "SubjectZero.h"
 #include "ProjectCovenantInstance.h"
@@ -50,34 +51,21 @@ void ADropPod::BeginPlay()
 	}
 }
 
-// Called every frame
-void ADropPod::Tick(float DeltaTime)
+void ADropPod::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
 {
-	Super::Tick(DeltaTime);
-
-	if(!HasLanded)
-	{
-		if(Occupant)
-		{
-			Occupant->SetActorLocation(OccupantSocket->GetComponentLocation());
-			Occupant->SetActorRotation(GetActorForwardVector().Rotation());
-		}
-
-		if(IsLocallyControlled())
-		{
-			Velocity = Velocity + Acceleration * Movement;
-			//Velocity.Z = FMath::Max(Velocity.Z - Acceleration * 0.5f, TerminalVelocity);
-			AddActorLocalOffset(Velocity * DeltaTime);
-		}
-		ApplyAirResistance();
-	}
+	// The follow variables are replicated from server to the clients
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADropPod, ReplicatedLocation)
+	DOREPLIFETIME(ADropPod, Velocity)
+	DOREPLIFETIME(ADropPod, HasLanded)
+	DOREPLIFETIME_CONDITION(ADropPod, ReplicatedRotation, COND_SimulatedOnly)
 }
 
 // Called to bind functionality to input
 void ADropPod::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	
+
 	AHumanController * Human = Cast<AHumanController>(GetController());
 	if(Human && PlayerInputComponent)
 	{
@@ -100,6 +88,85 @@ void ADropPod::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	}
 }
 
+// Called every frame
+void ADropPod::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if(!HasLanded)
+	{
+		if(Occupant)
+		{
+			Occupant->SetActorLocation(OccupantSocket->GetComponentLocation());
+			Occupant->SetActorRotation(GetActorForwardVector().Rotation());
+		}
+
+		Move(DeltaTime);
+
+		if(Role == ROLE_AutonomousProxy)
+		{
+			ServerSetMovement(Movement);
+			ServerSetRotation(GetActorRotation());
+		}
+
+		if(HasAuthority())
+		{
+			ReplicatedLocation = GetActorLocation();
+			ReplicatedRotation = GetActorRotation();
+		}
+	}
+}
+
+void ADropPod::Move(float Time)
+{
+	if(Controller)
+	{
+		FVector RotatedMovement = Movement;
+		FRotator Rotation = GetActorRotation();
+		Rotation.Pitch = 0;
+
+		Velocity = Velocity + Acceleration * Rotation.RotateVector(RotatedMovement);
+		float VelocityZ = Velocity.Z;
+		if(Velocity.Size2D() > MaxSpeed)
+		{
+			Velocity = Velocity.GetSafeNormal2D() * MaxSpeed;
+		}
+
+		Velocity.Z = FMath::Max(VelocityZ - DropAcceleration, TerminalVelocity);
+		AddActorWorldOffset(Velocity * Time);
+	}
+}
+
+void ADropPod::ServerSetMovement_Implementation(FVector NewMovement)
+{
+	Movement = NewMovement;
+}
+
+bool ADropPod::ServerSetMovement_Validate(FVector NewMovement)
+{
+	return true;
+}
+
+void ADropPod::ServerSetRotation_Implementation(FRotator NewRotation)
+{
+	SetActorRotation(NewRotation);
+}
+
+bool ADropPod::ServerSetRotation_Validate(FRotator NewRotation)
+{
+	return true;
+}
+
+void ADropPod::UpdateLocation()
+{
+	SetActorLocation(ReplicatedLocation);
+}
+
+void ADropPod::UpdateRotation()
+{
+	SetActorRotation(ReplicatedRotation);
+}
+
 void ADropPod::Interact(ASubjectZero * Interactor)
 {
 	if(!Occupant && Interactor)
@@ -116,49 +183,56 @@ void ADropPod::Enter()
 		Occupant->SetIsInPod(true);
 		Occupant->AttachToComponent(DropPodMesh, FAttachmentTransformRules::KeepRelativeTransform);
 		Occupant->SetActorLocation(OccupantSocket->GetComponentLocation());
-
-		Logger::Chat("Controller " + Occupant->GetController()->GetName() + " possessing Drop Pod");
 		Occupant->GetController()->Possess(this);
-	}
-	else
-	{
-		Logger::Chat("Could not get controller");
 	}
 }
 
 void ADropPod::Leave()
 {
-	if(GetController() && Occupant)
+	Logger::Chat("LEAVE");
+	if(HasAuthority())
 	{
-		Occupant->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		Occupant->SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 2000.f));
-		Occupant->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		Occupant->GetCapsuleComponent()->SetEnableGravity(true);
-		Occupant->GetCharacterMovement()->Velocity = GetVelocity() + FVector(0.f, 0.f, 1000.f);
-		Occupant->GetCharacterMovement()->GravityScale = 1.f;
-		Occupant->GetMesh()->SetEnableGravity(true);
-		GetController()->Possess(Occupant);
-		Occupant->SetIsInPod(false);
-		Occupant = nullptr;
+		AHumanController * Human = Cast<AHumanController>(GetController());
+		if(Human && Occupant)
+		{
+			Logger::Chat("LEAVING CAPSULE");
+			Occupant->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			Occupant->SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 500.f));
+			Occupant->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			Occupant->GetCapsuleComponent()->SetEnableGravity(true);
+			Occupant->GetCharacterMovement()->Velocity = GetVelocity() + FVector(0.f, 0.f, 10000.f);
+			Occupant->GetCharacterMovement()->GravityScale = 1.f;
+			Occupant->GetMesh()->SetEnableGravity(true);
+			Occupant->SetIsInPod(false);
+			Human->Possess(Occupant);
+			Occupant = nullptr;
+		}
+		else
+		{
+			Logger::Chat("NO CONTROLLER OR OCCUPANT");
+		}
+	}
+	else
+	{
+		ServerLeave();
 	}
 }
 
-void ADropPod::ApplyAirResistance()
+void ADropPod::ServerLeave_Implementation()
 {
-	if(IsLocallyControlled() || HasAuthority())
-	{
-		//float Magnitude = GetMovementComponent()->Velocity.Size();
-		//FVector Direction = GetMovementComponent()->Velocity.GetSafeNormal();
-		//FVector Force = -1.f * Direction * (Magnitude * Magnitude) * AirResistanceConstant * (GetWorld()->DeltaTimeSeconds);
-		//GetMovementComponent()->Velocity += Force;
-		Velocity = FVector(100.f, 0.f, 0.f);
-	}
+	Logger::Chat("SERVERLEAVE");
+	Leave();
+}
+
+bool ADropPod::ServerLeave_Validate()
+{
+	return true;
 }
 
 void ADropPod::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
 	HasLanded = true;
-	Logger::Chat("HIT");
+	bUseControllerRotationYaw = false;
 	Velocity = FVector::ZeroVector;
 	Movement = FVector::ZeroVector;
 	SetActorTickEnabled(false);
@@ -168,7 +242,6 @@ void ADropPod::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
 {
 	HasLanded = true;
 	bUseControllerRotationYaw = false;
-	Logger::Chat("OVERLAP");
 	Velocity = FVector::ZeroVector;
 	Movement = FVector::ZeroVector;
 	SetActorTickEnabled(false);
@@ -192,66 +265,53 @@ void ADropPod::InputPitch(float Value)
 }
 void ADropPod::InputForwardPress()
 {
-	Logger::Chat("InputForwardPress");
 	Movement.X = FMath::Clamp(Movement.X + 1.f, -1.f, 1.f);
 }
 void ADropPod::InputForwardRelease()
 {
-	Logger::Chat("InputForwardRelease");
 	Movement.X = FMath::Clamp(Movement.X - 1.f, -1.f, 1.f);
 }
 void ADropPod::InputBackwardPress()
 {
 	Movement.X = FMath::Clamp(Movement.X - 1.f, -1.f, 1.f);
-	Logger::Chat("InputBackwardPress");
 }
 void ADropPod::InputBackwardRelease()
 {
 	Movement.X = FMath::Clamp(Movement.X + 1.f, -1.f, 1.f);
-	Logger::Chat("InputBackwardRelease");
 }
 void ADropPod::InputLeftPress()
 {
 	Movement.Y = FMath::Clamp(Movement.Y - 1.f, -1.f, 1.f);
-	Logger::Chat("InputLeftPress");
 }
 void ADropPod::InputLeftRelease()
 {
 	Movement.Y = FMath::Clamp(Movement.Y + 1.f, -1.f, 1.f);
-	Logger::Chat("InputLeftRelease");
 }
 void ADropPod::InputRightPress()
 {
 	Movement.Y = FMath::Clamp(Movement.Y + 1.f, -1.f, 1.f);
-	Logger::Chat("InputRightPress");
 }
 void ADropPod::InputRightRelease()
 {
 	Movement.Y = FMath::Clamp(Movement.Y - 1.f, -1.f, 1.f);
-	Logger::Chat("InputRightRelease");
 }
 void ADropPod::InputJumpPress()
 {
 	Movement.Z = 1.f;
-	Logger::Chat("InputJumpPress");
 }
 void ADropPod::InputJumpRelease()
 {
 	Movement.Z = 0.f;
-	Logger::Chat("InputJumpRelease");
 }
 
 void ADropPod::InputCrouchPress()
 {
-	Logger::Chat("InputCrouchPress");
 }
 void ADropPod::InputCrouchRelease()
 {
-	Logger::Chat("InputCrouchRelease");
 }
 
 void ADropPod::InputInteractPress()
 {
-	Logger::Chat("InputInteractPress");
 	Leave();
 }
