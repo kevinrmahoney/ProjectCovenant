@@ -84,7 +84,7 @@ private:
 	float Shield = 100.f;
 
 	UPROPERTY(Replicated)
-	float Fuel = 1000.f;
+	float Fuel = 10000.f;
 
 	UPROPERTY(Replicated)
 	bool Crouching = false;
@@ -104,29 +104,34 @@ private:
 	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);
 	FVector HipfireLocation = FVector(-15.419446f, 10.841988f, -152.856400f);
 
-	// constants
+	// Jetpack and air control
 	float NormalGravityScale = 1.f;
 	float NormalAirControl = 0.5f;
-	float JumpSpeed = 700.f;
+	float AirResistanceConstant = 0.00004f;
 	float JetpackSpeedScale = 1.f;
+	float JetpackAcceleration = 1200.f;
+	float JetpackBurstImpulse = 1500.f;
+	float JetpackFuelUsageRate = 75.f;
+	float JetpackFuelGainRate = 200.f;
+
+	// Grounded speeds depending on stance
+	float JumpSpeed = 600.f;
+	float StandingHeight = 88.f;
+	float CrouchingHeight = 66.f;
+	float GroundAcceleration = 5000.f;
 	float StandingSprintSpeed = 600.f;
 	float StandingRunSpeed = 400.f;
 	float CrouchingSprintSpeed = 300.f;
 	float CrouchingRunSpeed = 200.f;
 	float AimDownSightsSpeed = 200.f;
-	float JetpackAcceleration = 1200.f;
-	float JetpackBurstImpulse = 1500.f;
-	float GroundAcceleration = 5000.f;
-	float AirResistanceConstant = 0.00004f;
-	float FuelUsage = 75.f;
-	float FuelOverTime = 50.f;
+
+	// Player counters for vitals and resources
 	float MaxHealth = 100.f;
 	float MaxArmor = 100.f;
 	float MaxShield = 100.f;
-	float MaxFuel = 1000.f;
-	float StandingHeight = 88.f;
-	float CrouchingHeight = 66.f;
+	float MaxFuel = 10000.f;
 
+	// Variables for movement and actions
 	bool Left = false;
 	bool Right = false;
 	bool Forward = false;

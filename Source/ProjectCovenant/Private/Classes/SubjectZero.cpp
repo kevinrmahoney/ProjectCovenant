@@ -5,8 +5,6 @@
 #include "UnrealNetwork.h"
 #include "Item.h"
 #include "Weapon.h"
-#include "Railgun.h"
-#include "Shotgun.h"
 #include "Deathmatch.h"
 #include "Inventory.h"
 #include "Interactor.h"
@@ -64,11 +62,15 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 {
 	// The follow variables are replicated from server to the clients
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Update autonomous clients (actors who are controlled by clients)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Health, COND_AutonomousOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Armor, COND_AutonomousOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Shield, COND_AutonomousOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Fuel, COND_AutonomousOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, IsJetpackDisabled, COND_AutonomousOnly)
+
+	// Update simulated clients (actors not controlled by clients)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Pitch, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, EquippedItemID, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)
@@ -96,6 +98,7 @@ void ASubjectZero::Tick(float DeltaTime)
 
 	if(HasAuthority())
 	{
+		Logger::Chat(GetLastMovementInputVector().ToString());
 		// Damage boost
 		if(DamageMultiplierDuration > 0.f)
 		{
@@ -105,14 +108,6 @@ void ASubjectZero::Tick(float DeltaTime)
 				DamageMultiplier = 1.f;
 			}
 		}
-	}
-
-	if(!IsLocallyControlled())
-	{
-		// Update pitch of camera (which is the anchor of equipped weapon)
-		FRotator NewRotation = Camera->RelativeRotation;
-		NewRotation.Pitch = Pitch;
-		Camera->SetRelativeRotation(NewRotation);
 	}
 
 	Update();
@@ -176,6 +171,12 @@ void ASubjectZero::Tick(float DeltaTime)
 
 		PlayJetpackSound();
 	}
+	else
+	{
+		FRotator NewRotation = Camera->RelativeRotation;
+		NewRotation.Pitch = Pitch;
+		Camera->SetRelativeRotation(NewRotation);
+	}
 }
 
 // Called to bind functionality to input
@@ -224,8 +225,7 @@ void ASubjectZero::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void ASubjectZero::Move()
 {
-	// Only move the character if you are locally controlling it (AddMovementInput takes care of networking)
-	if(IsLocallyControlled())
+	if(Controller)
 	{
 		// Move the character on the ground
 		FVector GroundMove = Movement;
@@ -271,7 +271,7 @@ void ASubjectZero::Update()
 
 		if(TimeSinceJetpack > 3.f && Fuel < MaxFuel)
 		{
-			Fuel = FMath::Min(MaxFuel, Fuel + (FuelOverTime * Time));
+			Fuel = FMath::Min(MaxFuel, Fuel + (JetpackFuelGainRate * Time));
 		}
 	}
 
@@ -348,16 +348,14 @@ void ASubjectZero::Jetpack(FVector Input)
 			}
 
 			AddedVelocity = RotatedMovement * JetpackBurstImpulse;
-
 			FuelUsed = MaxFuel * 0.25f;
-
 			Burst = false;
 		}
 		else
 		{
 			// Create a vector that represents the movement of the character within the world
 			AddedVelocity = Time * FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
-			FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f));
+			FuelUsed = JetpackFuelUsageRate * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f));
 		}
 
 		GetCharacterMovement()->Velocity += AddedVelocity;
@@ -369,7 +367,6 @@ void ASubjectZero::Jetpack(FVector Input)
 		}
 
 		TryJetpack = TryJetpack && Fuel > 0.f;
-
 		Fuel = FMath::Max(0.f, Fuel - (FuelUsed));
 	}
 
