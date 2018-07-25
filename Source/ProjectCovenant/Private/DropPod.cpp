@@ -132,7 +132,7 @@ void ADropPod::Move(float Time)
 			Velocity = Velocity.GetSafeNormal2D() * MaxSpeed;
 		}
 
-		Velocity.Z = FMath::Max(VelocityZ - DropAcceleration, TerminalVelocity);
+		//Velocity.Z = FMath::Max(VelocityZ - DropAcceleration, TerminalVelocity);
 		AddActorWorldOffset(Velocity * Time);
 	}
 }
@@ -169,48 +169,95 @@ void ADropPod::UpdateRotation()
 
 void ADropPod::Interact(ASubjectZero * Interactor)
 {
-	if(!Occupant && Interactor)
+	if(HasAuthority())
 	{
-		Occupant = Interactor;
-		Enter();
+		Enter(Interactor);
 	}
 }
 
-void ADropPod::Enter()
+void ADropPod::SetOccupant(ASubjectZero * NewOccupant)
 {
-	if(HasAuthority() && Occupant->GetController())
+	Logger::Chat(NewOccupant ? "Enter" : "Leave");
+
+	// Save the old occupant
+	ASubjectZero * OldOccupant = Occupant;
+
+	// If the NewOccupant, put his character in the pod
+	if(NewOccupant)
 	{
-		Occupant->SetIsInPod(true);
-		Occupant->AttachToComponent(DropPodMesh, FAttachmentTransformRules::KeepRelativeTransform);
-		Occupant->SetActorLocation(OccupantSocket->GetComponentLocation());
-		Occupant->GetController()->Possess(this);
+		NewOccupant->SetIsInPod(true);
+		NewOccupant->AttachToComponent(DropPodMesh, FAttachmentTransformRules::KeepRelativeTransform);
+		NewOccupant->SetActorLocation(OccupantSocket->GetComponentLocation());
+		NewOccupant->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		NewOccupant->GetCapsuleComponent()->SetEnableGravity(false);
+		NewOccupant->GetMesh()->SetEnableGravity(false);
 	}
+	
+	// If there used to be an occupant, take the character out of the pod
+	if(OldOccupant)
+	{
+		OldOccupant->SetIsInPod(false);
+		OldOccupant->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		OldOccupant->SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 500.f));
+		OldOccupant->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		OldOccupant->GetCapsuleComponent()->SetEnableGravity(true);
+		OldOccupant->GetCharacterMovement()->Velocity = GetVelocity() + FVector(0.f, 0.f, 100.f);
+		OldOccupant->GetCharacterMovement()->GravityScale = 1.f;
+		OldOccupant->GetMesh()->SetEnableGravity(true);
+	}
+
+	Occupant = NewOccupant;
+}
+
+/* Enter()
+	Function handling a request by a character to enter this drop pod
+	If called on a client, call on the server function. If called on the server, call on the multicast function
+*/
+void ADropPod::Enter(ASubjectZero * NewOccupant)
+{
+	if(HasAuthority())
+	{
+		MulticastEnter(NewOccupant);
+	}
+	else
+	{
+		ServerEnter(NewOccupant);
+	}
+}
+
+/* ServerEnter()
+	Server function handling a request by a character to enter this drop pod
+*/
+void ADropPod::ServerEnter_Implementation(ASubjectZero * NewOccupant)
+{
+	Enter(NewOccupant);
+}
+
+bool ADropPod::ServerEnter_Validate(ASubjectZero * NewOccupant)
+{
+	return true;
+}
+
+/* MulticastEnter()
+	Multicast function handling a request by a character to enter this drop pod.
+*/
+void ADropPod::MulticastEnter_Implementation(ASubjectZero * NewOccupant)
+{
+	if(HasAuthority() && NewOccupant && NewOccupant->GetController())
+	{
+		if(AHumanController * Human = Cast<AHumanController>(NewOccupant->GetController()))
+		{
+			Human->Possess(this);
+		}
+	}
+	SetOccupant(NewOccupant);
 }
 
 void ADropPod::Leave()
 {
-	Logger::Chat("LEAVE");
 	if(HasAuthority())
 	{
-		AHumanController * Human = Cast<AHumanController>(GetController());
-		if(Human && Occupant)
-		{
-			Logger::Chat("LEAVING CAPSULE");
-			Occupant->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			Occupant->SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 500.f));
-			Occupant->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			Occupant->GetCapsuleComponent()->SetEnableGravity(true);
-			Occupant->GetCharacterMovement()->Velocity = GetVelocity() + FVector(0.f, 0.f, 10000.f);
-			Occupant->GetCharacterMovement()->GravityScale = 1.f;
-			Occupant->GetMesh()->SetEnableGravity(true);
-			Occupant->SetIsInPod(false);
-			Human->Possess(Occupant);
-			Occupant = nullptr;
-		}
-		else
-		{
-			Logger::Chat("NO CONTROLLER OR OCCUPANT");
-		}
+		MulticastLeave();
 	}
 	else
 	{
@@ -220,13 +267,24 @@ void ADropPod::Leave()
 
 void ADropPod::ServerLeave_Implementation()
 {
-	Logger::Chat("SERVERLEAVE");
 	Leave();
 }
 
 bool ADropPod::ServerLeave_Validate()
 {
 	return true;
+}
+
+void ADropPod::MulticastLeave_Implementation()
+{
+	if(HasAuthority() && GetController())
+	{
+		if(AHumanController * Human = Cast<AHumanController>(GetController()))
+		{
+			Human->Possess(Occupant);
+		}
+	}
+	SetOccupant(nullptr);
 }
 
 void ADropPod::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)

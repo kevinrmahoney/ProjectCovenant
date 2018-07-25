@@ -98,7 +98,6 @@ void ASubjectZero::Tick(float DeltaTime)
 
 	if(HasAuthority())
 	{
-		Logger::Chat(GetLastMovementInputVector().ToString());
 		// Damage boost
 		if(DamageMultiplierDuration > 0.f)
 		{
@@ -1235,24 +1234,7 @@ bool ASubjectZero::ServerSetPreferredSkin_Validate(USkeletalMesh * ThirdPersonSk
 
 void ASubjectZero::SetIsInPod(bool NewIsInPod)
 {
-	if(HasAuthority()) MulticastIsInPod(NewIsInPod);
-
 	IsInPod = NewIsInPod;
-
-	if(IsInPod)
-	{
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GetCapsuleComponent()->SetEnableGravity(false);
-		SetActorRotation(GetActorForwardVector().Rotation());
-		GetCharacterMovement()->Velocity = FVector::ZeroVector;
-		GetCharacterMovement()->GravityScale = 0.f;
-		GetMesh()->SetEnableGravity(false);
-	}
-}
-
-void ASubjectZero::MulticastIsInPod_Implementation(bool NewIsInPod)
-{
-	if(!HasAuthority()) SetIsInPod(NewIsInPod);
 }
 
 /* MulticastSetPreferredSkin_Implementation()

@@ -95,11 +95,23 @@ private:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
-	void Enter();
-	void Leave();
+	// Functions to deal with a player entering a Drop Pod
+	UFUNCTION()
+	void Enter(ASubjectZero * NewOccupant);
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerEnter(ASubjectZero * NewOccupant);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastEnter(ASubjectZero * NewOccupant);
 
+	// Functions to deal with a player leaving a Drop Pod
+	UFUNCTION()
+	void Leave();
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerLeave();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLeave();
+
+	void SetOccupant(ASubjectZero * NewOccupant);
 
 	void InputYaw(float Value);
 	void InputPitch(float Value);

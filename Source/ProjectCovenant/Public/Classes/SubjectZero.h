@@ -385,8 +385,6 @@ public:
 
 	UFUNCTION()
 	void SetIsInPod(bool NewIsInPod);
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastIsInPod(bool NewIsInPod);
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	bool IsJetpackUsed() const;
