@@ -59,28 +59,31 @@ void ASpectator::Tick(float DeltaTime)
 // Called to bind functionality to input
 void ASpectator::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	checkf(PlayerInputComponent, TEXT("Spectator InputComponent is null"))
 
-	AHumanController * Human = Cast<AHumanController>(GetController());
-	if(Human && PlayerInputComponent)
-	{
-		PlayerInputComponent->BindAxis("Yaw", this, &ASpectator::SetYaw);
-		PlayerInputComponent->BindAxis("Pitch", this, &ASpectator::SetPitch);
-		PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASpectator::StartMovingUp);
-		PlayerInputComponent->BindAction("Jump", IE_Released, this, &ASpectator::StopMovingUp);
-		PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASpectator::StartMovingDown);
-		PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASpectator::StopMovingDown);
-		PlayerInputComponent->BindAction("Forward", IE_Pressed, this, &ASpectator::StartMovingForward);
-		PlayerInputComponent->BindAction("Forward", IE_Released, this, &ASpectator::StopMovingForward);
-		PlayerInputComponent->BindAction("Backward", IE_Pressed, this, &ASpectator::StartMovingBackward);
-		PlayerInputComponent->BindAction("Backward", IE_Released, this, &ASpectator::StopMovingBackward);
-		PlayerInputComponent->BindAction("Left", IE_Pressed, this, &ASpectator::StartMovingLeft);
-		PlayerInputComponent->BindAction("Left", IE_Released, this, &ASpectator::StopMovingLeft);
-		PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ASpectator::StartMovingRight);
-		PlayerInputComponent->BindAction("Right", IE_Released, this, &ASpectator::StopMovingRight);
-		PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ASpectator::Respawn);
-		GetController()->InputComponent = PlayerInputComponent;
-	}
+	PlayerInputComponent->BindAxis("Yaw", this, &ASpectator::SetYaw);
+	PlayerInputComponent->BindAxis("Pitch", this, &ASpectator::SetPitch);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASpectator::StartMovingUp);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ASpectator::StopMovingUp);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASpectator::StartMovingDown);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASpectator::StopMovingDown);
+	PlayerInputComponent->BindAction("Forward", IE_Pressed, this, &ASpectator::StartMovingForward);
+	PlayerInputComponent->BindAction("Forward", IE_Released, this, &ASpectator::StopMovingForward);
+	PlayerInputComponent->BindAction("Backward", IE_Pressed, this, &ASpectator::StartMovingBackward);
+	PlayerInputComponent->BindAction("Backward", IE_Released, this, &ASpectator::StopMovingBackward);
+	PlayerInputComponent->BindAction("Left", IE_Pressed, this, &ASpectator::StartMovingLeft);
+	PlayerInputComponent->BindAction("Left", IE_Released, this, &ASpectator::StopMovingLeft);
+	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ASpectator::StartMovingRight);
+	PlayerInputComponent->BindAction("Right", IE_Released, this, &ASpectator::StopMovingRight);
+	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ASpectator::Respawn);
+}
+
+// This is called when possessed
+void ASpectator::Restart()
+{
+	Super::Restart();
+
+	Movement = FVector::ZeroVector;
 }
 
 void ASpectator::Move()
@@ -138,23 +141,29 @@ bool ASpectator::Server_Spawn_Validate()
 
 void ASpectator::SetYaw(float Set)
 {
-	UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
-	float Sensitivity = 1.f;
-	if(Instance)
+	if(Set != 0.f)
 	{
-		Sensitivity = Instance->GetSensitivity();
+		UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
+		float Sensitivity = 1.f;
+		if(Instance)
+		{
+			Sensitivity = Instance->GetSensitivity();
+		}
+		AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 	}
-	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 }
 void ASpectator::SetPitch(float Set)
 {
-	UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
-	float Sensitivity = 1.f;
-	if(Instance)
+	if(Set != 0.f)
 	{
-		Sensitivity = Instance->GetSensitivity();
+		UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
+		float Sensitivity = 1.f;
+		if(Instance)
+		{
+			Sensitivity = Instance->GetSensitivity();
+		}
+		AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 	}
-	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 }
 
 void ASpectator::StartMovingDown()

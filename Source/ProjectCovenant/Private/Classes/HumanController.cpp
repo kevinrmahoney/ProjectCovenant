@@ -41,13 +41,11 @@ void AHumanController::Tick(float DeltaTime)
 void AHumanController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-	if(InputComponent)
-	{
-		InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
-		InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
-		InputComponent->BindAction("QuickInventory", IE_Pressed, this, &AHumanController::InputQuickOpenInventory);
-		InputComponent->BindAction("QuickInventory", IE_Released, this, &AHumanController::InputQuickCloseInventory);
-	}
+
+	InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AHumanController::InputScoreboardPress);
+	InputComponent->BindAction("Scoreboard", IE_Released, this, &AHumanController::InputScoreboardRelease);
+	InputComponent->BindAction("QuickInventory", IE_Pressed, this, &AHumanController::InputQuickOpenInventory);
+	InputComponent->BindAction("QuickInventory", IE_Released, this, &AHumanController::InputQuickCloseInventory);
 }
 
 void AHumanController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -122,9 +120,7 @@ void AHumanController::SetPawn(APawn * NewPawn)
 	if(IsLocalController())
 	{
 		SubjectZero = Cast<ASubjectZero>(NewPawn);
-		if(SubjectZero) SubjectZero->SetupPlayerInputComponent(InputComponent);
 		Spectator = Cast<ASpectator>(NewPawn);
-		if(Spectator) Spectator->SetupPlayerInputComponent(InputComponent);
 		InitializeHUD();
 	}
 }

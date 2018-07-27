@@ -50,6 +50,9 @@ public:
 	// Respawn bind
 	void Respawn();
 
+protected:
+	virtual void Restart() override;
+
 private:
 	FVector Movement = FVector::ZeroVector;
 	bool Sprinting = false;

@@ -181,45 +181,35 @@ void ASubjectZero::Tick(float DeltaTime)
 // Called to bind functionality to input
 void ASubjectZero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	checkf(PlayerInputComponent, TEXT("SubjectZero InputComponent is null"))
 
-	AHumanController * Human = Cast<AHumanController>(GetController());
-	if(Human && PlayerInputComponent)
-	{
-		PlayerInputComponent->BindAction("Scoreboard", IE_Pressed, Human, &AHumanController::InputScoreboardPress);
-		PlayerInputComponent->BindAction("Scoreboard", IE_Released, Human, &AHumanController::InputScoreboardRelease);
-		PlayerInputComponent->BindAction("QuickInventory", IE_Pressed, Human, &AHumanController::InputQuickOpenInventory);
-		PlayerInputComponent->BindAction("QuickInventory", IE_Released, Human, &AHumanController::InputQuickCloseInventory);
-
-		PlayerInputComponent->BindAxis("Yaw", this, &ASubjectZero::SetYaw);
-		PlayerInputComponent->BindAxis("Pitch", this, &ASubjectZero::SetPitch);
-		PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASubjectZero::StartJump);
-		PlayerInputComponent->BindAction("Jump", IE_Released, this, &ASubjectZero::StopJump);
-		PlayerInputComponent->BindAction("Burst", IE_DoubleClick, this, &ASubjectZero::SetBurst);
-		PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASubjectZero::StartSprinting);
-		PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASubjectZero::StopSprinting);
-		PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASubjectZero::StartCrouching);
-		PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASubjectZero::StopCrouching);
-		PlayerInputComponent->BindAction("Forward", IE_Pressed, this, &ASubjectZero::StartMovingForward);
-		PlayerInputComponent->BindAction("Forward", IE_Released, this, &ASubjectZero::StopMovingForward);
-		PlayerInputComponent->BindAction("Backward", IE_Pressed, this, &ASubjectZero::StartMovingBackward);
-		PlayerInputComponent->BindAction("Backward", IE_Released, this, &ASubjectZero::StopMovingBackward);
-		PlayerInputComponent->BindAction("Left", IE_Pressed, this, &ASubjectZero::StartMovingLeft);
-		PlayerInputComponent->BindAction("Left", IE_Released, this, &ASubjectZero::StopMovingLeft);
-		PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ASubjectZero::StartMovingRight);
-		PlayerInputComponent->BindAction("Right", IE_Released, this, &ASubjectZero::StopMovingRight);
-		PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASubjectZero::StartFiring);
-		PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASubjectZero::StopFiring);
-		PlayerInputComponent->BindAction("SecondaryFire", IE_Pressed, this, &ASubjectZero::StartSecondaryFiring);
-		PlayerInputComponent->BindAction("SecondaryFire", IE_Released, this, &ASubjectZero::StopSecondaryFiring);
-		PlayerInputComponent->BindAction("Slot 1", IE_Pressed, this, &ASubjectZero::EquipFirstWeapon);
-		PlayerInputComponent->BindAction("Slot 2", IE_Pressed, this, &ASubjectZero::EquipSecondWeapon);
-		PlayerInputComponent->BindAction("Slot 3", IE_Pressed, this, &ASubjectZero::EquipThirdWeapon);
-		PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ASubjectZero::StartInteracting);
-		PlayerInputComponent->BindAction("Use", IE_Released, this, &ASubjectZero::StopInteracting);
-		PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASubjectZero::Reload);
-		GetController()->InputComponent = PlayerInputComponent;
-	}
+	PlayerInputComponent->BindAxis("Yaw", this, &ASubjectZero::SetYaw);
+	PlayerInputComponent->BindAxis("Pitch", this, &ASubjectZero::SetPitch);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASubjectZero::StartJump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ASubjectZero::StopJump);
+	PlayerInputComponent->BindAction("Burst", IE_DoubleClick, this, &ASubjectZero::SetBurst);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASubjectZero::StartSprinting);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASubjectZero::StopSprinting);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASubjectZero::StartCrouching);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASubjectZero::StopCrouching);
+	PlayerInputComponent->BindAction("Forward", IE_Pressed, this, &ASubjectZero::StartMovingForward);
+	PlayerInputComponent->BindAction("Forward", IE_Released, this, &ASubjectZero::StopMovingForward);
+	PlayerInputComponent->BindAction("Backward", IE_Pressed, this, &ASubjectZero::StartMovingBackward);
+	PlayerInputComponent->BindAction("Backward", IE_Released, this, &ASubjectZero::StopMovingBackward);
+	PlayerInputComponent->BindAction("Left", IE_Pressed, this, &ASubjectZero::StartMovingLeft);
+	PlayerInputComponent->BindAction("Left", IE_Released, this, &ASubjectZero::StopMovingLeft);
+	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ASubjectZero::StartMovingRight);
+	PlayerInputComponent->BindAction("Right", IE_Released, this, &ASubjectZero::StopMovingRight);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASubjectZero::StartFiring);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASubjectZero::StopFiring);
+	PlayerInputComponent->BindAction("SecondaryFire", IE_Pressed, this, &ASubjectZero::StartSecondaryFiring);
+	PlayerInputComponent->BindAction("SecondaryFire", IE_Released, this, &ASubjectZero::StopSecondaryFiring);
+	PlayerInputComponent->BindAction("Slot 1", IE_Pressed, this, &ASubjectZero::EquipFirstWeapon);
+	PlayerInputComponent->BindAction("Slot 2", IE_Pressed, this, &ASubjectZero::EquipSecondWeapon);
+	PlayerInputComponent->BindAction("Slot 3", IE_Pressed, this, &ASubjectZero::EquipThirdWeapon);
+	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ASubjectZero::StartInteracting);
+	PlayerInputComponent->BindAction("Use", IE_Released, this, &ASubjectZero::StopInteracting);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASubjectZero::Reload);
 }
 
 void ASubjectZero::Move()
@@ -326,7 +316,7 @@ void ASubjectZero::Jetpack(FVector Input)
 		ServerJetpack(Input);
 	}
 
-	if(Fuel > 0.f)
+	if(Fuel > 0.f && Controller)
 	{
 		FRotator Rotation = Controller->GetControlRotation();
 		Rotation.Pitch = 0;
@@ -590,6 +580,8 @@ void ASubjectZero::Restart()
 {
 	Super::Restart();
 
+	Movement = FVector::ZeroVector;
+
 	// If locally controlled, request that the character be given starting weapons
 	if(IsLocallyControlled())
 	{
@@ -694,24 +686,30 @@ void ASubjectZero::DamageBoost(float BoostMultiplier, float BoostDuration)
 
 void ASubjectZero::SetYaw(float Set)
 {
-	UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
-	float Sensitivity = 1.f;
-	if(Instance)
+	if(Set != 0.f)
 	{
-		Sensitivity = Instance->GetSensitivity();
+		UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
+		float Sensitivity = 1.f;
+		if(Instance)
+		{
+			Sensitivity = Instance->GetSensitivity();
+		}
+		AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 	}
-	AddControllerYawInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 }
 
 void ASubjectZero::SetPitch(float Set)
 {
-	UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
-	float Sensitivity = 1.f;
-	if(Instance)
+	if(Set != 0.f)
 	{
-		Sensitivity = Instance->GetSensitivity();
+		UProjectCovenantInstance * Instance = Cast<UProjectCovenantInstance>(GetGameInstance());
+		float Sensitivity = 1.f;
+		if(Instance)
+		{
+			Sensitivity = Instance->GetSensitivity();
+		}
+		AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 	}
-	AddControllerPitchInput(GetWorld()->GetDeltaSeconds() * Set * Sensitivity);
 }
 
 void ASubjectZero::StartCrouching()
@@ -1235,6 +1233,8 @@ bool ASubjectZero::ServerSetPreferredSkin_Validate(USkeletalMesh * ThirdPersonSk
 void ASubjectZero::SetIsInPod(bool NewIsInPod)
 {
 	IsInPod = NewIsInPod;
+	TryJetpack = false;
+	IsTriggerPulled = false;
 }
 
 /* MulticastSetPreferredSkin_Implementation()
