@@ -88,27 +88,24 @@ void ADropPod::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(!HasLanded)
+	if(Occupant)
 	{
-		if(Occupant)
-		{
-			Occupant->SetActorLocation(OccupantSocket->GetComponentLocation());
-			Occupant->SetActorRotation(GetActorForwardVector().Rotation());
-		}
+		Occupant->SetActorLocation(OccupantSocket->GetComponentLocation());
+		Occupant->SetActorRotation(GetActorForwardVector().Rotation());
+	}
 
-		Move(DeltaTime);
+	Move(DeltaTime);
 
-		if(Role == ROLE_AutonomousProxy)
-		{
-			ServerSetMovement(Movement);
-			ServerSetRotation(GetActorRotation());
-		}
+	if(Role == ROLE_AutonomousProxy)
+	{
+		ServerSetMovement(Movement);
+		ServerSetRotation(GetActorRotation());
+	}
 
-		if(HasAuthority())
-		{
-			ReplicatedLocation = GetActorLocation();
-			ReplicatedRotation = GetActorRotation();
-		}
+	if(HasAuthority())
+	{
+		ReplicatedLocation = GetActorLocation();
+		ReplicatedRotation = GetActorRotation();
 	}
 }
 
@@ -134,9 +131,8 @@ void ADropPod::Move(float Time)
 		{
 			Velocity = Velocity.GetSafeNormal2D() * MaxSpeed;
 		}
-
-		//Velocity.Z = FMath::Max(VelocityZ - DropAcceleration, TerminalVelocity);
 	}
+	//Velocity.Z = FMath::Max(VelocityZ - DropAcceleration, TerminalVelocity);
 	AddActorWorldOffset(Velocity * Time);
 }
 
@@ -187,6 +183,7 @@ void ADropPod::SetOccupant(ASubjectZero * NewOccupant)
 	if(NewOccupant)
 	{
 		NewOccupant->SetIsInPod(true);
+		if(NewOccupant->GetController()) NewOccupant->GetController()->SetControlRotation(GetActorRotation());
 		NewOccupant->AttachToComponent(DropPodMesh, FAttachmentTransformRules::KeepRelativeTransform);
 		NewOccupant->SetActorLocation(OccupantSocket->GetComponentLocation());
 		NewOccupant->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -218,7 +215,10 @@ void ADropPod::Enter(ASubjectZero * NewOccupant)
 {
 	if(HasAuthority())
 	{
-		MulticastEnter(NewOccupant);
+		if(Occupant == nullptr)
+		{
+			MulticastEnter(NewOccupant);
+		}
 	}
 	else
 	{
@@ -288,9 +288,8 @@ void ADropPod::MulticastLeave_Implementation()
 	SetOccupant(nullptr);
 }
 
-void ADropPod::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+void ADropPod::MulticastLand_Implementation(FVector FinalLocation, FRotator FinalRotation)
 {
-	if(OtherActor->GetClass() == ASubjectZero::StaticClass()->GetClass()) return;
 	HasLanded = true;
 	bUseControllerRotationYaw = false;
 	Velocity = FVector::ZeroVector;
@@ -298,14 +297,20 @@ void ADropPod::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 	SetActorTickEnabled(false);
 }
 
+void ADropPod::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if(HasAuthority() && OtherActor->GetClass() != ASubjectZero::StaticClass()->GetClass())
+	{
+		MulticastLand(GetActorLocation(), GetActorRotation());
+	}
+}
+
 void ADropPod::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(OtherActor->GetClass() == ASubjectZero::StaticClass()->GetClass()) return;
-	HasLanded = true;
-	bUseControllerRotationYaw = false;
-	Velocity = FVector::ZeroVector;
-	Movement = FVector::ZeroVector;
-	SetActorTickEnabled(false);
+	if(HasAuthority() && OtherActor->GetClass() != ASubjectZero::StaticClass()->GetClass())
+	{
+		MulticastLand(GetActorLocation(), GetActorRotation());
+	}
 }
 
 void ADropPod::InputYaw(float Value)

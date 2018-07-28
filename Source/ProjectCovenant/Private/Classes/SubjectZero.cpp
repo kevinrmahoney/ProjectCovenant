@@ -1235,6 +1235,7 @@ void ASubjectZero::SetIsInPod(bool NewIsInPod)
 	IsInPod = NewIsInPod;
 	TryJetpack = false;
 	IsTriggerPulled = false;
+	EquippedItemID = "-1";
 }
 
 /* MulticastSetPreferredSkin_Implementation()

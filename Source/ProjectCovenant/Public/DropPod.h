@@ -113,6 +113,9 @@ private:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLeave();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLand(FVector FinalLocation, FRotator FinalRotation);
+
 	void SetOccupant(ASubjectZero * NewOccupant);
 
 	void InputYaw(float Value);
