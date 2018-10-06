@@ -121,11 +121,6 @@ void AProjectileWeapon::ConstructShotVectors()
 {
 }
 
-void AProjectileWeapon::DrawDebugVisuals()
-{
-
-}
-
 void AProjectileWeapon::DealDamage(ASubjectZero * Victim, float TotalDamage)
 {
 

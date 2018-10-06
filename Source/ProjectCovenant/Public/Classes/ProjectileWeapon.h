@@ -31,7 +31,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Reload;
+	float Reload = 1;
 
 	UPROPERTY(BlueprintReadOnly)
 	float ReloadProgress = 0.f;
@@ -46,7 +46,7 @@ protected:
 	float ProjectileSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float AmmoMax;
+	float AmmoMax = 1;
 
 	UPROPERTY(BlueprintReadOnly)
 	float Ammo;
@@ -56,8 +56,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void DealDamage(ASubjectZero * Victim, float TotalDamage) override;
-
-	virtual void DrawDebugVisuals() override;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DrawVisuals();
