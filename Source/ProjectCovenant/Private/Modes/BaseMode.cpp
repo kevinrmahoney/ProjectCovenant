@@ -269,6 +269,9 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 	UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
 	LightningGun->ItemID = TEXT("0");
 	GiveItemToCharacter(Character, LightningGun);
+	UItem * GrapplingHook = NewObject<UItem>(this, "GrapplingHook");
+	GrapplingHook->ItemID = TEXT("8");
+	GiveItemToCharacter(Character, GrapplingHook);
 	//UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
 	//Shotgun->ItemID = TEXT("1");
 	//GiveItemToCharacter(Character, Shotgun);

@@ -27,11 +27,21 @@ public:
 protected:
 	virtual FVector GetHipFireLocation() override;
 	virtual FRotator GetHipFireRotation() override;
+	bool CanFire() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ChainDistance = 1000;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxDistancePerSecond = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float GrappleCutoffDistance = 100;
+
 private:
 	virtual void ConstructShotVectors() override;
+	void Grapple(float DeltaTime);
+	FVector TargetLocation = FVector::ZeroVector;
+	bool bIsGrappling = false;
 
 };
