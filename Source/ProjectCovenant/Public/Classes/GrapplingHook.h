@@ -30,7 +30,7 @@ protected:
 	bool CanFire() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ChainDistance = 1000;
+	float ChainDistance = 5000;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxDistancePerSecond = 100;

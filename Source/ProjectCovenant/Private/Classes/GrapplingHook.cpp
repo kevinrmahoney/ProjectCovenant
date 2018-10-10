@@ -88,13 +88,19 @@ void AGrapplingHook::Grapple(float DeltaTime)
 	FVector DistanceToTarget = TargetLocation - Shooter->GetActorLocation();
 	if (DistanceToTarget.Size() > GrappleCutoffDistance)
 	{
-		//Shooter->GetCharacterMovement()->GravityScale = 0.f;
+		Shooter->GetCharacterMovement()->GravityScale = 0.f;
 		//Shooter->GetMesh()->SetEnableGravity(false);
 		//Shooter->bSimGravityDisabled = true;
 		//Shooter->GetCapsuleComponent()->SetEnableGravity(false);
 		Shooter->GetCharacterMovement()->MaxFlySpeed = 100000.f;
 		Shooter->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
 		Shooter->AddMovementInput(DistanceToTarget.GetSafeNormal() * MaxDistancePerSecond * DeltaTime);
+		//Shooter->LaunchCharacter
+		//(
+		//	DistanceToTarget.GetSafeNormal() * 1000,
+		//	false,
+		//	false
+		//);
 	}
 	else
 	{
