@@ -21,7 +21,6 @@ AGrapplingHook::AGrapplingHook()
 void AGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	Logger::Log(Shooter->GetCharacterMovement()->GravityScale);
 	if (bIsGrappling)
 	{
 		Grapple(DeltaTime);
@@ -54,7 +53,7 @@ void AGrapplingHook::Fire()
 	Super::Fire();
 	FireRateProgress = 0.f; //TODO
 	auto Time = GetWorld()->GetTimeSeconds();
-	UE_LOG(LogTemp, Warning, TEXT("%f: Fire was called"), Time);
+	
 	for (FVector Shot : ShotVectors)
 	{
 		FVector* StartTrace = new FVector(Muzzle->GetComponentLocation());
@@ -69,11 +68,11 @@ void AGrapplingHook::Fire()
 		{
 			TargetLocation = HitResult->Location;
 			bIsGrappling = true;
-			Logger::Log("Grappling hook hit something");
+			
 		}
 		else
 		{
-			Logger::Log("Line trace failed");
+			
 		}
 
 		delete HitResult;
@@ -88,16 +87,17 @@ void AGrapplingHook::Grapple(float DeltaTime)
 	FVector DistanceToTarget = TargetLocation - Shooter->GetActorLocation();
 	if (DistanceToTarget.Size() > GrappleCutoffDistance)
 	{
-		Shooter->GetCharacterMovement()->GravityScale = 0.f;
+		//Shooter->GetCharacterMovement()->GravityScale = 0.f;
 		//Shooter->GetMesh()->SetEnableGravity(false);
 		//Shooter->bSimGravityDisabled = true;
 		//Shooter->GetCapsuleComponent()->SetEnableGravity(false);
-		Shooter->GetCharacterMovement()->MaxFlySpeed = 100000.f;
+		//Shooter->GetCharacterMovement()->MaxFlySpeed = 100000.f;
 		Shooter->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
 		Shooter->AddMovementInput(DistanceToTarget.GetSafeNormal() * MaxDistancePerSecond * DeltaTime);
+
 		//Shooter->LaunchCharacter
 		//(
-		//	DistanceToTarget.GetSafeNormal() * 1000,
+		//	DistanceToTarget.GetSafeNormal() * LaunchSpeed,
 		//	false,
 		//	false
 		//);

@@ -38,6 +38,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GrappleCutoffDistance = 100;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float LaunchSpeed = 500;
+
+
 private:
 	virtual void ConstructShotVectors() override;
 	void Grapple(float DeltaTime);
