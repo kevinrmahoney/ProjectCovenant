@@ -266,9 +266,9 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 {
 	check(Character != nullptr)
 
-	UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
-	LightningGun->ItemID = TEXT("0");
-	GiveItemToCharacter(Character, LightningGun);
+	//UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
+	//LightningGun->ItemID = TEXT("0");
+	//GiveItemToCharacter(Character, LightningGun);
 	UItem * GrapplingHook = NewObject<UItem>(this, "GrapplingHook");
 	GrapplingHook->ItemID = TEXT("8");
 	GiveItemToCharacter(Character, GrapplingHook);
@@ -278,9 +278,9 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 	//UItem * Railgun = NewObject<UItem>(this, "Railgun");
 	//Railgun->ItemID = TEXT("2");
 	//GiveItemToCharacter(Character, Railgun);
-	//UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
-	//RocketLauncher->ItemID = TEXT("3");
-	//GiveItemToCharacter(Character, RocketLauncher);
+	UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+	RocketLauncher->ItemID = TEXT("3");
+	GiveItemToCharacter(Character, RocketLauncher);
 	//UItem * Rifle = NewObject<UItem>(this, "Rifle");
 	//Rifle->ItemID = TEXT("4");
 	//GiveItemToCharacter(Character, Rifle);

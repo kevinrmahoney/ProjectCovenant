@@ -52,7 +52,7 @@ void ARocket::Explode(AActor * DirectHitActor)
 					float Scale = 1.f - (ExplosionDirection.Size() / Radius);
 
 					ExplosionDirection = ExplosionDirection.GetSafeNormal();
-					ExplosionDirection.Z = ExplosionDirection.Z * 2.f;
+					//ExplosionDirection.Z = ExplosionDirection.Z * 2.f; // Make upward force of rocket artificially stronger
 
 					if(ASubjectZero * Player = Cast<ASubjectZero>(HitActor))
 					{
