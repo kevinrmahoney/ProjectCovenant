@@ -68,27 +68,27 @@ bool UProjectCovenantInstance::Join(FString IPAddress)
 {
 	if(IPAddress.Equals(""))
 	{
-		IPAddress = "25.16.209.98";
+		IPAddress = "None";
 	}
 	else if(IPAddress.Equals("Kevin"))
 	{
-		IPAddress = "25.16.209.98";
+		IPAddress = "None";
 	}
 	else if(IPAddress.Equals("Ben"))
 	{
-		IPAddress = "25.68.54.122";
+		IPAddress = "None";
 	}
 	else if(IPAddress.Equals("Dave"))
 	{
-		IPAddress = "25.16.209.98";
+		IPAddress = "None";
 	}
 	else if(IPAddress.Equals("Mattew"))
 	{
-		IPAddress = "25.57.118.4";
+		IPAddress = "None";
 	}
 	else if(IPAddress.Equals("Yousef"))
 	{
-		IPAddress = "25.53.50.17";
+		IPAddress = "None";
 	}
 
 	Logger::Log("Joining server " + IPAddress);

@@ -60,13 +60,11 @@ void ARifleBullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 	if (WeaponHasBeenSet)
 	{
 		if (Weapon && Weapon->Shooter == OtherActor)
-		{
-		}
-		else
-		{
-			if (OtherActor) { Logger::Log("Bullet hit " + OtherActor->GetName()); }
-			Explode(OtherActor, OtherComponent);
-		}
+			return;
+
+		if (OtherActor) 
+			Logger::Log("Bullet hit " + OtherActor->GetName());
+		Explode(OtherActor, OtherComponent);
 	}
 }
 
@@ -75,12 +73,9 @@ void ARifleBullet::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	if (WeaponHasBeenSet)
 	{
 		if (Weapon && Weapon->Shooter == OtherActor)
-		{
-		}
-		else
-		{
-			Explode(OtherActor, OtherComp);
-		}
+			return;
+
+		Explode(OtherActor, OtherComp);
 	}
 }
 

@@ -18,7 +18,7 @@ void ARocket::BeginPlay()
 	Super::BeginPlay();
 	if(HasAuthority())
 	{
-		//CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &ARocket::OnBeginOverlap);
+		CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &ARocket::OnBeginOverlap);
 		CollisionCapsule->OnComponentHit.AddDynamic(this, &ARocket::OnHit);
 	}
 }

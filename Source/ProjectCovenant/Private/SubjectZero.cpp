@@ -365,7 +365,6 @@ void ASubjectZero::OnRep_Equip()
 		{
 			Logger::Log("Could not spawn actor on simulated proxy: " + EquippedItemID.ToString());
 		}
-		delete Item;
 	}
 }
 
@@ -998,8 +997,6 @@ void ASubjectZero::Atomize(UItem * ItemToDrop)
 	{
 		ServerAtomize(UItem::SerializeItem(ItemToDrop));
 	}
-
-	delete ItemToDrop;
 }
 
 void ASubjectZero::ServerAtomize_Implementation(const FItemSerialized & ItemSerialized)
