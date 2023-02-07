@@ -1,0 +1,20 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodbanklookup.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\debuggame\\fmodstudio\\pch.fmodstudio.h.pch",
+        "Includes": [
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\generatedcppincludes.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\metadata.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\textproperty.h",
+            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudio\\private\\fmodbanklookup.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\engine\\datatable.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\public\\datatableutils.h",
+            "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\datatable.generated.h",
+            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodbanklookup.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "ProjectCovenant.h"
 #include "Logger.h"
 
 const float Logger::TimeOnScreen = 5.f;

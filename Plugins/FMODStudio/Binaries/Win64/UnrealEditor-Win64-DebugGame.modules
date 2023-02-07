@@ -1,0 +1,8 @@
+{
+	"BuildId": "19505902",
+	"Modules": 
+	{
+		"FMODStudio": "UnrealEditor-FMODStudio-Win64-DebugGame.dll",
+		"FMODStudioEditor": "UnrealEditor-FMODStudioEditor-Win64-DebugGame.dll"
+	}
+}

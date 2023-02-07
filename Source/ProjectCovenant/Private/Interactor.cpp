@@ -1,10 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "ProjectCovenant.h"
+#include "Interactor.h"
 #include "SubjectZero.h"
 #include "Weapon.h"
 #include "Interactable.h"
-#include "Interactor.h"
 
 
 // Sets default values for this component's properties
@@ -23,7 +22,7 @@ AInteractable * UInteractor::GetInteractable()
 {
 	// Do a raycast in front and return the actor that is hit, if its an Interactable actor
 	FHitResult HitResult = GetFirstActor();
-	if (AInteractable * Interactable = Cast<AInteractable>(HitResult.Actor.Get()))
+	if (AInteractable * Interactable = Cast<AInteractable>(HitResult.GetActor()))
 	{
 		Logger::Log("Character " + GetOwner()->GetName() + " interacted with Interactable " + Interactable->GetName());
 		return Interactable;
