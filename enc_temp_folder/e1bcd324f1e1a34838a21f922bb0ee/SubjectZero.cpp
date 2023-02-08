@@ -163,30 +163,18 @@ void ASubjectZero::Move()
 	if(Sprinting && !Crouching)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = StandingSprintSpeed;
-
-		if(Grounded && !Movement.IsNearlyZero())
-			PlayRunningSound();
 	}
 	else if(Sprinting && Crouching)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = CrouchingSprintSpeed;
-
-		if (Grounded && !Movement.IsNearlyZero())
-			PlayRunningSound();
 	}
 	else if(!Sprinting && Crouching)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = CrouchingRunSpeed;
-
-		if (Grounded && !Movement.IsNearlyZero())
-			PlayWalkingSound();
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = StandingRunSpeed;
-
-		if (Grounded && !Movement.IsNearlyZero())
-			PlayWalkingSound();
 	}
 
 	if(AimDownSights)
@@ -216,16 +204,7 @@ void ASubjectZero::Move()
 
 void ASubjectZero::Update()
 {
-	bool NewGrounded = !GetCharacterMovement()->IsFalling();
-
-	// If we just landed
-	if (!Grounded && NewGrounded)
-	{
-		HasJustLanded = true;
-		PlayLandedSound();
-	}
-
-	Grounded = NewGrounded;
+	Grounded = !GetCharacterMovement()->IsFalling();
 	Velocity = GetVelocity();
 	JetpackUsed = false;
 
@@ -440,7 +419,7 @@ void ASubjectZero::Jetpack()
 
 				GetCharacterMovement()->Velocity += Force;
 
-				float FuelUsed = FuelUsage * Time * (Force.IsNearlyZero() ? 0.f : 1.f);
+				float FuelUsed = FuelUsage * Time * ((RotatedMovement.X != 0.f ? 1.f : 0.f) + (RotatedMovement.Y != 0.f ? 1.f : 0.f) + (RotatedMovement.Z != 0.f ? 1.f : 0.f));
 
 				if(FuelUsed > 0.f)
 				{

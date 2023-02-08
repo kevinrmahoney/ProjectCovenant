@@ -57,8 +57,6 @@ private:
 	UPROPERTY(Replicated)
 	bool JetpackUsed = false;
 
-	bool HasJustLanded = false;
-
 	FVector Velocity = FVector::ZeroVector;
 
 	UPROPERTY()
@@ -368,13 +366,4 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayJetpackSound();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayWalkingSound();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayRunningSound();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayLandedSound();
 };
