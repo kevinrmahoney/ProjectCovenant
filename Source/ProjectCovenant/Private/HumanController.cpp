@@ -75,6 +75,7 @@ void AHumanController::SetupInputComponent()
 		InputComponent->BindAction("Reload", IE_Pressed, this, &AHumanController::InputReload);
 		InputComponent->BindAction("QuickInventory", IE_Pressed, this, &AHumanController::InputQuickOpenInventory);
 		InputComponent->BindAction("QuickInventory", IE_Released, this, &AHumanController::InputQuickCloseInventory);
+		InputComponent->BindAction("Escape", IE_Pressed, this, &AHumanController::InputEscape);
 	}
 }
 
@@ -498,6 +499,11 @@ void AHumanController::InputQuickCloseInventory()
 	bShowMouseCursor = false;
 	SetInputMode(FInputModeGameOnly());
 	ToggleInventory(false);
+}
+
+void AHumanController::InputEscape()
+{
+	ToggleEscapeMenu();
 }
 
 FName AHumanController::GetPlayerName() const { return PlayerName; }

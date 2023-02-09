@@ -57,8 +57,6 @@ private:
 	UPROPERTY(Replicated)
 	bool JetpackUsed = false;
 
-	bool HasJustLanded = false;
-
 	FVector Velocity = FVector::ZeroVector;
 
 	UPROPERTY()
@@ -107,10 +105,10 @@ private:
 	float NormalAirControl = 0.5f;
 	float JumpSpeed = 500.f;
 	float JetpackSpeedScale = 1.f;
-	float StandingSprintSpeed = 800.f;
-	float StandingRunSpeed = 400.f;
-	float CrouchingSprintSpeed = 400.f;
-	float CrouchingRunSpeed = 200.f;
+	float StandingSprintSpeed = 1200.f;
+	float StandingRunSpeed = 800.f;
+	float CrouchingSprintSpeed = 600.f;
+	float CrouchingRunSpeed = 300.f;
 	float AimDownSightsSpeed = 200.f;
 	float JetpackAcceleration = 1200.f;
 	float JetpackBurstImpulse = 800.f;
@@ -368,13 +366,4 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayJetpackSound();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayWalkingSound();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayRunningSound();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayLandedSound();
 };

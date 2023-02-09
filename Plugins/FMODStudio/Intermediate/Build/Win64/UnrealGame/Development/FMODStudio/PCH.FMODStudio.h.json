@@ -1,11 +1,11 @@
 {
     "Version": "1.2",
     "Data": {
-        "Source": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.cpp",
+        "Source": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.cpp",
         "ProvidedModule": "",
         "Includes": [
-            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.h",
-            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudio\\private\\fmodstudioprivatepch.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\private\\fmodstudioprivatepch.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\coreminimal.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\coretypes.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\hal\\platform.h",

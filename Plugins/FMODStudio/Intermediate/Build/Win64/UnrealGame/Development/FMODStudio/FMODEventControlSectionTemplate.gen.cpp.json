@@ -1,14 +1,14 @@
 {
     "Version": "1.2",
     "Data": {
-        "Source": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodeventcontrolsectiontemplate.gen.cpp",
+        "Source": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodeventcontrolsectiontemplate.gen.cpp",
         "ProvidedModule": "",
-        "PCH": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.h.pch",
+        "PCH": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.h.pch",
         "Includes": [
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\generatedcppincludes.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\metadata.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\textproperty.h",
-            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudio\\private\\sequencer\\fmodeventcontrolsectiontemplate.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\private\\sequencer\\fmodeventcontrolsectiontemplate.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\moviescene\\public\\evaluation\\moviesceneevaltemplate.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\misc\\inlinevalue.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\moviescene\\public\\moviescenesection.h",
@@ -145,7 +145,7 @@
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\moviescene\\public\\evaluation\\blending\\moviesceneblendingaccumulator.inl",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\moviescene\\public\\compilation\\moviescenetemplateinterrogation.h",
             "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\moviescene\\moviesceneevaltemplate.generated.h",
-            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudio\\private\\sequencer\\fmodeventcontrolsection.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\private\\sequencer\\fmodeventcontrolsection.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\moviescene\\public\\moviesceneclipboard.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\moviescene\\public\\moviescenetrack.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\moviescene\\public\\compilation\\moviescenesegmentcompiler.h",
@@ -166,8 +166,8 @@
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\moviescene\\public\\entitysystem\\moviesceneentitysystemrunner.h",
             "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\moviescene\\moviesceneevaluationtemplateinstance.generated.h",
             "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\moviescene\\moviescenebytechannel.generated.h",
-            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodeventcontrolsection.generated.h",
-            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodeventcontrolsectiontemplate.generated.h"
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodeventcontrolsection.generated.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodeventcontrolsectiontemplate.generated.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

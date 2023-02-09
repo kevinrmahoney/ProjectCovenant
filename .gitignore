@@ -62,3 +62,9 @@ Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Visual Studio debug folder
+enc_temp_folder
+
+# Plugins should not be shared.
+Plugins

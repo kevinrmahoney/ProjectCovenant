@@ -74,15 +74,15 @@ void EmptyLinkFunctionForGeneratedCodeFMODBus() {}
 		return UFMODBus::StaticClass();
 	}
 	DEFINE_VTABLE_PTR_HELPER_CTOR(UFMODBus);
-	struct Z_CompiledInDeferFile_FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBus_h_Statics
+	struct Z_CompiledInDeferFile_FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBus_h_Statics
 	{
 		static const FClassRegisterCompiledInInfo ClassInfo[];
 	};
-	const FClassRegisterCompiledInInfo Z_CompiledInDeferFile_FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBus_h_Statics::ClassInfo[] = {
+	const FClassRegisterCompiledInInfo Z_CompiledInDeferFile_FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBus_h_Statics::ClassInfo[] = {
 		{ Z_Construct_UClass_UFMODBus, UFMODBus::StaticClass, TEXT("UFMODBus"), &Z_Registration_Info_UClass_UFMODBus, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UFMODBus), 4165637595U) },
 	};
-	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBus_h_2709529498(TEXT("/Script/FMODStudio"),
-		Z_CompiledInDeferFile_FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBus_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBus_h_Statics::ClassInfo),
+	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBus_h_2709529498(TEXT("/Script/FMODStudio"),
+		Z_CompiledInDeferFile_FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBus_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBus_h_Statics::ClassInfo),
 		nullptr, 0,
 		nullptr, 0);
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

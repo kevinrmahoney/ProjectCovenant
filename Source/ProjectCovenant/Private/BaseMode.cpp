@@ -57,11 +57,11 @@ void ABaseMode::PostLogin(APlayerController * NewPlayer)
 		ASpectator * NewPawn;
 		if(SpawnPoints.Num() > 0)
 		{
-			NewPawn = GetWorld()->SpawnActor<ASpectator>(SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
+			NewPawn = GetWorld()->SpawnActor<ASpectator>(SpectatorBP, SpawnPoints[SpawnCount]->GetActorLocation(), SpawnPoints[SpawnCount]->GetActorRotation());
 		}
 		else
 		{
-			NewPawn = GetWorld()->SpawnActor<ASpectator>(FVector::ZeroVector, FRotator::ZeroRotator);
+			NewPawn = GetWorld()->SpawnActor<ASpectator>(SpectatorBP, FVector::ZeroVector, FRotator::ZeroRotator);
 		}
 		Controller->Possess(NewPawn);
 	}
@@ -266,21 +266,18 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 {
 	check(Character != nullptr)
 
-	//UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
-	//LightningGun->ItemID = TEXT("0");
-	//GiveItemToCharacter(Character, LightningGun);
-	UItem * GrapplingHook = NewObject<UItem>(this, "GrapplingHook");
-	GrapplingHook->ItemID = TEXT("8");
-	GiveItemToCharacter(Character, GrapplingHook);
+	UItem * LightningGun = NewObject<UItem>(this, "LightningGun");
+	LightningGun->ItemID = TEXT("0");
+	GiveItemToCharacter(Character, LightningGun);
 	//UItem * Shotgun = NewObject<UItem>(this, "Shotgun");
 	//Shotgun->ItemID = TEXT("1");
 	//GiveItemToCharacter(Character, Shotgun);
 	//UItem * Railgun = NewObject<UItem>(this, "Railgun");
 	//Railgun->ItemID = TEXT("2");
 	//GiveItemToCharacter(Character, Railgun);
-	UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
-	RocketLauncher->ItemID = TEXT("3");
-	GiveItemToCharacter(Character, RocketLauncher);
+	//UItem * RocketLauncher = NewObject<UItem>(this, "RocketLauncher");
+	//RocketLauncher->ItemID = TEXT("3");
+	//GiveItemToCharacter(Character, RocketLauncher);
 	//UItem * Rifle = NewObject<UItem>(this, "Rifle");
 	//Rifle->ItemID = TEXT("4");
 	//GiveItemToCharacter(Character, Rifle);
@@ -293,4 +290,7 @@ void ABaseMode::GiveStartingInventory(ASubjectZero * Character)
 	//UItem * Cannon = NewObject<UItem>(this, "Cannon");
 	//Cannon->ItemID = TEXT("7");
 	//GiveItemToCharacter(Character, Cannon);
+	//UItem * GrapplingHook = NewObject<UItem>(this, "GrapplingHook");
+	//GrapplingHook->ItemID = TEXT("8");
+	//GiveItemToCharacter(Character, GrapplingHook);
 }

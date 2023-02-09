@@ -13,31 +13,31 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #endif
 #define FMODSTUDIO_FMODSettings_generated_h
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_110_GENERATED_BODY \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_110_GENERATED_BODY \
 	friend struct Z_Construct_UScriptStruct_FCustomPoolSizes_Statics; \
 	FMODSTUDIO_API static class UScriptStruct* StaticStruct();
 
 
 template<> FMODSTUDIO_API UScriptStruct* StaticStruct<struct FCustomPoolSizes>();
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_141_GENERATED_BODY \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_141_GENERATED_BODY \
 	friend struct Z_Construct_UScriptStruct_FFMODPlatformSettings_Statics; \
 	FMODSTUDIO_API static class UScriptStruct* StaticStruct();
 
 
 template<> FMODSTUDIO_API UScriptStruct* StaticStruct<struct FFMODPlatformSettings>();
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_191_GENERATED_BODY \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_191_GENERATED_BODY \
 	friend struct Z_Construct_UScriptStruct_FFMODProjectLocale_Statics; \
 	FMODSTUDIO_API static class UScriptStruct* StaticStruct();
 
 
 template<> FMODSTUDIO_API UScriptStruct* StaticStruct<struct FFMODProjectLocale>();
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_SPARSE_DATA
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_RPC_WRAPPERS
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_RPC_WRAPPERS_NO_PURE_DECLS
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_INCLASS_NO_PURE_DECLS \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_SPARSE_DATA
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_RPC_WRAPPERS
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_RPC_WRAPPERS_NO_PURE_DECLS
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesUFMODSettings(); \
 	friend struct Z_Construct_UClass_UFMODSettings_Statics; \
@@ -48,7 +48,7 @@ public: \
 
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_INCLASS \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_INCLASS \
 private: \
 	static void StaticRegisterNativesUFMODSettings(); \
 	friend struct Z_Construct_UClass_UFMODSettings_Statics; \
@@ -59,7 +59,7 @@ public: \
 
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_STANDARD_CONSTRUCTORS \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_STANDARD_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API UFMODSettings(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UFMODSettings) \
@@ -72,7 +72,7 @@ private: \
 public:
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_ENHANCED_CONSTRUCTORS \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_ENHANCED_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API UFMODSettings(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer) { }; \
 private: \
@@ -85,25 +85,25 @@ public: \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UFMODSettings)
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_212_PROLOG
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_GENERATED_BODY_LEGACY \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_212_PROLOG
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_GENERATED_BODY_LEGACY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_SPARSE_DATA \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_RPC_WRAPPERS \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_INCLASS \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_STANDARD_CONSTRUCTORS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_SPARSE_DATA \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_RPC_WRAPPERS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_INCLASS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_STANDARD_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_GENERATED_BODY \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_SPARSE_DATA \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_RPC_WRAPPERS_NO_PURE_DECLS \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_INCLASS_NO_PURE_DECLS \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_ENHANCED_CONSTRUCTORS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_SPARSE_DATA \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_RPC_WRAPPERS_NO_PURE_DECLS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_INCLASS_NO_PURE_DECLS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h_215_ENHANCED_CONSTRUCTORS \
 static_assert(false, "Unknown access specifier for GENERATED_BODY() macro in class FMODSettings."); \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
@@ -111,7 +111,7 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 template<> FMODSTUDIO_API UClass* StaticClass<class UFMODSettings>();
 
 #undef CURRENT_FILE_ID
-#define CURRENT_FILE_ID FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h
+#define CURRENT_FILE_ID FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODSettings_h
 
 
 #define FOREACH_ENUM_EFMODLOGGING(op) \

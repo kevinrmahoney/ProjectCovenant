@@ -22,15 +22,15 @@ class UFMODAudioComponent;
 #endif
 #define FMODSTUDIO_FMODBlueprintStatics_generated_h
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_29_GENERATED_BODY \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_29_GENERATED_BODY \
 	friend struct Z_Construct_UScriptStruct_FFMODEventInstance_Statics; \
 	FMODSTUDIO_API static class UScriptStruct* StaticStruct();
 
 
 template<> FMODSTUDIO_API UScriptStruct* StaticStruct<struct FFMODEventInstance>();
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_SPARSE_DATA
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_RPC_WRAPPERS \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_SPARSE_DATA
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_RPC_WRAPPERS \
  \
 	DECLARE_FUNCTION(execSetLocale); \
 	DECLARE_FUNCTION(execMixerResume); \
@@ -74,7 +74,7 @@ template<> FMODSTUDIO_API UScriptStruct* StaticStruct<struct FFMODEventInstance>
 	DECLARE_FUNCTION(execPlayEvent2D);
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_RPC_WRAPPERS_NO_PURE_DECLS \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_RPC_WRAPPERS_NO_PURE_DECLS \
  \
 	DECLARE_FUNCTION(execSetLocale); \
 	DECLARE_FUNCTION(execMixerResume); \
@@ -118,7 +118,7 @@ template<> FMODSTUDIO_API UScriptStruct* StaticStruct<struct FFMODEventInstance>
 	DECLARE_FUNCTION(execPlayEvent2D);
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_INCLASS_NO_PURE_DECLS \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesUFMODBlueprintStatics(); \
 	friend struct Z_Construct_UClass_UFMODBlueprintStatics_Statics; \
@@ -127,7 +127,7 @@ public: \
 	DECLARE_SERIALIZER(UFMODBlueprintStatics)
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_INCLASS \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_INCLASS \
 private: \
 	static void StaticRegisterNativesUFMODBlueprintStatics(); \
 	friend struct Z_Construct_UClass_UFMODBlueprintStatics_Statics; \
@@ -136,7 +136,7 @@ public: \
 	DECLARE_SERIALIZER(UFMODBlueprintStatics)
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_STANDARD_CONSTRUCTORS \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_STANDARD_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API UFMODBlueprintStatics(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UFMODBlueprintStatics) \
@@ -149,7 +149,7 @@ private: \
 public:
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_ENHANCED_CONSTRUCTORS \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_ENHANCED_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API UFMODBlueprintStatics(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer) { }; \
 private: \
@@ -162,25 +162,25 @@ public: \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UFMODBlueprintStatics)
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_41_PROLOG
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_GENERATED_BODY_LEGACY \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_41_PROLOG
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_GENERATED_BODY_LEGACY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_SPARSE_DATA \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_RPC_WRAPPERS \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_INCLASS \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_STANDARD_CONSTRUCTORS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_SPARSE_DATA \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_RPC_WRAPPERS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_INCLASS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_STANDARD_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
-#define FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_GENERATED_BODY \
+#define FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_SPARSE_DATA \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_RPC_WRAPPERS_NO_PURE_DECLS \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_INCLASS_NO_PURE_DECLS \
-	FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_ENHANCED_CONSTRUCTORS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_SPARSE_DATA \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_RPC_WRAPPERS_NO_PURE_DECLS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_INCLASS_NO_PURE_DECLS \
+	FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h_44_ENHANCED_CONSTRUCTORS \
 static_assert(false, "Unknown access specifier for GENERATED_BODY() macro in class FMODBlueprintStatics."); \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
@@ -188,7 +188,7 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 template<> FMODSTUDIO_API UClass* StaticClass<class UFMODBlueprintStatics>();
 
 #undef CURRENT_FILE_ID
-#define CURRENT_FILE_ID FID_ProjectZero_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h
+#define CURRENT_FILE_ID FID_ProjectCovenant_Plugins_FMODStudio_Source_FMODStudio_Classes_FMODBlueprintStatics_h
 
 
 #define FOREACH_ENUM_EFMOD_STUDIO_STOP_MODE(op) \

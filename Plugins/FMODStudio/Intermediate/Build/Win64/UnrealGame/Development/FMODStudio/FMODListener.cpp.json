@@ -1,11 +1,11 @@
 {
     "Version": "1.2",
     "Data": {
-        "Source": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudio\\private\\fmodlistener.cpp",
+        "Source": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\private\\fmodlistener.cpp",
         "ProvidedModule": "",
-        "PCH": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.h.pch",
+        "PCH": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.h.pch",
         "Includes": [
-            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudio\\private\\fmodlistener.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\private\\fmodlistener.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\misc\\app.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\misc\\commandline.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\misc\\qualifiedframetime.h",

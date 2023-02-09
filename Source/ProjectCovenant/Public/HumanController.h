@@ -84,6 +84,9 @@ protected:
 	void BeginPlay();
 	void SetupInputComponent() override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ToggleEscapeMenu();
+
 private:
 	UPROPERTY()
 	UProjectCovenantInstance * GameInstance;
@@ -124,4 +127,5 @@ private:
 	void InputReload();
 	void InputQuickOpenInventory();
 	void InputQuickCloseInventory();
+	void InputEscape();
 };

@@ -21,11 +21,16 @@ AGrapplingHook::AGrapplingHook()
 void AGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	Logger::Log(Shooter->GetCharacterMovement()->GravityScale);
-	if (bIsGrappling)
+
+	if (HasFired)
 	{
-		Grapple(DeltaTime);
+		if (IsLatched)
+			Grapple(DeltaTime);
 	}
+	else
+		IsLatched = false;
+
+	HasFired = false;
 }
 
 void AGrapplingHook::ConstructShotVectors()
@@ -45,46 +50,54 @@ FRotator AGrapplingHook::GetHipFireRotation()
 
 bool AGrapplingHook::CanFire()
 {
-	// check if player is grappling
-	return !bIsGrappling && Super::CanFire();
+	if (IsLatched)
+		return true;
+	else
+		return Super::CanFire();
 }
 
 void AGrapplingHook::Fire()
 {
 	Super::Fire();
-	FireRateProgress = 0.f; //TODO
+	//FireRateProgress = 0.f; //TODO
 	auto Time = GetWorld()->GetTimeSeconds();
 	UE_LOG(LogTemp, Warning, TEXT("%f: Fire was called"), Time);
-	for (FVector Shot : ShotVectors)
+
+	HasFired = true;
+
+	if (!IsLatched)
 	{
-		FVector* StartTrace = new FVector(Muzzle->GetComponentLocation());
-		FVector * EndTrace = new FVector(*StartTrace + FVector(Muzzle->GetComponentRotation().RotateVector(Shot)));
-		FHitResult* HitResult = new FHitResult();
-		FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
-		TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
-		DrawDebugVisuals();
-
-		// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
-		if (GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *EndTrace, ECC_Visibility, *TraceParams) && HitResult)
+		for (FVector Shot : ShotVectors)
 		{
-			TargetLocation = HitResult->Location;
-			bIsGrappling = true;
-			Logger::Log("Grappling hook hit something");
-		}
-		else
-		{
-			Logger::Log("Line trace failed");
-		}
+			FVector StartTrace = FVector(Muzzle->GetComponentLocation());
+			FVector EndTrace = FVector(StartTrace + FVector(Muzzle->GetComponentRotation().RotateVector(Shot)));
+			FHitResult HitResult = FHitResult();
+			FCollisionQueryParams TraceParams = FCollisionQueryParams();
+			TraceParams.AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
+			//DrawDebugVisuals();
 
-		delete HitResult;
-		delete TraceParams;
-		delete StartTrace;
-		delete EndTrace;
-	}	
+			// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
+			if (GetWorld()->LineTraceSingleByChannel(HitResult, StartTrace, EndTrace, ECC_Visibility, TraceParams) && HitResult.bBlockingHit)
+			{
+				TargetLocation = HitResult.Location;
+				IsLatched = true;
+				Logger::Log("Grappling hook hit something");
+			}
+			else
+			{
+				Logger::Log("Line trace failed");
+			}
+		}
+	}
+
+	Ammo = 0;
 }
 
 void AGrapplingHook::Grapple(float DeltaTime)
 {
+	GrappleTime += DeltaTime;
+	Logger::Log(TEXT("Getting closer..."));
+
 	FVector DistanceToTarget = TargetLocation - Shooter->GetActorLocation();
 	if (DistanceToTarget.Size() > GrappleCutoffDistance)
 	{
@@ -92,20 +105,9 @@ void AGrapplingHook::Grapple(float DeltaTime)
 		//Shooter->GetMesh()->SetEnableGravity(false);
 		//Shooter->bSimGravityDisabled = true;
 		//Shooter->GetCapsuleComponent()->SetEnableGravity(false);
-		Shooter->GetCharacterMovement()->MaxFlySpeed = 100000.f;
-		Shooter->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
-		Shooter->AddMovementInput(DistanceToTarget.GetSafeNormal() * MaxDistancePerSecond * DeltaTime);
-	}
-	else
-	{
-		bIsGrappling = false;
-		
-		//Shooter->GetMesh()->SetEnableGravity(true);
-		//Shooter->bSimGravityDisabled = false;
-		//Shooter->GetCapsuleComponent()->SetEnableGravity(true);
-		//Shooter->GetCharacterMovement()->GravityScale = 1.0f;
-		Shooter->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
-		
+		Shooter->GetCharacterMovement()->AddForce(DistanceToTarget.GetSafeNormal() * MaxDistancePerSecond * 100.f);
+
+		DrawDebugLine(GetWorld(), Muzzle->GetComponentLocation(), TargetLocation, FColor::Black, false, -1.f, 0U, 10.f);
 	}
 
 }

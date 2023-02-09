@@ -1,14 +1,14 @@
 {
     "Version": "1.2",
     "Data": {
-        "Source": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodeventparametersectiontemplate.gen.cpp",
+        "Source": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodeventparametersectiontemplate.gen.cpp",
         "ProvidedModule": "",
-        "PCH": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.h.pch",
+        "PCH": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.h.pch",
         "Includes": [
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\generatedcppincludes.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\metadata.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\textproperty.h",
-            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudio\\private\\sequencer\\fmodeventparametersectiontemplate.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\private\\sequencer\\fmodeventparametersectiontemplate.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\moviescenetracks\\public\\evaluation\\moviesceneparametertemplate.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\moviescene\\public\\moviescenefwd.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\misc\\framerate.h",
@@ -208,7 +208,6 @@
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\engine\\blendableinterface.h",
             "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\blendableinterface.generated.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\materials\\materiallayersfunctions.h",
-            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\assetregistry\\public\\assetdata.h",
             "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\materiallayersfunctions.generated.h",
             "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\public\\materialscenetextureid.h",
             "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\materialscenetextureid.generated.h",
@@ -667,7 +666,7 @@
             "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\materialinstance.generated.h",
             "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\materialinstancedynamic.generated.h",
             "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\moviescenetracks\\moviesceneparametertemplate.generated.h",
-            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodeventparametersectiontemplate.generated.h"
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodeventparametersectiontemplate.generated.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

@@ -66,16 +66,14 @@ void URecoil::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 			Controller->SetControlRotation(NewRotation);
 		}
 	}
-	else
-	{
-		Logger::Error("ERROR");
-	}
 }
 
 void URecoil::Recoil(float Multiplier)
 {
 	if(Shooter && Shooter->IsLocallyControlled())
 	{
+		SetComponentTickEnabled(true);
+
 		// Decide whether the yaw recoil is to the left (-1) or the right (1)
 		LeftRight = FMath::RandBool() ? -1.f : 1.f;
 

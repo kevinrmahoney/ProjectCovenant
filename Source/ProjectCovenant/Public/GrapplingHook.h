@@ -30,18 +30,25 @@ protected:
 	bool CanFire() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ChainDistance = 1000;
+	float ChainDistance = 3000;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxDistancePerSecond = 100;
+	float MaxDistancePerSecond = 2000;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float GrappleCutoffDistance = 100;
+	float GrappleCutoffDistance = 300;
+	
+	UPROPERTY()
+	float GrappleTime = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float GrappleTimeMax = 2.f;
 
 private:
 	virtual void ConstructShotVectors() override;
 	void Grapple(float DeltaTime);
 	FVector TargetLocation = FVector::ZeroVector;
-	bool bIsGrappling = false;
+	bool IsLatched = false;
+	bool HasFired = false;
 
 };
