@@ -36,8 +36,12 @@ void AHumanController::BeginPlay()
 void AHumanController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SubjectZero = Cast<ASubjectZero>(AcknowledgedPawn);
-	Spectator = Cast<ASpectator>(AcknowledgedPawn);
+
+	if(!SubjectZero)
+		SubjectZero = Cast<ASubjectZero>(AcknowledgedPawn);
+
+	if(!Spectator)
+		Spectator = Cast<ASpectator>(AcknowledgedPawn);
 }
 
 void AHumanController::SetupInputComponent()

@@ -879,6 +879,11 @@ void ASubjectZero::SetInteract(bool Set)
 	}
 }
 
+bool ASubjectZero::GetInteract()
+{
+	return Interactor->GetInteractable() != nullptr ? true : false;
+}
+
 void ASubjectZero::Interact(AInteractable * InteractableHit)
 {
 	check(InteractableHit != nullptr)

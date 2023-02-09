@@ -189,6 +189,9 @@ public:
   
 	void Kill();
 
+	UFUNCTION(BlueprintCallable)
+	bool GetInteract();
+
 	UFUNCTION()
 	void SetYaw(float Set);
 	UFUNCTION(Reliable, Server, WithValidation)
