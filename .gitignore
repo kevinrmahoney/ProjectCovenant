@@ -64,7 +64,7 @@ Intermediate/*
 DerivedDataCache/*
 
 # Visual Studio debug folder
-enc_temp_folder
+enc_temp_folder/*
 
 # Plugins should not be shared.
-Plugins
+Plugins/*
