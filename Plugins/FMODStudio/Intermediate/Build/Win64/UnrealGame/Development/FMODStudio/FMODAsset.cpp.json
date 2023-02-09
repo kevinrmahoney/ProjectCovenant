@@ -1,0 +1,17 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\private\\fmodasset.cpp",
+        "ProvidedModule": "",
+        "PCH": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.h.pch",
+        "Includes": [
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\classes\\fmodasset.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodasset.generated.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmodstudiomodule.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\modules\\modulemanager.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\modules\\boilerplate\\moduleboilerplate.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

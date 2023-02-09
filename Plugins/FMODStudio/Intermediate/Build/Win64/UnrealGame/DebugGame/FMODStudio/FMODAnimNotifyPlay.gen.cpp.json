@@ -1,0 +1,35 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodanimnotifyplay.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\debuggame\\fmodstudio\\pch.fmodstudio.h.pch",
+        "Includes": [
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\generatedcppincludes.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\metadata.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\textproperty.h",
+            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudio\\classes\\fmodanimnotifyplay.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\animation\\animnotifies\\animnotify.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\public\\animation\\animnotifyqueue.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\public\\animation\\animtypes.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\algo\\transform.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\animation\\animlinkableelement.h",
+            "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\animlinkableelement.generated.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\animation\\animenums.h",
+            "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\animenums.generated.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\kismet\\blueprintfunctionlibrary.h",
+            "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\blueprintfunctionlibrary.generated.h",
+            "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\animtypes.generated.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\public\\animation\\animnodemessages.h",
+            "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\animnotifyqueue.generated.h",
+            "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\animnotify.generated.h",
+            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudio\\classes\\fmodevent.h",
+            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudio\\classes\\fmodasset.h",
+            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodasset.generated.h",
+            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodevent.generated.h",
+            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodanimnotifyplay.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

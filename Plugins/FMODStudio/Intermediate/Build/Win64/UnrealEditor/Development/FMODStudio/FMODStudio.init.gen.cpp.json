@@ -1,0 +1,15 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealeditor\\inc\\fmodstudio\\fmodstudio.init.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealeditor\\development\\fmodstudio\\pch.fmodstudio.h.pch",
+        "Includes": [
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\generatedcppincludes.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\metadata.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\textproperty.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

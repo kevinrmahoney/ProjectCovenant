@@ -1,0 +1,19 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealeditor\\inc\\fmodstudioeditor\\fmodgenerateassetscommandlet.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealeditor\\debuggame\\fmodstudioeditor\\pch.fmodstudioeditor.h.pch",
+        "Includes": [
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\generatedcppincludes.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\metadata.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\textproperty.h",
+            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\source\\fmodstudioeditor\\classes\\fmodgenerateassetscommandlet.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\engine\\classes\\commandlets\\commandlet.h",
+            "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\commandlet.generated.h",
+            "p:\\projects\\unreal\\projectzero\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealeditor\\inc\\fmodstudioeditor\\fmodgenerateassetscommandlet.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

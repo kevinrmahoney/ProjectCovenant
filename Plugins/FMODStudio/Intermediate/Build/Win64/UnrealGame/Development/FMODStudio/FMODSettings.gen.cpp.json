@@ -1,0 +1,22 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodsettings.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\development\\fmodstudio\\pch.fmodstudio.h.pch",
+        "Includes": [
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\generatedcppincludes.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\metadata.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\coreuobject\\public\\uobject\\textproperty.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\classes\\fmodsettings.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_common.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_codec.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_dsp.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_dsp_effects.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_output.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealgame\\inc\\fmodstudio\\fmodsettings.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

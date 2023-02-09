@@ -1,0 +1,22 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\private\\fmodsettings.cpp",
+        "ProvidedModule": "",
+        "PCH": "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealeditor\\development\\fmodstudio\\pch.fmodstudio.h.pch",
+        "Includes": [
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\classes\\fmodsettings.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_common.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_codec.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_dsp.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_dsp_effects.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\source\\fmodstudio\\public\\fmod\\fmod_output.h",
+            "p:\\projects\\unreal\\projectcovenant\\plugins\\fmodstudio\\intermediate\\build\\win64\\unrealeditor\\inc\\fmodstudio\\fmodsettings.generated.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\runtime\\core\\public\\misc\\paths.h",
+            "p:\\programs\\ue_5.0\\engine\\source\\developer\\developertoolsettings\\classes\\settings\\projectpackagingsettings.h",
+            "p:\\programs\\ue_5.0\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\developertoolsettings\\projectpackagingsettings.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
