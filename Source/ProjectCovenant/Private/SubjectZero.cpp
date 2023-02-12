@@ -451,9 +451,12 @@ void ASubjectZero::ApplyAirResistance()
 
 bool ASubjectZero::ReceiveDamage(float Dmg, bool SelfDamage)
 {
-	// Self damage doesn't disable jetpack
-	IsJetpackDisabled = !SelfDamage;
-	TimeSinceTookDamage = 0.f;
+	// Self damage doesn't disable jetpack, and only actual damage, not heals
+	if (Dmg > 0.f)
+	{
+		IsJetpackDisabled = !SelfDamage;
+		TimeSinceTookDamage = 0.f;
+	}
 
 	if(HasAuthority())
 	{
