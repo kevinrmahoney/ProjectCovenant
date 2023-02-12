@@ -42,9 +42,6 @@
 		</relationship>
 	</object>
 	<object class="MasterTrack" id="{b0b8a8e6-c4bd-4459-b0a5-22fa20272b39}">
-		<property name="uiTrackHeight">
-			<value>28</value>
-		</property>
 		<relationship name="mixerGroup">
 			<destination>{ac3aa8d1-8c4d-4ff2-b95d-0924a0f66b7e}</destination>
 		</relationship>
@@ -65,15 +62,8 @@
 			<value>40</value>
 		</property>
 	</object>
-	<object class="MarkerTrack" id="{03f2ec07-2866-4e5d-97b7-8ee4c45cb3af}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
-	</object>
+	<object class="MarkerTrack" id="{03f2ec07-2866-4e5d-97b7-8ee4c45cb3af}" />
 	<object class="GroupTrack" id="{35bd0d47-4d92-4a34-a222-477dcf7d05eb}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
 		<relationship name="modules">
 			<destination>{75d839aa-f8c5-49b9-abe9-79198ee2f8f0}</destination>
 		</relationship>
@@ -82,9 +72,6 @@
 		</relationship>
 	</object>
 	<object class="GroupTrack" id="{36819c1d-485d-4184-8f12-ba628d25afc4}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
 		<relationship name="mixerGroup">
 			<destination>{67f758c0-fd3c-4f03-99e3-3b2fc3c18b27}</destination>
 		</relationship>
@@ -157,6 +144,7 @@
 	<object class="MixerBusEffectChain" id="{1e1099cb-39d6-4a99-b503-88622d713316}">
 		<relationship name="effects">
 			<destination>{fad6e979-2f78-4da4-97fb-96f14a02220a}</destination>
+			<destination>{2252d816-415b-43a0-99e5-a9a4794f7519}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{67d1f4ed-6db2-4826-a174-2bd4e4ec71f6}" />
@@ -192,6 +180,11 @@
 	</object>
 	<object class="MixerBusPanner" id="{8113c973-9120-4ded-96c4-55e0ece142be}" />
 	<object class="MixerBusFader" id="{fad6e979-2f78-4da4-97fb-96f14a02220a}" />
+	<object class="SpatialiserEffect" id="{2252d816-415b-43a0-99e5-a9a4794f7519}">
+		<property name="maximumDistance">
+			<value>40</value>
+		</property>
+	</object>
 	<object class="MixerBusFader" id="{a2163f10-4db9-4e90-8c36-3e2b8e80099d}" />
 	<object class="SpatialiserEffect" id="{2cead8d3-9fe2-4eb9-9b77-35955c9c634e}">
 		<property name="maximumDistance">

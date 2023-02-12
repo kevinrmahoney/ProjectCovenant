@@ -942,8 +942,10 @@ void ASubjectZero::DropItem(int Index)
 
 void ASubjectZero::Drop(UItem * ItemToDrop)
 {
-	check(ItemToDrop != nullptr)
-	check(Inventory != nullptr)
+	if (!ItemToDrop)
+		Logger::Log("Tried to drop null item!");
+	if(!Inventory)
+		Logger::Log("Tried to drop item " + ItemToDrop->GetName() + " with null inventory!");
 
 	if(Weapon && Weapon->GetItem() && ItemToDrop->ItemID == Weapon->GetItem()->ItemID)
 	{

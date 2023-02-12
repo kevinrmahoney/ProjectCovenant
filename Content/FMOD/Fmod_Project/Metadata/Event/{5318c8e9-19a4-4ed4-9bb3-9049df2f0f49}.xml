@@ -5,7 +5,7 @@
 			<value>Jetpack_off</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{f42ebd74-7aa4-4c7c-8662-14f55aa141af}</destination>
@@ -116,6 +116,7 @@
 	<object class="MixerBusEffectChain" id="{85faa53d-e419-4e9d-9092-7233e7113371}">
 		<relationship name="effects">
 			<destination>{a76df653-b361-4001-b5f8-a1cc35a069b2}</destination>
+			<destination>{e36fde0e-68f9-4025-b114-deedc765d9e1}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{06377867-58c4-4a06-9a73-7e2c7056eb4f}" />
@@ -127,5 +128,6 @@
 	</object>
 	<object class="MixerBusPanner" id="{8921cc8d-7f8b-4441-82d1-63f56111b8ee}" />
 	<object class="MixerBusFader" id="{a76df653-b361-4001-b5f8-a1cc35a069b2}" />
+	<object class="SpatialiserEffect" id="{e36fde0e-68f9-4025-b114-deedc765d9e1}" />
 	<object class="MixerBusFader" id="{801307fe-96fd-47bd-b3d0-61894f09bdf0}" />
 </objects>

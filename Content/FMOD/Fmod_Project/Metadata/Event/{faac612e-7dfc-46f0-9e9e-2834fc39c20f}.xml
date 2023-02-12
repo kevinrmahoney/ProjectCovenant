@@ -5,7 +5,7 @@
 			<value>Jetpack_On</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{f42ebd74-7aa4-4c7c-8662-14f55aa141af}</destination>
@@ -133,6 +133,7 @@
 	<object class="MixerBusEffectChain" id="{9fc19e81-4d20-4703-99d3-4294a368b13e}">
 		<relationship name="effects">
 			<destination>{291187ce-674d-4dfd-8f1d-8bf700139807}</destination>
+			<destination>{fc825fda-41e3-468f-a719-314f703439e7}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{4cddcded-ea03-4fd6-b327-e61297e47d73}" />
@@ -150,6 +151,7 @@
 	</object>
 	<object class="MixerBusPanner" id="{c5e2ecfa-922c-4643-a919-94c75e551fe5}" />
 	<object class="MixerBusFader" id="{291187ce-674d-4dfd-8f1d-8bf700139807}" />
+	<object class="SpatialiserEffect" id="{fc825fda-41e3-468f-a719-314f703439e7}" />
 	<object class="MixerBusFader" id="{9972d6b1-a848-4e49-841a-529b2174d650}" />
 	<object class="ThreeEQEffect" id="{26cb1963-c90e-4eed-ae60-553d6c307db8}">
 		<property name="lowGain">

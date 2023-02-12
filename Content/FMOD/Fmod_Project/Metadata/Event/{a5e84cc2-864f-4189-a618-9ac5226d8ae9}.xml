@@ -41,9 +41,6 @@
 		</relationship>
 	</object>
 	<object class="MasterTrack" id="{1dce784f-6e72-42ae-bb71-57aed47d636c}">
-		<property name="uiTrackHeight">
-			<value>28</value>
-		</property>
 		<relationship name="mixerGroup">
 			<destination>{57f3dcc2-d7af-4bac-9f6b-72f5b57282b3}</destination>
 		</relationship>
@@ -64,15 +61,8 @@
 			<value>95</value>
 		</property>
 	</object>
-	<object class="MarkerTrack" id="{271d0b5e-f4f6-4356-a071-2755e14102e6}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
-	</object>
+	<object class="MarkerTrack" id="{271d0b5e-f4f6-4356-a071-2755e14102e6}" />
 	<object class="GroupTrack" id="{426fb2ee-2e11-4c0e-814f-73b4037f42a1}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
 		<relationship name="modules">
 			<destination>{b547925f-6ca4-4f35-ba16-5bbdaa8d99c5}</destination>
 		</relationship>
@@ -142,6 +132,7 @@
 	<object class="MixerBusEffectChain" id="{8a62822b-2b2a-4a80-aeab-5be97513c090}">
 		<relationship name="effects">
 			<destination>{c024128a-da0d-43a0-aeec-898ff3c2c4b3}</destination>
+			<destination>{ca1e9e2e-ebbe-49a0-b356-32e14fa0bde1}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{5f05add1-2a26-462c-939d-567ed78de94b}">
@@ -194,6 +185,11 @@
 	</object>
 	<object class="MixerBusPanner" id="{7cb451dd-bdc2-4876-8a81-93c11328dcc7}" />
 	<object class="MixerBusFader" id="{c024128a-da0d-43a0-aeec-898ff3c2c4b3}" />
+	<object class="SpatialiserEffect" id="{ca1e9e2e-ebbe-49a0-b356-32e14fa0bde1}">
+		<property name="maximumDistance">
+			<value>95</value>
+		</property>
+	</object>
 	<object class="ThreeEQEffect" id="{a10284ab-b072-482e-a2e7-171cd09d020a}">
 		<property name="lowGain">
 			<value>2.39999986</value>

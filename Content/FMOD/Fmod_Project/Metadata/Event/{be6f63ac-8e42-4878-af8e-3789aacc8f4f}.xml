@@ -5,7 +5,7 @@
 			<value>BasicFootStep_Walk</value>
 		</property>
 		<property name="outputFormat">
-			<value>0</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{f42ebd74-7aa4-4c7c-8662-14f55aa141af}</destination>
@@ -41,9 +41,6 @@
 		</relationship>
 	</object>
 	<object class="MasterTrack" id="{8aa50a63-4ed0-44de-b2f9-91c20cea5964}">
-		<property name="uiTrackHeight">
-			<value>28</value>
-		</property>
 		<relationship name="mixerGroup">
 			<destination>{78e241f6-d68a-4190-9370-571ddd942fcb}</destination>
 		</relationship>
@@ -60,15 +57,8 @@
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{006fa478-1466-4e56-b496-8742cac0ccd6}" />
-	<object class="MarkerTrack" id="{29021ef6-eee4-4ed1-ad15-65e48f706755}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
-	</object>
+	<object class="MarkerTrack" id="{29021ef6-eee4-4ed1-ad15-65e48f706755}" />
 	<object class="GroupTrack" id="{fc789103-6338-4e29-b580-468c9c34ab54}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
 		<relationship name="modules">
 			<destination>{e54f678c-99e3-491c-bcd7-1fd43272df9c}</destination>
 		</relationship>
@@ -141,6 +131,7 @@
 	<object class="MixerBusEffectChain" id="{e4ae4a19-502d-4bc1-8c4b-e661a7727d4c}">
 		<relationship name="effects">
 			<destination>{cab8d12d-4a6f-4f60-9311-bf1d01781172}</destination>
+			<destination>{3894abc5-0f48-4022-b434-57e02112f947}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{78a3db50-7c81-4d72-b4ef-bb94a7700458}">
@@ -220,5 +211,6 @@
 	</object>
 	<object class="MixerBusPanner" id="{0da06de7-c7ed-4e44-b784-87ff3ffeb51a}" />
 	<object class="MixerBusFader" id="{cab8d12d-4a6f-4f60-9311-bf1d01781172}" />
+	<object class="SpatialiserEffect" id="{3894abc5-0f48-4022-b434-57e02112f947}" />
 	<object class="MixerBusFader" id="{7a4656c4-a868-4eb5-9b4b-e816778c94af}" />
 </objects>

@@ -36,12 +36,6 @@ void AHumanController::BeginPlay()
 void AHumanController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if(!SubjectZero)
-		SubjectZero = Cast<ASubjectZero>(AcknowledgedPawn);
-
-	if(!Spectator)
-		Spectator = Cast<ASpectator>(AcknowledgedPawn);
 }
 
 void AHumanController::SetupInputComponent()
@@ -126,21 +120,6 @@ bool AHumanController::Server_God_Validate(const FString & Set)
 void AHumanController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
-
-	if(ASubjectZero * NewSubjectZero = Cast<ASubjectZero>(AcknowledgedPawn))
-	{
-		Logger::Log("Spawning as SubjectZero");
-		SubjectZero = NewSubjectZero;
-		Spectator = nullptr;
-		UpdateHUD();
-	}
-	else if(ASpectator * NewSpectator = Cast<ASpectator>(AcknowledgedPawn))
-	{
-		Logger::Log("Spawning as Spectator");
-		Spectator = NewSpectator;
-		SubjectZero = nullptr;
-		UpdateHUD();
-	}
 }
 
 void AHumanController::OnUnPossess()
@@ -154,7 +133,23 @@ void AHumanController::SetPawn(APawn * NewPawn)
 
 	if(IsLocalController())
 	{
-		InitializeHUD();
+		if (ASubjectZero* NewSubjectZero = Cast<ASubjectZero>(NewPawn))
+		{
+			Logger::Log("Spawning as SubjectZero");
+			SubjectZero = NewSubjectZero;
+			Spectator = nullptr;
+			UpdateHUD();
+		}
+		else if (ASpectator* NewSpectator = Cast<ASpectator>(NewPawn))
+		{
+			Logger::Log("Spawning as Spectator");
+			Spectator = NewSpectator;
+			SubjectZero = nullptr;
+			UpdateHUD();
+		}
+
+		if(Spectator || SubjectZero)
+			InitializeHUD();
 	}
 }
 
@@ -453,7 +448,7 @@ void AHumanController::InputSlot2()
 
 void AHumanController::InputInteractPress()
 {
-	if(SubjectZero)
+	if(SubjectZero && SubjectZero == Cast<ASubjectZero>(GetPawn()))  
 	{
 		SubjectZero->SetInteract(true);
 	}

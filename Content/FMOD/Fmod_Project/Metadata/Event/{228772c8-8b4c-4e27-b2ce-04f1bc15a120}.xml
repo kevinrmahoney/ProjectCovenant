@@ -5,7 +5,7 @@
 			<value>HitSoundCharacter</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{f42ebd74-7aa4-4c7c-8662-14f55aa141af}</destination>
@@ -41,9 +41,6 @@
 		</relationship>
 	</object>
 	<object class="MasterTrack" id="{38629436-fe68-46e7-9f8d-b0e6aecb8ed1}">
-		<property name="uiTrackHeight">
-			<value>28</value>
-		</property>
 		<relationship name="mixerGroup">
 			<destination>{35624968-d486-424e-94ba-9678cbbf8a17}</destination>
 		</relationship>
@@ -60,15 +57,8 @@
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{ee652e27-5047-42b5-b421-062bfc34d3ca}" />
-	<object class="MarkerTrack" id="{75aae5c6-2523-4570-ba0e-f848d085e8b3}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
-	</object>
+	<object class="MarkerTrack" id="{75aae5c6-2523-4570-ba0e-f848d085e8b3}" />
 	<object class="GroupTrack" id="{2a11a87b-f832-483a-94d8-b1449d9cdfa7}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
 		<relationship name="modules">
 			<destination>{33cb3cb4-e778-4472-ae66-0d66de44a6a8}</destination>
 		</relationship>
@@ -134,6 +124,7 @@
 	<object class="MixerBusEffectChain" id="{78fe2426-edf7-4a3c-9791-d23da86d58f0}">
 		<relationship name="effects">
 			<destination>{1a7cd3aa-77c1-49db-afd9-97a47057a3fa}</destination>
+			<destination>{f73648bc-c552-42d5-9028-26534787ebd3}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{0e2c1027-5f02-4670-a732-43863822ca59}" />
@@ -169,5 +160,6 @@
 	</object>
 	<object class="MixerBusPanner" id="{9b9c86ad-bdb7-4f4c-a5a5-5c8844132faa}" />
 	<object class="MixerBusFader" id="{1a7cd3aa-77c1-49db-afd9-97a47057a3fa}" />
+	<object class="SpatialiserEffect" id="{f73648bc-c552-42d5-9028-26534787ebd3}" />
 	<object class="MixerBusFader" id="{eb5405d8-c8df-4ee2-9e4e-27cf92cf9af6}" />
 </objects>
