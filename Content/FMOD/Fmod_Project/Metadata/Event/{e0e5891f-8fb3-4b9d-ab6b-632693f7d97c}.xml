@@ -154,7 +154,7 @@
 	</object>
 	<object class="EventMixerMaster" id="{a106e847-e1aa-46b9-80a3-b2f20537fe6d}">
 		<property name="volume">
-			<value>-13</value>
+			<value>-26</value>
 		</property>
 		<property name="pitch">
 			<value>0.300000012</value>
@@ -866,7 +866,14 @@
 			<destination>{e1ab0028-14df-405d-8f21-72e396de4caf}</destination>
 		</relationship>
 	</object>
-	<object class="SpatialiserEffect" id="{4ff2a758-9efd-4c3a-84a5-8a15e12bdec2}" />
+	<object class="SpatialiserEffect" id="{4ff2a758-9efd-4c3a-84a5-8a15e12bdec2}">
+		<property name="maximumDistance">
+			<value>500</value>
+		</property>
+		<property name="overrideRange">
+			<value>true</value>
+		</property>
+	</object>
 	<object class="AutomationPoint" id="{325b9068-6bcf-4fe8-819d-0e7ddf4ba533}">
 		<property name="position">
 			<value>4.3953378724166745</value>

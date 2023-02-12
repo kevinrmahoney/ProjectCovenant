@@ -131,7 +131,7 @@ void AHumanController::SetPawn(APawn * NewPawn)
 {
 	Super::SetPawn(NewPawn);
 
-	if(IsLocalController())
+	if(NewPawn && NewPawn->IsLocallyControlled())
 	{
 		if (ASubjectZero* NewSubjectZero = Cast<ASubjectZero>(NewPawn))
 		{

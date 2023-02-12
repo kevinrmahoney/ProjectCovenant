@@ -206,10 +206,6 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 			VictimPlayerState->TookDamage(Damage);
 			if(Killed) VictimPlayerState->AddDeath(1);
 		}
-		else
-		{
-			Logger::Error("Could not cast or obtain victim's PlayerState");
-		}
 	}
 
 

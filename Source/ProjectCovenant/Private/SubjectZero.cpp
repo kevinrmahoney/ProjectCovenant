@@ -69,6 +69,8 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 	DOREPLIFETIME(ASubjectZero, Shield)
 	DOREPLIFETIME(ASubjectZero, Fuel)
 	DOREPLIFETIME(ASubjectZero, IsJetpackDisabled)
+	DOREPLIFETIME(ASubjectZero, DamageMultiplier)
+	DOREPLIFETIME(ASubjectZero, DamageMultiplierDuration)
 	DOREPLIFETIME_CONDITION(ASubjectZero, Pitch, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, EquippedItemID, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ASubjectZero, IsTriggerPulled, COND_SimulatedOnly)

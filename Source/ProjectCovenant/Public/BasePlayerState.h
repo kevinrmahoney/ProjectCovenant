@@ -45,7 +45,7 @@ public:
 	int CurrentPing = 0.f;
 
 public:
-	UFUNCTION(Client, Reliable)
+	UFUNCTION(NetMulticast, Reliable)
 	void TookDamage(float Dmg);
 
 	UFUNCTION(Client, Reliable)

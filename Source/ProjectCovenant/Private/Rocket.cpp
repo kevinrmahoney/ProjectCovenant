@@ -40,7 +40,6 @@ void ARocket::Explode(AActor * DirectHitActor)
 		float ExplosionForce = 1000.f;
 		bool IsHit = GetWorld()->SweepMultiByChannel(OutHits, Epicenter, Epicenter, FQuat::Identity, ECC_WorldStatic, ExplosionSphere);
 
-
 		if(IsHit)
 		{
 			for(auto& Result : OutHits)

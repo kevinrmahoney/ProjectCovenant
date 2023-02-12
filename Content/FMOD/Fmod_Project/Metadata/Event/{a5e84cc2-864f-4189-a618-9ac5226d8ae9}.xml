@@ -76,6 +76,9 @@
 		</relationship>
 	</object>
 	<object class="EventMixerMaster" id="{57f3dcc2-d7af-4bac-9f6b-72f5b57282b3}">
+		<property name="volume">
+			<value>-22</value>
+		</property>
 		<property name="pitch">
 			<value>-1.80000007</value>
 		</property>
@@ -187,7 +190,10 @@
 	<object class="MixerBusFader" id="{c024128a-da0d-43a0-aeec-898ff3c2c4b3}" />
 	<object class="SpatialiserEffect" id="{ca1e9e2e-ebbe-49a0-b356-32e14fa0bde1}">
 		<property name="maximumDistance">
-			<value>95</value>
+			<value>500</value>
+		</property>
+		<property name="overrideRange">
+			<value>true</value>
 		</property>
 	</object>
 	<object class="ThreeEQEffect" id="{a10284ab-b072-482e-a2e7-171cd09d020a}">

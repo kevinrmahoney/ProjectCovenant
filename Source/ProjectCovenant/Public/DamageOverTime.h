@@ -7,6 +7,7 @@
 #include "DamageOverTime.generated.h"
 
 class ASubjectZero;
+class ABaseMode;
 
 /**
  * 
@@ -30,6 +31,9 @@ class PROJECTCOVENANT_API ADamageOverTime : public ATriggerBox
 		UFUNCTION(BlueprintCallable)
 		void DecrementCount();
 
+		UPROPERTY()
+		TArray<ASubjectZero*> PlayersOverlapping;
+
 	public:
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyVariables")
 		bool Overlapped = false;
@@ -39,4 +43,14 @@ class PROJECTCOVENANT_API ADamageOverTime : public ATriggerBox
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyVariables")
 		int Count = 0;
+
+		UFUNCTION()
+		void OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor);
+
+		UFUNCTION()
+		void OnOverlapEnd(AActor* OverlappedActor, AActor* OtherActor);
+
+protected:
+	UPROPERTY()
+	ABaseMode * BaseMode;
 };

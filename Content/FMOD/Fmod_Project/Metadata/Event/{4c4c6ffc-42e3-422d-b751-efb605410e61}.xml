@@ -41,9 +41,6 @@
 		</relationship>
 	</object>
 	<object class="MasterTrack" id="{1bebed2c-3670-49fa-a46e-0e2409aa4da8}">
-		<property name="uiTrackHeight">
-			<value>28</value>
-		</property>
 		<relationship name="mixerGroup">
 			<destination>{5cc23824-581c-4ee1-b602-10d1a6aef172}</destination>
 		</relationship>
@@ -64,15 +61,8 @@
 			<value>36</value>
 		</property>
 	</object>
-	<object class="MarkerTrack" id="{dabe3d68-60e2-43e1-9523-de241bc91b0f}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
-	</object>
+	<object class="MarkerTrack" id="{dabe3d68-60e2-43e1-9523-de241bc91b0f}" />
 	<object class="GroupTrack" id="{b26bfcdf-e561-4af1-b6c4-c8ff22664e86}">
-		<property name="uiTrackHeight">
-			<value>100</value>
-		</property>
 		<relationship name="modules">
 			<destination>{37ceea61-bba6-4a08-b64a-f903dbbe65e4}</destination>
 		</relationship>
@@ -87,7 +77,7 @@
 	</object>
 	<object class="EventMixerMaster" id="{5cc23824-581c-4ee1-b602-10d1a6aef172}">
 		<property name="volume">
-			<value>2</value>
+			<value>-11</value>
 		</property>
 		<property name="pitch">
 			<value>-0.900000036</value>
@@ -224,7 +214,10 @@
 	</object>
 	<object class="SpatialiserEffect" id="{ad391744-9fa1-46aa-bddd-1cd96c0ac6e6}">
 		<property name="maximumDistance">
-			<value>36</value>
+			<value>60</value>
+		</property>
+		<property name="overrideRange">
+			<value>true</value>
 		</property>
 		<property name="extentMode">
 			<value>1</value>

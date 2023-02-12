@@ -117,28 +117,23 @@ void AHitscanWeapon::Fire()
 			//for loop for radius of circle and nested for loop for roll
 			for(FVector Shot : ShotVectors)
 			{
-				FVector * StartTrace = new FVector(Muzzle->GetComponentLocation());
-				FVector * EndTrace = new FVector(*StartTrace + FVector(Muzzle->GetComponentRotation().RotateVector(Shot)));
-				FHitResult* HitResult = new FHitResult();
-				FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
-				TraceParams->AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
+				FVector StartTrace = FVector(Muzzle->GetComponentLocation());
+				FVector EndTrace = FVector(StartTrace + FVector(Muzzle->GetComponentRotation().RotateVector(Shot)));
+				FHitResult HitResult = FHitResult();
+				FCollisionQueryParams TraceParams = FCollisionQueryParams();
+				TraceParams.AddIgnoredActor(Shooter);	// Ignore the Shooter when doing the trace (can't shoot yourself)
 
 				// If firing a round, do a line trace in front of the gun, check if there is a hit, and check if that hit is an actor
-				if(GetWorld()->LineTraceSingleByChannel(*HitResult, *StartTrace, *EndTrace, ECC_GameTraceChannel3, *TraceParams) && HitResult && HitResult->GetActor())
+				if(GetWorld()->LineTraceSingleByChannel(HitResult, StartTrace, EndTrace, ECC_GameTraceChannel3, TraceParams) && HitResult.bBlockingHit && HitResult.GetActor())
 				{
 					// Get the victim and attempt to cast to SubjectZero
 					if(!Victim)
 					{
-						Victim = Cast<ASubjectZero>(HitResult->GetActor());
+						Victim = Cast<ASubjectZero>(HitResult.GetActor());
 					}
-					UPrimitiveComponent * HitBox = HitResult->Component.Get();
+					UPrimitiveComponent * HitBox = HitResult.Component.Get();
 					TotalDamage += Mode->CalculateLocationalDamage(Damage, HitBox);
 				}
-
-				delete HitResult;
-				delete TraceParams;
-				delete StartTrace;
-				delete EndTrace;
 			}
 
 			if(Victim && Shooter)

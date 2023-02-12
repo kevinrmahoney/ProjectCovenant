@@ -30,7 +30,8 @@ void ABasePlayerState::Tick(float DeltaTime)
 
 void ABasePlayerState::TookDamage_Implementation(float Dmg)
 {
-	PlayGrunt(Dmg);
+	if(Dmg > 0.f)
+		PlayGrunt(Dmg);
 }
 
 void ABasePlayerState::DealtDamage_Implementation(float Dmg)

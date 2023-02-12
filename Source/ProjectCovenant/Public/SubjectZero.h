@@ -39,10 +39,25 @@ public:
 	bool Jumping = false;
 	bool Sprinting = false;
 	bool TryJetpack = false;
-	float DamageMultiplier = 1.f;
-	float DamageMultiplierDuration = 0.f;
 	float DefaultFieldOfView = 90.f;
 	float AimDownSightsFieldOfView = 70.f;
+
+protected:
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	float JetpackDisableTime = 2.f;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	float TimeSinceTookDamage = 0.f;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere)
+	bool IsJetpackDisabled = false;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere)
+	float DamageMultiplier = 1.f;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere)
+	float DamageMultiplierDuration = 0.f;
 
 private:
 	UPROPERTY()
@@ -66,10 +81,8 @@ private:
 
 	float Time;
 	float TimeSinceJetpack = 0.f;
-	float TimeSinceTookDamage = 0.f;
 	float ShieldRechargeTime = 5.f;
 	float ShieldRechargeRate = 20.f;
-	float JetpackDisableTime = 5.f;
 
 	UPROPERTY(Replicated)
 	float Health = 100.f;
@@ -94,9 +107,6 @@ private:
 
 	UPROPERTY(Replicated)
 	float Pitch = 0.f;
-
-	UPROPERTY(Replicated)
-	bool IsJetpackDisabled = false;
 
 	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);
 	FVector HipfireLocation = FVector(-15.419446f, 10.841988f, -152.856400f);

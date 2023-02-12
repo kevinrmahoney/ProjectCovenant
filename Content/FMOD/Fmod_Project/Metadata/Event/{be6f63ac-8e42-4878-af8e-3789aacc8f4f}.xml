@@ -135,11 +135,8 @@
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{78a3db50-7c81-4d72-b4ef-bb94a7700458}">
-		<property name="surroundPanDirection">
-			<value>-51.3401909</value>
-		</property>
-		<property name="surroundPanExtent">
-			<value>339.652496</value>
+		<property name="surroundLFELevel">
+			<value>-6</value>
 		</property>
 	</object>
 	<object class="MixerBusFader" id="{e66f7148-6b21-4a9b-889f-e5aa8375e920}" />
@@ -211,6 +208,13 @@
 	</object>
 	<object class="MixerBusPanner" id="{0da06de7-c7ed-4e44-b784-87ff3ffeb51a}" />
 	<object class="MixerBusFader" id="{cab8d12d-4a6f-4f60-9311-bf1d01781172}" />
-	<object class="SpatialiserEffect" id="{3894abc5-0f48-4022-b434-57e02112f947}" />
+	<object class="SpatialiserEffect" id="{3894abc5-0f48-4022-b434-57e02112f947}">
+		<property name="maximumDistance">
+			<value>50</value>
+		</property>
+		<property name="overrideRange">
+			<value>true</value>
+		</property>
+	</object>
 	<object class="MixerBusFader" id="{7a4656c4-a868-4eb5-9b4b-e816778c94af}" />
 </objects>

@@ -21,6 +21,8 @@ public:
 
 	bool IsCharging = false;
 
+	float MaxScale = 5.f;
+
 	//(X=1.575968,Y=11.798502,Z=-153.145187)
 	FVector AimDownSightsLocation = FVector(1.575968f, 11.798502f, -153.145187f);
 	//(Pitch=3.000000,Yaw=-12.000000,Roll=0.000000)

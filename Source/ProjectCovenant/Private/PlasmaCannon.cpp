@@ -109,6 +109,7 @@ void APlasmaCannon::Fire()
 		AProjectile * NewProjectile = GetWorld()->SpawnActor<AProjectile>(Projectile, Muzzle->GetComponentLocation(), Muzzle->GetComponentRotation());
 		if(NewProjectile)
 		{
+			NewProjectile->SetActorScale3D(FVector(1.f) * (MaxScale * Heat / HeatThreshold));
 			NewProjectile->SetWeapon(this);
 			NewProjectile->SetDamage(Damage * Heat / HeatThreshold);
 			NewProjectile->SetSpeed(ProjectileSpeed + ProjectileSpeed * Heat / HeatThreshold);
