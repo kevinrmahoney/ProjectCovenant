@@ -28,10 +28,10 @@ public:
 private:
 	void PostLogin(APlayerController * NewPlayer) override;
 
-	int KillsToWin = 10;
+	int KillsToWin = 25;
 
-	float TimeLimit = 600.f;
+	float TimeLimit = 900.f;
 
-	float TimeLeft = 600.f;
+	float TimeLeft = 900.f;
 
 };
