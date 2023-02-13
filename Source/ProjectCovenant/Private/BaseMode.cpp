@@ -226,10 +226,6 @@ void ABaseMode::DealDamage(ASubjectZero * Shooter, ASubjectZero * Victim, float 
 			if(Killed) ShooterPlayerState->AddKill(1);
 		}
 	}
-	else
-	{
-		Logger::Error("Could not cast or obtain shooter's PlayerState");
-	}
 }
 
 // Spawn an interactable based on the UItem passed

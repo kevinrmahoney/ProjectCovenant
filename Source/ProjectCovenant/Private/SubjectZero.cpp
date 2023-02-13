@@ -81,8 +81,8 @@ void ASubjectZero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLif
 
 void ASubjectZero::BeginDestroy()
 {
-	if(Weapon) Weapon->Destroy();
 	Super::BeginDestroy();
+	if (Weapon && !Weapon->IsActorBeingDestroyed()) Weapon->Destroy();
 }
 
 // Called every frame
@@ -416,7 +416,7 @@ void ASubjectZero::Jetpack()
 			else
 			{
 				// Create a vector that represents the movement of the character within the world
-				FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration : 0.f);
+				FVector Force = FVector(RotatedMovement.X * JetpackAcceleration * 0.5f, RotatedMovement.Y * JetpackAcceleration * 0.5f, RotatedMovement.Z != 0.f ? JetpackAcceleration * JetpackScaleZ : 0.f);
 				Force = Force * Time;
 
 				GetCharacterMovement()->Velocity += Force;

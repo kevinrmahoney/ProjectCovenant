@@ -42,23 +42,6 @@ public:
 	float DefaultFieldOfView = 90.f;
 	float AimDownSightsFieldOfView = 70.f;
 
-protected:
-
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	float JetpackDisableTime = 2.f;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	float TimeSinceTookDamage = 0.f;
-
-	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere)
-	bool IsJetpackDisabled = false;
-
-	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere)
-	float DamageMultiplier = 1.f;
-
-	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere)
-	float DamageMultiplierDuration = 0.f;
-
 private:
 	UPROPERTY()
 	UInteractor * Interactor;
@@ -111,25 +94,6 @@ private:
 	FRotator HipfireRotation = FRotator(3.500000f, -19.000000f, 2.876152f);
 	FVector HipfireLocation = FVector(-15.419446f, 10.841988f, -152.856400f);
 
-	// constants
-	float NormalAirControl = 0.5f;
-	float JumpSpeed = 500.f;
-	float JetpackSpeedScale = 1.f;
-	float StandingSprintSpeed = 1200.f;
-	float StandingRunSpeed = 800.f;
-	float CrouchingSprintSpeed = 600.f;
-	float CrouchingRunSpeed = 300.f;
-	float AimDownSightsSpeed = 200.f;
-	float JetpackAcceleration = 1200.f;
-	float JetpackBurstImpulse = 800.f;
-	float GroundAcceleration = 5000.f;
-	float AirResistanceConstant = 0.00004f;
-	float FuelUsage = 100.f;
-	float FuelOverTime = 150.f;
-	float MaxHealth = 100.f;
-	float MaxArmor = 100.f;
-	float MaxShield = 100.f;
-	float MaxFuel = 1000.f;
 	float StandingHeight = 88.f;
 	float CrouchingHeight = 66.f;
 
@@ -138,6 +102,62 @@ private:
 	bool Forward = false;
 	bool Backward = false;
 	bool Burst = false;
+
+protected:
+
+	// Movement
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Movement)
+	float NormalAirControl = 0.5f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Movement)
+	float JumpSpeed = 500.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Movement)
+	float StandingSprintSpeed = 1200.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Movement)
+	float StandingRunSpeed = 800.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Movement)
+	float CrouchingSprintSpeed = 600.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Movement)
+	float CrouchingRunSpeed = 300.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Movement)
+	float AimDownSightsSpeed = 200.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Movement)
+	float GroundAcceleration = 5000.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Movement)
+	float AirResistanceConstant = 0.00004f;
+
+	// Vitals
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Vitals)
+	float MaxHealth = 100.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Vitals)
+	float MaxArmor = 100.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Vitals)
+	float MaxShield = 100.f;
+	UPROPERTY(BlueprintReadOnly)
+	float TimeSinceTookDamage = 0.f;
+
+	// Jetpack
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Jetpack)
+	float MaxFuel = 1000.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Jetpack)
+	float FuelUsage = 100.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Jetpack)
+	float FuelOverTime = 150.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Jetpack)
+	float JetpackAcceleration = 1200.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Jetpack)
+	float JetpackBurstImpulse = 800.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Jetpack)
+	float JetpackScaleZ = 0.5f;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	float JetpackDisableTime = 1.f;
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool IsJetpackDisabled = false;
+
+	// Damage bonus
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float DamageMultiplier = 1.f;
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float DamageMultiplierDuration = 0.f;
 
 public:
 	UPROPERTY(VisibleDefaultsOnly)
