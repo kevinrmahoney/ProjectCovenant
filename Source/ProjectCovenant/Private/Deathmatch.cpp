@@ -47,7 +47,11 @@ void ADeathmatch::Tick(float DeltaTime)
 			TimeLeft = TimeLimit;
 			if(State)
 			{
-				State->GameOver();
+				if (!GameIsOver)
+				{
+					State->GameOver();
+					GameIsOver = true;
+				}
 			}
 		}
 	}
@@ -65,7 +69,11 @@ void ADeathmatch::KillPlayer(AHumanController * Controller)
 			ABaseState * State = Cast<ABaseState>(GameState);
 			if(State)
 			{
-				State->GameOver();
+				if (!GameIsOver)
+				{
+					State->GameOver();
+					GameIsOver = true;
+				}
 			}
 		}
 	}

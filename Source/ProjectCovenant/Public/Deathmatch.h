@@ -34,4 +34,6 @@ private:
 
 	float TimeLeft = 900.f;
 
+	bool GameIsOver = false;
+
 };
